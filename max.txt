@@ -1,0 +1,21 @@
+Hello Sir Max. I have pushed up the reorganised repo based on Mars and the layout you discussed. This now has
+
+* Unit test framework
+* Integration test framework
+* Build scripts for all the things
+* CI
+* Code Coverage
+
+I removed the deployment scripts for now as that was one too many things for me to learn :-)
+
+I've scaffolded out the vault contract and am now ready to proceed with the implementation using Osmosis as a target. I'll work to get this done via a base and osmosis contract if it doesn't seem like a big overhead, so we can plugin in Pablo when it comes.
+
+Most interesting part to discuss is the interface here https://github.com/shapeshed/pablo-vault/blob/main/packages/types/src/vault.rs
+
+I am feeling productive now with CosmWasm and Rust so pending any discussions I can get on with an implementation and send PRs for review.
+
+Happy to do a video call to walk you through it but guess this is straightforward for you :-)
+
+We should probably agree on some naming for the protocol / contracts as I'm starting to use these now.
+
+Is u a homeowner now?
