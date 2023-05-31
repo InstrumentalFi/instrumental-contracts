@@ -37,9 +37,6 @@ pub enum ExecuteMsg {
     // Sets the Compound Wait Period,
     // Compound can only be called if this period has expired
     SetCompoundWaitPeriod {},
-
-    // Sets the Reward token LP Pool (for selling)
-    SetRewardsLPPool {},
 }
 
 #[derive(QueryResponses)]
@@ -47,9 +44,6 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     #[returns(ConfigResponse)]
     Config {},
-
-    #[returns(VaultTokensResponse)]
-    VaultTokens {},
 
     #[returns(LastHarvestResponse)]
     LastHarvest {},
@@ -60,24 +54,15 @@ pub enum QueryMsg {
     #[returns(HarvestWaitPeriodResponse)]
     HarvestWaitPeriod {},
 
+    #[returns(CompoundWaitPeriodResponse)]
+    CompoundWaitPeriod {},
+
     #[returns(TokensBalancesResponse)]
     TokenBalances {},
-
-    #[returns(LPShareTokenBalanceResponse)]
-    LPShareTokenBalance {},
-
-    #[returns(RewardsLPTokenResponse)]
-    RewardsLPPool {},
 }
 
 #[cw_serde]
 pub struct ConfigResponse {
-    pub token_a: Addr,
-    pub token_b: Addr,
-}
-
-#[cw_serde]
-pub struct VaultTokensResponse {
     pub token_a: Addr,
     pub token_b: Addr,
 }
@@ -106,14 +91,4 @@ pub struct CompoundWaitPeriodResponse {
 pub struct TokensBalancesResponse {
     pub token_a: BalanceResponse,
     pub token_b: BalanceResponse,
-}
-
-#[cw_serde]
-pub struct LPShareTokenBalanceResponse {
-    pub balance: BalanceResponse,
-}
-
-#[cw_serde]
-pub struct RewardsLPTokenResponse {
-    pub address: Addr,
 }
