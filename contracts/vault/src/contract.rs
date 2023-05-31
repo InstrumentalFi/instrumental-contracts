@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    ensure_eq, entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
 use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, State};
 
@@ -11,6 +11,7 @@ use crate::{
 pub const CONTRACT_NAME: &str = "crates.io:pablo-vault";
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const DAY_IN_SECONDS: u64 = 24 * 60 * 60; // 24 hours
+pub const TWO_DAYS_IN_SECONDS: u64 = 48 * 60 * 60; // 48 hours
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -57,12 +58,10 @@ pub fn execute(
         ExecuteMsg::Harvest {} => execute_harvest(deps, env, info, msg),
         ExecuteMsg::Compound {} => execute_compound(deps, env, info, msg),
         ExecuteMsg::DistributeRewards {} => execute_distribute_rewards(deps, env, info, msg),
-        ExecuteMsg::SetHarvestWaitPeriod {} => {
-            execute_set_harvest_wait_period(deps, env, info, msg)
-        }
-        ExecuteMsg::SetCompoundWaitPeriod {} => {
-            execute_set_compound_wait_period(deps, env, info, msg)
-        }
+        ExecuteMsg::UpdateConfig {
+            compound_wait_period,
+            harvest_wait_period,
+        } => execute_update_config(deps, info, compound_wait_period, harvest_wait_period),
     }
 }
 
@@ -125,24 +124,24 @@ pub fn execute_distribute_rewards(
 
 /// Sets the harvest wait period. If the `execute_harvest` function is called
 /// before the wait period has expired an error will be returned
-pub fn execute_set_harvest_wait_period(
-    _deps: DepsMut,
-    _env: Env,
-    _info: MessageInfo,
-    _msg: ExecuteMsg,
+pub fn execute_update_config(
+    deps: DepsMut,
+    info: MessageInfo,
+    harvest_wait_period: Option<String>,
+    compound_wait_period: Option<String>,
 ) -> Result<Response, ContractError> {
-    unimplemented!();
-}
+    let mut config = CONFIG.load(deps.storage)?;
+    ensure_eq!(info.sender, config.owner, ContractError::Unauthorized {});
 
-/// Sets the compound wait period. If the `execute_compound` function is called
-/// before the wait period has expired an error will be returned
-pub fn execute_set_compound_wait_period(
-    _deps: DepsMut,
-    _env: Env,
-    _info: MessageInfo,
-    _msg: ExecuteMsg,
-) -> Result<Response, ContractError> {
-    unimplemented!();
+    if let Some(compound_wait_period) = compound_wait_period {
+        config.compound_wait_period = compound_wait_period.parse::<u64>().unwrap();
+    }
+
+    if let Some(harvest_wait_period) = harvest_wait_period {
+        config.harvest_wait_period = harvest_wait_period.parse::<u64>().unwrap();
+    }
+    CONFIG.save(deps.storage, &config)?;
+    Ok(Response::default().add_attribute("action", "update_config"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]

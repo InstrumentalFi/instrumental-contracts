@@ -56,13 +56,10 @@ pub enum ExecuteMsg {
     // Distribute rewards to veToken holders
     DistributeRewards {},
 
-    // Sets the Harvest Wait Period,
-    // Harvest can only be called if this period has expired
-    SetHarvestWaitPeriod {},
-
-    // Sets the Compound Wait Period,
-    // Compound can only be called if this period has expired
-    SetCompoundWaitPeriod {},
+    UpdateConfig {
+        compound_wait_period: Option<String>,
+        harvest_wait_period: Option<String>,
+    },
 }
 
 #[derive(QueryResponses)]
@@ -76,26 +73,6 @@ pub enum QueryMsg {
 
     #[returns(TokensBalancesResponse)]
     TokenBalances {},
-}
-
-#[cw_serde]
-pub struct LastHarvestResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct LastCompoundResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct HarvestWaitPeriodResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct CompoundWaitPeriodResponse {
-    pub timestamp: Timestamp,
 }
 
 #[cw_serde]
