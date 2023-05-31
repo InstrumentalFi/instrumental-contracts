@@ -1,5 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Addr, BalanceResponse, Timestamp};
+use cosmwasm_std::{Addr, BalanceResponse, StdError, StdResult, Timestamp};
 
 #[cw_serde]
 pub struct Config {
@@ -11,6 +11,23 @@ pub struct Config {
 pub struct InstantiateMsg {
     pub token_a: Addr,
     pub token_b: Addr,
+}
+
+impl InstantiateMsg {
+    pub fn validate(&self) -> StdResult<()> {
+        // Check token_a and token_b are different
+        if !self.has_valid_tokens() {
+            return Err(StdError::generic_err("token_a and token_b cannot be the same"));
+        }
+        Ok(())
+    }
+
+    fn has_valid_tokens(&self) -> bool {
+        if self.token_a == self.token_b {
+            return false;
+        }
+        true
+    }
 }
 
 #[cw_serde]
@@ -91,4 +108,23 @@ pub struct CompoundWaitPeriodResponse {
 pub struct TokensBalancesResponse {
     pub token_a: BalanceResponse,
     pub token_b: BalanceResponse,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validate_instantiatemsg_tokens() {
+        // Tokens are the same - invalid
+        let mut msg = InstantiateMsg {
+            token_a: Addr::unchecked("tokena"),
+            token_b: Addr::unchecked("tokena"),
+        };
+        assert!(!msg.has_valid_tokens());
+
+        // Tokens are not the same valid
+        msg.token_b = Addr::unchecked("tokenb");
+        assert!(msg.has_valid_tokens());
+    }
 }
