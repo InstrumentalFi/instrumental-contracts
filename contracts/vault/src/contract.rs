@@ -1,18 +1,24 @@
 use cosmwasm_std::{
     entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
-use pablo_vault_types::vault::{Config, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
+use pablo_vault_types::vault::{
+    Config, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg, State,
+};
 
-use crate::{error::ContractError, state::CONFIG};
+use crate::{
+    error::ContractError,
+    state::{CONFIG, STATE},
+};
 
 pub const CONTRACT_NAME: &str = "crates.io:pablo-vault";
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const DAY_IN_SECONDS: u64 = 24 * 60 * 60; // 24 hours
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
     deps: DepsMut,
-    _env: Env,
-    _info: MessageInfo,
+    env: Env,
+    info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     cw2::set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
@@ -23,10 +29,21 @@ pub fn instantiate(
         &Config {
             token_a: msg.token_a,
             token_b: msg.token_b,
+            owner: info.sender,
+            compound_wait_period: DAY_IN_SECONDS,
+            harvest_wait_period: DAY_IN_SECONDS,
         },
     )?;
 
-    Ok(Response::default())
+    STATE.save(
+        deps.storage,
+        &State {
+            last_harvest: env.block.time,
+            last_compound: env.block.time,
+        },
+    )?;
+
+    Ok(Response::new().add_attribute("action", "instantiate"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -148,6 +165,9 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
     Ok(ConfigResponse {
         token_a: config.token_a,
         token_b: config.token_b,
+        owner: config.owner,
+        harvest_wait_period: config.harvest_wait_period,
+        compound_wait_period: config.compound_wait_period,
     })
 }
 

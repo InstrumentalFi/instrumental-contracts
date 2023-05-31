@@ -46,6 +46,10 @@ fn proper_initialization() {
     .unwrap();
 
     let config: ConfigResponse = th_query(deps.as_ref(), QueryMsg::Config {});
+    let one_day: u64 = 86400;
     assert_eq!(config.token_a, Addr::unchecked("tokena"));
     assert_eq!(config.token_b, Addr::unchecked("tokenb"));
+    assert_eq!(config.owner, Addr::unchecked("deployer"));
+    assert_eq!(config.harvest_wait_period, one_day);
+    assert_eq!(config.compound_wait_period, one_day);
 }

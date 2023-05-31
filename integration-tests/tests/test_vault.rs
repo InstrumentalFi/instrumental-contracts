@@ -1,7 +1,8 @@
 mod helpers;
-use cosmwasm_std::{coin, Addr};
-use osmosis_test_tube::{Module, OsmosisTestApp, Wasm};
+use cosmwasm_std::{Addr, Coin};
+use osmosis_test_tube::{Account, Module, OsmosisTestApp, Wasm};
 use pablo_vault_types::vault::{Config, InstantiateMsg, QueryMsg};
+use vault::contract::DAY_IN_SECONDS;
 
 use crate::helpers::osmosis::instantiate_contract;
 
@@ -12,13 +13,7 @@ fn instantiation() {
     let app = OsmosisTestApp::new();
     let wasm = Wasm::new(&app);
 
-    let signer = app
-        .init_account(&[
-            coin(1_000_000_000_000, "uosmo"),
-            coin(1_000_000_000_000, "umars"),
-            coin(1_000_000_000_000, "uatom"),
-        ])
-        .unwrap();
+    let signer = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
 
     let contract_addr = instantiate_contract(
         &wasm,
@@ -37,6 +32,9 @@ fn instantiation() {
         Config {
             token_a: Addr::unchecked("tokena"),
             token_b: Addr::unchecked("tokenb"),
+            owner: Addr::unchecked(signer.address()),
+            compound_wait_period: DAY_IN_SECONDS,
+            harvest_wait_period: DAY_IN_SECONDS,
         }
     );
 }

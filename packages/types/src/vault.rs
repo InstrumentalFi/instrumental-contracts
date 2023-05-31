@@ -5,6 +5,15 @@ use cosmwasm_std::{Addr, BalanceResponse, StdError, StdResult, Timestamp};
 pub struct Config {
     pub token_a: Addr,
     pub token_b: Addr,
+    pub owner: Addr,
+    pub harvest_wait_period: u64,  // Harvest wait period in seconds
+    pub compound_wait_period: u64, // Compound wait period in seconds
+}
+
+#[cw_serde]
+pub struct State {
+    pub last_harvest: Timestamp,
+    pub last_compound: Timestamp,
 }
 
 #[cw_serde]
@@ -82,6 +91,9 @@ pub enum QueryMsg {
 pub struct ConfigResponse {
     pub token_a: Addr,
     pub token_b: Addr,
+    pub owner: Addr,
+    pub harvest_wait_period: u64,
+    pub compound_wait_period: u64,
 }
 
 #[cw_serde]
