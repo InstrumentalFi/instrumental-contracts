@@ -2,7 +2,7 @@ use cosmwasm_std::{
     testing::{mock_dependencies, mock_env, mock_info},
     Addr,
 };
-use pablo_vault_types::vault::{ConfigResponse, InstantiateMsg, QueryMsg};
+use pablo_vault_types::vault::{Config, InstantiateMsg, QueryMsg};
 use vault::{contract::instantiate, error::ContractError};
 
 use crate::helpers::th_query;
@@ -45,7 +45,7 @@ fn proper_initialization() {
     )
     .unwrap();
 
-    let config: ConfigResponse = th_query(deps.as_ref(), QueryMsg::Config {});
+    let config: Config = th_query(deps.as_ref(), QueryMsg::Config {});
     let one_day: u64 = 86400;
     assert_eq!(config.token_a, Addr::unchecked("tokena"));
     assert_eq!(config.token_b, Addr::unchecked("tokenb"));

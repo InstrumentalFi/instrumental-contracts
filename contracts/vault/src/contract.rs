@@ -1,9 +1,7 @@
 use cosmwasm_std::{
     entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
-use pablo_vault_types::vault::{
-    Config, ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg, State,
-};
+use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, State};
 
 use crate::{
     error::ContractError,
@@ -151,47 +149,24 @@ pub fn execute_set_compound_wait_period(
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::Config {} => to_binary(&query_config(deps)?),
-        QueryMsg::LastHarvest {} => to_binary(&query_last_harvest(deps)?),
-        QueryMsg::LastCompound {} => to_binary(&query_last_compound(deps)?),
-        QueryMsg::HarvestWaitPeriod {} => to_binary(&query_harvest_wait_period(deps)?),
-        QueryMsg::CompoundWaitPeriod {} => to_binary(&query_compound_wait_period(deps)?),
+        QueryMsg::State {} => to_binary(&query_state(deps)?),
         QueryMsg::TokenBalances {} => to_binary(&query_token_balances(deps)?),
     }
 }
 
 /// Returns the configuration set during contract instnatiation
-pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
+pub fn query_config(deps: Deps) -> StdResult<Config> {
     let config: Config = CONFIG.load(deps.storage)?;
-    Ok(ConfigResponse {
-        token_a: config.token_a,
-        token_b: config.token_b,
-        owner: config.owner,
-        harvest_wait_period: config.harvest_wait_period,
-        compound_wait_period: config.compound_wait_period,
-    })
+    Ok(config)
 }
 
-/// Returns a timestamp of the last harvest
-pub fn query_last_harvest(_deps: Deps) -> StdResult<ConfigResponse> {
-    unimplemented!();
-}
-
-/// Returns a timestamp of the last compound
-pub fn query_last_compound(_deps: Deps) -> StdResult<ConfigResponse> {
-    unimplemented!();
-}
-
-/// Returns the harvest wait period
-pub fn query_harvest_wait_period(_deps: Deps) -> StdResult<ConfigResponse> {
-    unimplemented!();
-}
-
-/// Returns the compound wait period
-pub fn query_compound_wait_period(_deps: Deps) -> StdResult<ConfigResponse> {
-    unimplemented!();
+/// Return the current state of the contract
+pub fn query_state(deps: Deps) -> StdResult<State> {
+    let state = STATE.load(deps.storage)?;
+    Ok(state)
 }
 
 /// Returns token balances held by the contract
-pub fn query_token_balances(_deps: Deps) -> StdResult<ConfigResponse> {
+pub fn query_token_balances(_deps: Deps) -> StdResult<Config> {
     unimplemented!();
 }

@@ -68,32 +68,14 @@ pub enum ExecuteMsg {
 #[derive(QueryResponses)]
 #[cw_serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    #[returns(ConfigResponse)]
+    #[returns(Config)]
     Config {},
 
-    #[returns(LastHarvestResponse)]
-    LastHarvest {},
-
-    #[returns(LastCompoundResponse)]
-    LastCompound {},
-
-    #[returns(HarvestWaitPeriodResponse)]
-    HarvestWaitPeriod {},
-
-    #[returns(CompoundWaitPeriodResponse)]
-    CompoundWaitPeriod {},
+    #[returns(State)]
+    State {},
 
     #[returns(TokensBalancesResponse)]
     TokenBalances {},
-}
-
-#[cw_serde]
-pub struct ConfigResponse {
-    pub token_a: Addr,
-    pub token_b: Addr,
-    pub owner: Addr,
-    pub harvest_wait_period: u64,
-    pub compound_wait_period: u64,
 }
 
 #[cw_serde]
