@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 //use anyhow::Result as AnyResult;
 use cosmwasm_std::Coin;
 //use cw_multi_test::AppResponse;
@@ -11,8 +10,32 @@ use osmosis_test_tube::{Account, ExecuteResponse, OsmosisTestApp, Runner, Signin
 pub mod osmosis {
     use std::fmt::Display;
 
+    use cosmwasm_std::coin;
     use osmosis_test_tube::{OsmosisTestApp, RunnerError, SigningAccount, Wasm};
     use serde::Serialize;
+
+    pub struct Setup {
+        pub app: OsmosisTestApp,
+        pub signer: SigningAccount,
+    }
+
+    impl Setup {
+        pub fn new() -> Self {
+            let app = OsmosisTestApp::new();
+
+            let signer = app
+                .init_account(&[
+                    coin(1_000_000_000_000_000_000, "uosmo"),
+                    coin(1_000_000_000_000, "usdc"),
+                ])
+                .unwrap();
+
+            Self {
+                app,
+                signer,
+            }
+        }
+    }
 
     pub fn wasm_file(contract_name: &str) -> String {
         let artifacts_dir =

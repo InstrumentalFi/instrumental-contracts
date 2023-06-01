@@ -1,21 +1,21 @@
 mod helpers;
 use cosmwasm_std::{Addr, Coin};
-use osmosis_test_tube::{Account, Module, OsmosisTestApp, Wasm};
+use osmosis_test_tube::{Account, Module, Wasm};
 use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, State};
 use vault::contract::{DAY_IN_SECONDS, TWO_DAYS_IN_SECONDS};
 
-use crate::helpers::osmosis::{assert_err, instantiate_contract};
+use crate::helpers::osmosis::{assert_err, instantiate_contract, Setup};
 
 const OSMOSIS_VAULT_CONTRACT_NAME: &str = "vault";
 
-// TODO - Abstract setup to keep it DRY
-
 #[test]
 fn instantiation() {
-    let app = OsmosisTestApp::new();
-    let wasm = Wasm::new(&app);
+    let Setup {
+        app,
+        signer,
+    } = Setup::new();
 
-    let signer = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
+    let wasm = Wasm::new(&app);
 
     let contract_addr = instantiate_contract(
         &wasm,
@@ -34,7 +34,7 @@ fn instantiation() {
         Config {
             token_a: Addr::unchecked("tokena"),
             token_b: Addr::unchecked("tokenb"),
-            owner: Addr::unchecked(signer.address()),
+            owner: Addr::unchecked(&signer.address()),
             compound_wait_period: DAY_IN_SECONDS,
             harvest_wait_period: DAY_IN_SECONDS,
         }
@@ -43,10 +43,12 @@ fn instantiation() {
 
 #[test]
 fn default_state() {
-    let app = OsmosisTestApp::new();
-    let wasm = Wasm::new(&app);
+    let Setup {
+        app,
+        signer,
+    } = Setup::new();
 
-    let signer = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
+    let wasm = Wasm::new(&app);
 
     let contract_addr = instantiate_contract(
         &wasm,
@@ -65,10 +67,13 @@ fn default_state() {
 
 #[test]
 fn update_config_not_owner() {
-    let app = OsmosisTestApp::new();
+    let Setup {
+        app,
+        signer,
+    } = Setup::new();
+
     let wasm = Wasm::new(&app);
 
-    let signer = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
     let alice = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
 
     let contract_addr = instantiate_contract(
@@ -97,10 +102,12 @@ fn update_config_not_owner() {
 
 #[test]
 fn update_config_with_owner() {
-    let app = OsmosisTestApp::new();
-    let wasm = Wasm::new(&app);
+    let Setup {
+        app,
+        signer,
+    } = Setup::new();
 
-    let signer = app.init_account(&[Coin::new(10_000_000_000_000, "uosmo")]).unwrap();
+    let wasm = Wasm::new(&app);
 
     let contract_addr = instantiate_contract(
         &wasm,
