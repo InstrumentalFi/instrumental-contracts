@@ -1,16 +1,42 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::{Addr, BalanceResponse, Timestamp};
+use cosmwasm_std::{Addr, BalanceResponse, StdError, StdResult, Timestamp};
 
 #[cw_serde]
 pub struct Config {
     pub token_a: Addr,
     pub token_b: Addr,
+    pub owner: Addr,
+    pub harvest_wait_period: u64,  // Harvest wait period in seconds
+    pub compound_wait_period: u64, // Compound wait period in seconds
+}
+
+#[cw_serde]
+pub struct State {
+    pub last_harvest: Timestamp,
+    pub last_compound: Timestamp,
 }
 
 #[cw_serde]
 pub struct InstantiateMsg {
     pub token_a: Addr,
     pub token_b: Addr,
+}
+
+impl InstantiateMsg {
+    pub fn validate(&self) -> StdResult<()> {
+        // Check token_a and token_b are different
+        if !self.has_valid_tokens() {
+            return Err(StdError::generic_err("token_a and token_b cannot be the same"));
+        }
+        Ok(())
+    }
+
+    fn has_valid_tokens(&self) -> bool {
+        if self.token_a == self.token_b {
+            return false;
+        }
+        true
+    }
 }
 
 #[cw_serde]
@@ -30,76 +56,23 @@ pub enum ExecuteMsg {
     // Distribute rewards to veToken holders
     DistributeRewards {},
 
-    // Sets the Harvest Wait Period,
-    // Harvest can only be called if this period has expired
-    SetHarvestWaitPeriod {},
-
-    // Sets the Compound Wait Period,
-    // Compound can only be called if this period has expired
-    SetCompoundWaitPeriod {},
-
-    // Sets the Reward token LP Pool (for selling)
-    SetRewardsLPPool {},
+    UpdateConfig {
+        compound_wait_period: Option<String>,
+        harvest_wait_period: Option<String>,
+    },
 }
 
 #[derive(QueryResponses)]
 #[cw_serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    #[returns(ConfigResponse)]
+    #[returns(Config)]
     Config {},
 
-    #[returns(VaultTokensResponse)]
-    VaultTokens {},
-
-    #[returns(LastHarvestResponse)]
-    LastHarvest {},
-
-    #[returns(LastCompoundResponse)]
-    LastCompound {},
-
-    #[returns(HarvestWaitPeriodResponse)]
-    HarvestWaitPeriod {},
+    #[returns(State)]
+    State {},
 
     #[returns(TokensBalancesResponse)]
     TokenBalances {},
-
-    #[returns(LPShareTokenBalanceResponse)]
-    LPShareTokenBalance {},
-
-    #[returns(RewardsLPTokenResponse)]
-    RewardsLPPool {},
-}
-
-#[cw_serde]
-pub struct ConfigResponse {
-    pub token_a: Addr,
-    pub token_b: Addr,
-}
-
-#[cw_serde]
-pub struct VaultTokensResponse {
-    pub token_a: Addr,
-    pub token_b: Addr,
-}
-
-#[cw_serde]
-pub struct LastHarvestResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct LastCompoundResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct HarvestWaitPeriodResponse {
-    pub timestamp: Timestamp,
-}
-
-#[cw_serde]
-pub struct CompoundWaitPeriodResponse {
-    pub timestamp: Timestamp,
 }
 
 #[cw_serde]
@@ -108,12 +81,21 @@ pub struct TokensBalancesResponse {
     pub token_b: BalanceResponse,
 }
 
-#[cw_serde]
-pub struct LPShareTokenBalanceResponse {
-    pub balance: BalanceResponse,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[cw_serde]
-pub struct RewardsLPTokenResponse {
-    pub address: Addr,
+    #[test]
+    fn validate_instantiatemsg_tokens() {
+        // Tokens are the same - invalid
+        let mut msg = InstantiateMsg {
+            token_a: Addr::unchecked("tokena"),
+            token_b: Addr::unchecked("tokena"),
+        };
+        assert!(!msg.has_valid_tokens());
+
+        // Tokens are not the same valid
+        msg.token_b = Addr::unchecked("tokenb");
+        assert!(msg.has_valid_tokens());
+    }
 }
