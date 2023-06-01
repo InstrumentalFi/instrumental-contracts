@@ -1,0 +1,48 @@
+[package]
+name          = "osmosis-vault"
+description   = "Vault targeting osmosis"
+version       = { workspace = true }
+authors       = { workspace = true }
+edition       = { workspace = true }
+license       = { workspace = true }
+repository    = { workspace = true }
+homepage      = { workspace = true }
+documentation = { workspace = true }
+keywords      = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+
+[dependencies]
+simple-vault = {path = "../../../packages/simple-vault", features = ["lockup", "force-unlock"], default-features = false }
+
+osmosis-std = { git = "https://github.com/osmosis-labs/osmosis-rust.git", rev = "7c1d418" }
+cw-vault-standard   = { version = "0.2.0", features = ["lockup", "force-unlock"] }
+semver              = "1"
+cosmwasm-schema     = { workspace = true }
+cosmwasm-std        = { workspace = true }
+bech32              = { workspace = true }
+cw2                 = { workspace = true }
+cw-storage-plus     = { workspace = true }
+cw-dex              = { version = "0.1.1", features = ["osmosis"] }
+pablo-vault-types   = { workspace = true }
+base-vault          = { workspace = true }
+thiserror           = { workspace = true }
+cw-vault-token      = "0.1.0"
+
+[dev-dependencies]
+cosmwasm-schema = { workspace = true }
+serde           = { workspace = true }
+osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust.git", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }
+cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "10e6ed7", features = ["osmosis"] }
+test-case = "2.2.2"
+liquidity-helper = "0.1.0"
+cw-dex-router = { version = "0.1.0", features = ["library","osmosis"] }
+proptest = "1.0.0"
+cw-utils = "1.0.1"
+# apollo-vault-test-helpers = { path = "../../../packages/test-helpers", features = ["osmosis"] }

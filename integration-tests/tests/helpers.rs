@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 //use anyhow::Result as AnyResult;
 use cosmwasm_std::Coin;
 //use cw_multi_test::AppResponse;
@@ -11,8 +10,38 @@ use osmosis_test_tube::{Account, ExecuteResponse, OsmosisTestApp, Runner, Signin
 pub mod osmosis {
     use std::fmt::Display;
 
+    use cosmwasm_std::Coin;
     use osmosis_test_tube::{OsmosisTestApp, RunnerError, SigningAccount, Wasm};
     use serde::Serialize;
+
+    pub struct Setup {
+        pub app: OsmosisTestApp,
+        pub signer: SigningAccount,
+    }
+
+    impl Setup {
+        pub fn new() -> Self {
+            let app = OsmosisTestApp::new();
+
+            let signer = app
+                .init_account(&[
+                    Coin::new(1_000_000_000_000, "uatom"),
+                    Coin::new(1_000_000_000_000, "uosmo"),
+                ])
+                .unwrap();
+
+            Self {
+                app,
+                signer,
+            }
+        }
+    }
+
+    impl Default for Setup {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
 
     pub fn wasm_file(contract_name: &str) -> String {
         let artifacts_dir =
@@ -33,7 +62,17 @@ pub mod osmosis {
         let wasm_byte_code = std::fs::read(wasm_file(contract_name)).unwrap();
         let code_id = wasm.store_code(&wasm_byte_code, None, owner).unwrap().data.code_id;
 
-        wasm.instantiate(code_id, msg, None, Some(contract_name), &[], owner).unwrap().data.address
+        wasm.instantiate(
+            code_id,
+            msg,
+            None,
+            Some(contract_name),
+            &[Coin::new(10_000_000, "uosmo")],
+            owner,
+        )
+        .unwrap()
+        .data
+        .address
     }
 
     pub fn assert_err(actual: RunnerError, expected: impl Display) {

@@ -1,11 +1,13 @@
 [workspace]
 members = [
-  "contracts/vault",
-  "integration-tests",
+  "contracts/vault/*",
+  # "integration-tests",
+  "packages/base-vault",
+  "packages/simple-vault",
 ]
 
 [workspace.package]
-version       = "0.0.1"
+version       = "1.0.0"
 authors       = [
   "George Ornbo <george@shapeshed.com>",
   "Friedrich Grabner <max.grabner@margined.io>",
@@ -18,30 +20,29 @@ documentation = "https://docs.foo.bar/"
 keywords      = ["cosmos", "cosmwasm"]
 
 [workspace.dependencies]
-anyhow            = "1.0.68"
-bech32            = "0.9.1"
-cw2               = "1.0.1"
-cosmwasm-schema   = "1.1.9"
-cosmwasm-std      = "1.1.9"
-cw-multi-test     = "0.16.1"
-cw-storage-plus   = "1.0.1"
-cw-utils          = "1.0.1"
-osmosis-std       = "0.14.0"
-osmosis-test-tube = "15.1.0"
-prost             = { version = "0.11.5", default-features = false, features = ["prost-derive"] }
-schemars          = "0.8.11"
-serde             = { version = "1.0.152", default-features = false, features = ["derive"] }
-thiserror         = "1.0.38"
+anyhow              = "1.0.68"
+bech32              = "0.9.1"
+cw2                 = "1.0.1"
+cosmwasm-schema     = "1.1.9"
+cosmwasm-std        = "1.1.9"
+cw-multi-test       = "0.16.1"
+cw-storage-plus     = "1.0.1"
+cw-utils            = "1.0.1"
+osmosis-std         = "0.14.0"
+osmosis-test-tube   = "15.1.0"
+cosmrs              = {version = "0.9.0", features = ["cosmwasm"]}
+prost               = { version = "0.11.5", default-features = false, features = ["prost-derive"] }
+schemars            = "0.8.11"
+serde               = { version = "1.0.152", default-features = false, features = ["derive"] }
+thiserror           = "1.0.38"
 
 # packages
-# mars-health         = { version = "1.0.0", path = "./packages/health" }
-# mars-osmosis        = { version = "1.0.0", path = "./packages/chains/osmosis" }
-pablo-vault-types = { version = "0.0.1", path = "./packages/types" }
-# mars-testing        = { version = "1.0.0", path = "./packages/testing" }
-# mars-utils          = { version = "1.0.0", path = "./packages/utils" }
+pablo-vault-types   = { version = "1.0.0", path = "./packages/types" }
+base-vault          = { version = "1.0.0", path = "./packages/base-vault" }
+simple-vault        = { version = "1.0.0", path = "./packages/simple-vault" }
 
 # contracts
-vault               = { version = "1.0.0", path = "./contracts/vault" }
+osmosis-vault       = { version = "1.0.0", path = "./contracts/vault/osmosis-vault" }
 
 [profile.release]
 codegen-units    = 1
