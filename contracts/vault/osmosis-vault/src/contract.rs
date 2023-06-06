@@ -1,16 +1,16 @@
 //use cosmwasm_std::Empty;
-use vault_base::VaultBase;
+use base_vault::BaseVault;
 
-pub type OsmosisVault<'a> = VaultBase<'a>;
+pub type OsmosisVault<'a> = BaseVault<'a>;
 
 pub const CONTRACT_NAME: &str = "crates.io:osmosis-vault";
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
+    use base_vault::ContractResult;
     use cosmwasm_std::{entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Response};
     use pablo_vault_types::vault::{ExecuteMsg, InstantiateMsg, QueryMsg};
-    use vault_base::ContractResult;
 
     use super::*;
     // use crate::migrations;

@@ -11,7 +11,7 @@ fn main() -> std::io::Result<()> {
     println!("Done");
 
     let contracts = vec![
-        "vault",
+        "osmosis-vault",
     ];
 
     for contract in contracts {

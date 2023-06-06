@@ -1,0 +1,32 @@
+[package]
+name          = "base-vault"
+description   = "Base vault package"
+version       = { workspace = true }
+authors       = { workspace = true }
+edition       = { workspace = true }
+license       = { workspace = true }
+repository    = { workspace = true }
+homepage      = { workspace = true }
+documentation = { workspace = true }
+keywords      = { workspace = true }
+
+[lib]
+doctest = false
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+
+[dependencies]
+cosmwasm-std        = { workspace = true }
+cw2                 = { workspace = true }
+cw-storage-plus     = { workspace = true }
+cosmwasm-schema     = { workspace = true }
+pablo-vault-types   = { workspace = true }
+thiserror           = { workspace = true }
+cw-vault-standard   = { version = "0.2.0", features = ["lockup", "force-unlock"] }
+cw-vault-token      = "0.1.0"
+
+[dev-dependencies]
+cosmwasm-schema = { workspace = true }
+serde           = { workspace = true }

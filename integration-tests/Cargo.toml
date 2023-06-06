@@ -18,18 +18,18 @@ doctest = false
 backtraces = ["cosmwasm-std/backtraces"]
 
 [dev-dependencies]
-anyhow                         = { workspace = true }
-cosmwasm-std                   = { workspace = true }
-cw-multi-test                  = { workspace = true }
+anyhow                  = { workspace = true }
+cosmwasm-std            = { workspace = true }
+cw-multi-test           = { workspace = true }
 #mars-oracle-osmosis            = { workspace = true }
 #mars-oracle-base               = { workspace = true }
 #mars-osmosis                   = { workspace = true }
 #mars-red-bank                  = { workspace = true }
-pablo-vault-types               = { workspace = true }
-vault-base    = { workspace = true }
-vault-osmosis = { workspace = true }
+pablo-vault-types       = { workspace = true }
+base-vault              = { workspace = true }
+osmosis-vault           = { workspace = true }
 #mars-testing                   = { workspace = true }
 #mars-utils                     = { workspace = true }
-osmosis-std                    = { workspace = true }
-osmosis-test-tube              = { workspace = true }
-serde                          = { workspace = true }
+osmosis-std             = { workspace = true }
+osmosis-test-tube       = { workspace = true }
+serde                   = { workspace = true }

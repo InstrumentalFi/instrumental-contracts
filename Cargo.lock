@@ -63,6 +63,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
+name = "base-vault"
+version = "1.0.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus",
+ "cw-vault-standard",
+ "cw-vault-token",
+ "cw2",
+ "pablo-vault-types",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "base16ct"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1072,14 +1087,14 @@ name = "integration-tests"
 version = "1.0.0"
 dependencies = [
  "anyhow",
+ "base-vault",
  "cosmwasm-std",
  "cw-multi-test",
  "osmosis-std 0.14.0",
  "osmosis-test-tube",
+ "osmosis-vault",
  "pablo-vault-types",
  "serde",
- "vault-base",
- "vault-osmosis",
 ]
 
 [[package]]
@@ -1340,6 +1355,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "osmosis-vault"
+version = "1.0.0"
+dependencies = [
+ "base-vault",
+ "bech32",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus",
+ "cw-vault-standard",
+ "cw-vault-token",
+ "cw2",
+ "pablo-vault-types",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "pablo-vault-types"
 version = "1.0.0"
 dependencies = [
@@ -1401,6 +1433,23 @@ name = "percent-encoding"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e"
+
+[[package]]
+name = "picasso-vault"
+version = "1.0.0"
+dependencies = [
+ "base-vault",
+ "bech32",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-storage-plus",
+ "cw-vault-standard",
+ "cw-vault-token",
+ "cw2",
+ "pablo-vault-types",
+ "serde",
+ "thiserror",
+]
 
 [[package]]
 name = "pin-project"
@@ -2293,38 +2342,6 @@ name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-
-[[package]]
-name = "vault-base"
-version = "1.0.0"
-dependencies = [
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-storage-plus",
- "cw-vault-standard",
- "cw-vault-token",
- "cw2",
- "pablo-vault-types",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "vault-osmosis"
-version = "1.0.0"
-dependencies = [
- "bech32",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-storage-plus",
- "cw-vault-standard",
- "cw-vault-token",
- "cw2",
- "pablo-vault-types",
- "serde",
- "thiserror",
- "vault-base",
-]
 
 [[package]]
 name = "version_check"

@@ -4,11 +4,11 @@ use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, Sta
 
 use crate::error::ContractResult;
 
-pub struct VaultBase<'a> {
+pub struct BaseVault<'a> {
     pub config: Item<'a, Config>,
 }
 
-impl<'a> Default for VaultBase<'a> {
+impl<'a> Default for BaseVault<'a> {
     fn default() -> Self {
         Self {
             config: Item::new("config"),
@@ -16,7 +16,7 @@ impl<'a> Default for VaultBase<'a> {
     }
 }
 
-impl<'a> VaultBase<'a> {
+impl<'a> BaseVault<'a> {
     pub fn instantiate(
         &self,
         deps: DepsMut,

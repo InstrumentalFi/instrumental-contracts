@@ -1,6 +1,6 @@
 [package]
-name          = "vault-base"
-description   = "Base vault package"
+name          = "picasso-vault"
+description   = "Vault targeting picasso"
 version       = { workspace = true }
 authors       = { workspace = true }
 edition       = { workspace = true }
@@ -11,6 +11,7 @@ documentation = { workspace = true }
 keywords      = { workspace = true }
 
 [lib]
+crate-type = ["cdylib", "rlib"]
 doctest = false
 
 [features]
@@ -18,14 +19,16 @@ doctest = false
 backtraces = ["cosmwasm-std/backtraces"]
 
 [dependencies]
+bech32              = { workspace = true }
+cosmwasm-schema     = { workspace = true }
 cosmwasm-std        = { workspace = true }
 cw2                 = { workspace = true }
 cw-storage-plus     = { workspace = true }
-cosmwasm-schema     = { workspace = true }
 pablo-vault-types   = { workspace = true }
+base-vault          = { workspace = true }
 thiserror           = { workspace = true }
-cw-vault-standard = { version = "0.2.0", features = ["lockup", "force-unlock"] }
-cw-vault-token = "0.1.0"
+cw-vault-standard   = { version = "0.2.0", features = ["lockup", "force-unlock"] }
+cw-vault-token      = "0.1.0"
 
 [dev-dependencies]
 cosmwasm-schema = { workspace = true }
