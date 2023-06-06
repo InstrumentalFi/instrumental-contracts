@@ -26,11 +26,10 @@ cw-multi-test                  = { workspace = true }
 #mars-osmosis                   = { workspace = true }
 #mars-red-bank                  = { workspace = true }
 pablo-vault-types               = { workspace = true }
-#mars-rewards-collector-base    = { workspace = true }
-#mars-rewards-collector-osmosis = { workspace = true }
+vault-base    = { workspace = true }
+vault-osmosis = { workspace = true }
 #mars-testing                   = { workspace = true }
 #mars-utils                     = { workspace = true }
 osmosis-std                    = { workspace = true }
 osmosis-test-tube              = { workspace = true }
 serde                          = { workspace = true }
-vault               = { version = "0.0.1", path = "../contracts/vault" }

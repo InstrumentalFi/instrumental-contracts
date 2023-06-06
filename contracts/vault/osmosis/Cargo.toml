@@ -1,5 +1,5 @@
 [package]
-name          = "vault"
+name          = "vault-osmosis"
 description   = "Vault and strategy for Pablo Dex"
 version       = { workspace = true }
 authors       = { workspace = true }
@@ -25,7 +25,10 @@ cosmwasm-std        = { workspace = true }
 cw2                 = { workspace = true }
 cw-storage-plus     = { workspace = true }
 pablo-vault-types   = { workspace = true }
+vault-base          = { workspace = true }
 thiserror           = { workspace = true }
+cw-vault-standard = { version = "0.2.0", features = ["lockup", "force-unlock"] }
+cw-vault-token = "0.1.0"
 
 [dev-dependencies]
 cosmwasm-schema = { workspace = true }

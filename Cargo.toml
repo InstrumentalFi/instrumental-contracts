@@ -1,11 +1,11 @@
 [workspace]
 members = [
-  "contracts/vault",
+  "contracts/vault/*",
   "integration-tests",
 ]
 
 [workspace.package]
-version       = "0.0.1"
+version       = "1.0.0"
 authors       = [
   "George Ornbo <george@shapeshed.com>",
   "Friedrich Grabner <max.grabner@margined.io>",
@@ -36,12 +36,13 @@ thiserror         = "1.0.38"
 # packages
 # mars-health         = { version = "1.0.0", path = "./packages/health" }
 # mars-osmosis        = { version = "1.0.0", path = "./packages/chains/osmosis" }
-pablo-vault-types = { version = "0.0.1", path = "./packages/types" }
+pablo-vault-types = { version = "1.0.0", path = "./packages/types" }
 # mars-testing        = { version = "1.0.0", path = "./packages/testing" }
 # mars-utils          = { version = "1.0.0", path = "./packages/utils" }
 
 # contracts
-vault               = { version = "1.0.0", path = "./contracts/vault" }
+vault-base               = { version = "1.0.0", path = "./contracts/vault/base" }
+vault-osmosis            = { version = "1.0.0", path = "./contracts/vault/osmosis" }
 
 [profile.release]
 codegen-units    = 1
