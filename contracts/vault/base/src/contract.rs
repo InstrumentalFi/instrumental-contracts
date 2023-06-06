@@ -1,7 +1,8 @@
-use crate::error::ContractResult;
 use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 use cw_storage_plus::Item;
 use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, State};
+
+use crate::error::ContractResult;
 
 pub struct VaultBase<'a> {
     pub config: Item<'a, Config>,
