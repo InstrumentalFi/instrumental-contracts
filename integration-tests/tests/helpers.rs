@@ -37,6 +37,12 @@ pub mod osmosis {
         }
     }
 
+    impl Default for Setup {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     pub fn wasm_file(contract_name: &str) -> String {
         let artifacts_dir =
             std::env::var("ARTIFACTS_DIR_PATH").unwrap_or_else(|_| "artifacts".to_string());

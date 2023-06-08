@@ -3,11 +3,11 @@ use cosmwasm_std::{
     to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
 };
 use cw_storage_plus::Item;
+use cw_vault_token::{CwTokenError, VaultToken};
 use pablo_vault_types::vault::{Config, ExecuteMsg, QueryMsg, State};
+use serde::{de::DeserializeOwned, Serialize};
 
 use crate::error::ContractResult;
-use cw_vault_token::{CwTokenError, VaultToken};
-use serde::{de::DeserializeOwned, Serialize};
 
 pub const DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN: Uint128 = Uint128::new(1_000_000);
 

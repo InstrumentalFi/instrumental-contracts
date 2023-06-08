@@ -1,13 +1,13 @@
 //use cosmwasm_std::Empty;
-use crate::msg::InstantiateMsg;
 use base_vault::BaseVault;
 // use base_vault::ContractResult;
 use cosmwasm_std::{entry_point, DepsMut, Env, MessageInfo, Response, StdError};
-use cw_dex::osmosis::OsmosisPool;
-use cw_dex::traits::Pool;
+use cw_dex::{osmosis::OsmosisPool, traits::Pool};
 use cw_vault_token::{osmosis::OsmosisDenom, CwTokenError};
 // use pablo_vault_types::vault::{ExecuteMsg, QueryMsg};
 use thiserror::Error;
+
+use crate::msg::InstantiateMsg;
 
 pub type OsmosisVault<'a, V> = BaseVault<'a, V>;
 
@@ -50,7 +50,7 @@ pub fn instantiate(
     // TODO validation logic for 100 osmo being sent to contract
     let pool = OsmosisPool::new(msg.pool_id, deps.as_ref())?;
     let vault_token = OsmosisDenom::new(env.contract.address.to_string(), msg.vault_token_subdenom);
-    Ok(contract.init(deps, pool.lp_token(), vault_token, None)?)
+    contract.init(deps, pool.lp_token(), vault_token, None)
 }
 
 // #[entry_point]
