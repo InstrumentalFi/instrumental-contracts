@@ -1088,6 +1088,7 @@ version = "1.0.0"
 dependencies = [
  "anyhow",
  "base-vault",
+ "cosmrs",
  "cosmwasm-std",
  "cw-multi-test",
  "osmosis-std 0.14.0",
