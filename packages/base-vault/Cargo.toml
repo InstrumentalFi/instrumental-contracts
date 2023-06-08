@@ -26,6 +26,8 @@ pablo-vault-types   = { workspace = true }
 thiserror           = { workspace = true }
 cw-vault-standard   = { version = "0.2.0", features = ["lockup", "force-unlock"] }
 cw-vault-token      = "0.1.0"
+apollo-cw-asset     = "0.1.0"
+serde               = { version = "1.0.152", default-features = false, features = ["derive"]}
 
 [dev-dependencies]
 cosmwasm-schema = { workspace = true }

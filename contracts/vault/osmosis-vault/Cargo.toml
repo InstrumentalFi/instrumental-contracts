@@ -24,6 +24,7 @@ cosmwasm-schema     = { workspace = true }
 cosmwasm-std        = { workspace = true }
 cw2                 = { workspace = true }
 cw-storage-plus     = { workspace = true }
+cw-dex              = { version = "0.1.1", features = ["osmosis"] }
 pablo-vault-types   = { workspace = true }
 base-vault          = { workspace = true }
 thiserror           = { workspace = true }

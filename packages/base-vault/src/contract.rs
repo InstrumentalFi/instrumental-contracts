@@ -1,35 +1,48 @@
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use apollo_cw_asset::AssetInfo;
+use cosmwasm_std::{
+    to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
+};
 use cw_storage_plus::Item;
-use pablo_vault_types::vault::{Config, ExecuteMsg, InstantiateMsg, QueryMsg, State};
+use pablo_vault_types::vault::{Config, ExecuteMsg, QueryMsg, State};
 
 use crate::error::ContractResult;
+use cw_vault_token::{CwTokenError, VaultToken};
+use serde::{de::DeserializeOwned, Serialize};
 
-pub struct BaseVault<'a> {
-    pub config: Item<'a, Config>,
+pub const DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN: Uint128 = Uint128::new(1_000_000);
+
+pub struct BaseVault<'a, V> {
+    pub vault_token: Item<'a, V>,
+    pub base_token: Item<'a, AssetInfo>,
+    pub total_staked_base_tokens: Item<'a, Uint128>,
 }
 
-impl<'a> Default for BaseVault<'a> {
+impl<V> Default for BaseVault<'_, V> {
     fn default() -> Self {
         Self {
-            config: Item::new("config"),
+            vault_token: Item::new("vault_token"),
+            base_token: Item::new("base_token"),
+            total_staked_base_tokens: Item::new("total_staked_base_tokens"),
         }
     }
 }
 
-impl<'a> BaseVault<'a> {
-    pub fn instantiate(
+impl<'a, V> BaseVault<'a, V>
+where
+    V: Serialize + DeserializeOwned + VaultToken,
+{
+    pub fn init(
         &self,
         deps: DepsMut,
-        _info: MessageInfo,
-        msg: InstantiateMsg,
-    ) -> ContractResult<Response> {
-        self.config.save(
-            deps.storage,
-            &Config {
-                base_token: msg.base_token,
-            },
-        )?;
-        Ok(Response::new().add_attribute("action", "instantiate"))
+        base_token: AssetInfo,
+        vault_token: V,
+        init_info: Option<Binary>,
+    ) -> Result<Response, CwTokenError> {
+        self.vault_token.save(deps.storage, &vault_token)?;
+        self.base_token.save(deps.storage, &base_token)?;
+        self.total_staked_base_tokens.save(deps.storage, &Uint128::zero())?;
+
+        vault_token.instantiate(deps, init_info)
     }
 
     pub fn execute(
@@ -59,8 +72,7 @@ impl<'a> BaseVault<'a> {
         res.map_err(Into::into)
     }
 
-    /// Deposits an equal amount of two tokens into the vault, returning a new token representing
-    /// ownership of a deposit.
+    /// Deposits an LP token to the vault and issues a share token
     fn execute_deposit(
         &self,
         _deps: DepsMut,
@@ -134,9 +146,8 @@ impl<'a> BaseVault<'a> {
     }
 
     /// Returns the configuration set during contract instnatiation
-    fn query_config(&self, deps: Deps) -> StdResult<Config> {
-        let config = self.config.load(deps.storage)?;
-        Ok(config)
+    fn query_config(&self, _deps: Deps) -> StdResult<Config> {
+        unimplemented!();
     }
 
     /// Returns the configuration set during contract instnatiation
