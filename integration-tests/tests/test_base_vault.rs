@@ -1,13 +1,14 @@
 mod helpers;
 use apollo_cw_asset::AssetInfoBase;
-use cosmwasm_std::{Decimal, Uint128};
+use cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
+use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
     osmosis::{OsmosisPool, OsmosisStaking},
     traits::Pool as PoolTrait,
 };
 use cw_vault_token::osmosis::OsmosisDenom;
-use osmosis_test_tube::{Account, Module, Wasm};
-use osmosis_vault::msg::QueryMsg;
+use osmosis_test_tube::{Account, Bank, Module, Wasm};
+use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
 use simple_vault::msg::{ExtensionQueryMsg, SimpleExtensionQueryMsg, StateResponse};
 
 use crate::helpers::osmosis::Setup;
@@ -78,4 +79,73 @@ fn instantiation() {
 
     // Check vault token supply is zero
     assert_eq!(vault_token_supply, Uint128::zero());
+}
+
+#[test]
+fn deposit() {
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin: _,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+    let bank = Bank::new(&app);
+
+    let state: StateResponse<OsmosisStaking, OsmosisPool, OsmosisDenom> = wasm
+        .query(
+            &vault_address,
+            &QueryMsg::VaultExtension(ExtensionQueryMsg::Simple(SimpleExtensionQueryMsg::State {})),
+        )
+        .unwrap();
+
+    let vault_token_denom = state.vault_token.to_string();
+
+    let mut balance = bank
+        .query_balance(&QueryBalanceRequest {
+            address: signer.address(),
+            denom: vault_token_denom.clone(),
+        })
+        .unwrap()
+        .balance
+        .unwrap();
+
+    assert_eq!("0".to_string(), balance.amount);
+
+    let deposit_amount = Uint128::new(2);
+
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token,
+        }],
+        &signer,
+    )
+    .unwrap();
+
+    balance = bank
+        .query_balance(&QueryBalanceRequest {
+            address: signer.address(),
+            denom: vault_token_denom,
+        })
+        .unwrap()
+        .balance
+        .unwrap();
+
+    assert_eq!("2000000".to_string(), balance.amount);
+    assert_eq!(
+        "factory/osmo17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgs5yczr8/osmosis-vault"
+            .to_string(),
+        balance.denom
+    );
 }
