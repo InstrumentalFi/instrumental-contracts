@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "contracts/vault/*",
-  # "integration-tests",
+  "integration-tests",
   "packages/base-vault",
   "packages/simple-vault",
 ]
@@ -35,6 +35,7 @@ prost               = { version = "0.11.5", default-features = false, features =
 schemars            = "0.8.11"
 serde               = { version = "1.0.152", default-features = false, features = ["derive"] }
 thiserror           = "1.0.38"
+apollo-cw-asset     = "0.1.0"
 
 # packages
 pablo-vault-types   = { version = "1.0.0", path = "./packages/types" }
