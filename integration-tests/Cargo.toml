@@ -41,3 +41,4 @@ cosmwasm-schema         = { workspace = true }
 liquidity-helper = "0.1.0"
 cw-dex = { version = "0.1.1", features = ["osmosis"] }
 cw-dex-router = { version = "0.1.0", features = ["library","osmosis"] }
+cw-vault-token = "0.1.0"

@@ -1428,6 +1428,7 @@ dependencies = [
  "cw-dex",
  "cw-dex-router",
  "cw-multi-test",
+ "cw-vault-token",
  "liquidity-helper",
  "osmosis-std 0.14.0",
  "osmosis-test-tube 15.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
