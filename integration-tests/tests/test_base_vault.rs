@@ -1,5 +1,6 @@
 mod helpers;
 use apollo_cw_asset::AssetInfoBase;
+use base_vault::DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN;
 use cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
 use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
@@ -104,6 +105,8 @@ fn deposit() {
         .unwrap();
 
     let vault_token_denom = state.vault_token.to_string();
+    let vault_token_supply = state.vault_token_supply;
+    let total_staked_amount = state.total_staked_base_tokens;
 
     let mut balance = bank
         .query_balance(&QueryBalanceRequest {
@@ -147,5 +150,9 @@ fn deposit() {
         "factory/osmo17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgs5yczr8/osmosis-vault"
             .to_string(),
         balance.denom
+    );
+    assert_eq!(
+        vault_token_supply,
+        total_staked_amount * DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN
     );
 }
