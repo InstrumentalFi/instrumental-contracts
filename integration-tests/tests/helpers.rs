@@ -8,13 +8,11 @@ use osmosis_std::types::osmosis::gamm::v1beta1::{
 use osmosis_test_tube::{Account, ExecuteResponse, OsmosisTestApp, Runner, SigningAccount};
 
 pub mod osmosis {
-
-    use apollo_cw_asset::AssetInfoBase;
-    use cosmwasm_std::Addr;
     use std::fmt::Display;
 
+    use apollo_cw_asset::AssetInfoBase;
     use cosmwasm_schema::cw_serde;
-    use cosmwasm_std::Decimal;
+    use cosmwasm_std::{Addr, Decimal};
     use osmosis_vault::msg::InstantiateMsg;
     use simple_vault::state::ConfigUnchecked;
     const OSMOSIS_VAULT_CONTRACT_NAME: &str = "osmosis_vault";

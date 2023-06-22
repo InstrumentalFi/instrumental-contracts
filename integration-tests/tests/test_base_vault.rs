@@ -3,8 +3,10 @@ use std::str::FromStr;
 
 use apollo_cw_asset::AssetInfoBase;
 use base_vault::DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN;
-use cosmrs::proto::cosmos::bank::v1beta1::{MsgSend, QueryBalanceRequest};
-use cosmrs::proto::cosmos::base::v1beta1::Coin as ProtoCoin;
+use cosmrs::proto::cosmos::{
+    bank::v1beta1::{MsgSend, QueryBalanceRequest},
+    base::v1beta1::Coin as ProtoCoin,
+};
 use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
     osmosis::{OsmosisPool, OsmosisStaking},
