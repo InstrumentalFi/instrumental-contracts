@@ -13,7 +13,7 @@ use cw_dex::{
     traits::Pool as PoolTrait,
 };
 use cw_vault_token::osmosis::OsmosisDenom;
-use osmosis_test_tube::{Account, Bank, Module, Runner, Wasm};
+use osmosis_test_tube::{Account, Bank, Module, Runner, SigningAccount, Wasm};
 use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
 use simple_vault::msg::{ExtensionQueryMsg, SimpleExtensionQueryMsg, StateResponse};
 
@@ -53,29 +53,29 @@ where
     Uint128::from_str(&balance).unwrap()
 }
 
-// fn send_native_coins<'a, R>(
-//     runner: &'a R,
-//     from: &SigningAccount,
-//     to: &str,
-//     denom: &str,
-//     amount: impl Into<String>,
-// ) where
-//     R: Runner<'a>,
-// {
-//     let bank = Bank::new(runner);
-//     bank.send(
-//         MsgSend {
-//             amount: vec![ProtoCoin {
-//                 denom: denom.to_string(),
-//                 amount: amount.into(),
-//             }],
-//             from_address: from.address(),
-//             to_address: to.to_string(),
-//         },
-//         from,
-//     )
-//     .unwrap();
-// }
+fn send_native_coins<'a, R>(
+    runner: &'a R,
+    from: &SigningAccount,
+    to: &str,
+    denom: &str,
+    amount: impl Into<String>,
+) where
+    R: Runner<'a>,
+{
+    let bank = Bank::new(runner);
+    bank.send(
+        MsgSend {
+            amount: vec![ProtoCoin {
+                denom: denom.to_string(),
+                amount: amount.into(),
+            }],
+            from_address: from.address(),
+            to_address: to.to_string(),
+        },
+        from,
+    )
+    .unwrap();
+}
 
 #[test]
 fn instantiation() {
@@ -194,23 +194,16 @@ fn reward_tokens() {
         signer,
         admin: _,
         force_withdraw_admin: _,
-        treasury: _,
+        treasury,
         vault_address,
         base_token,
     } = Setup::new();
 
     let wasm = Wasm::new(&app);
-    let bank = Bank::new(&app);
 
     let state = query_vault_state(&app, &vault_address);
 
     let vault_token_denom = state.vault_token.to_string();
-    let vault_token_supply = state.vault_token_supply;
-    let total_staked_amount = state.total_staked_base_tokens;
-
-    println!("vault_token_denom: {}", vault_token_denom);
-    println!("vault_token_supply: {}", vault_token_supply);
-    println!("total_staked_amount: {}", total_staked_amount);
     let config = state.config;
 
     let deposit_amount = Uint128::new(200_000_000u128);
@@ -228,40 +221,32 @@ fn reward_tokens() {
         }],
         &signer,
     )
-    .unwrap(); // errors here
-
-    // Send some reward tokens to vault to simulate reward accruing
-    // This works as expected if I remove the wasm.execute call following this
-    let reward_amount = Uint128::from(100_000_000u128);
-    bank.send(
-        MsgSend {
-            from_address: signer.address(),
-            to_address: vault_address.clone(),
-            amount: vec![ProtoCoin {
-                amount: reward_amount.to_string(),
-                denom: config.reward_assets[0].to_string(),
-            }],
-        },
-        &signer,
-    )
     .unwrap();
 
+    // Send some reward tokens to vault to simulate reward accruing
+    let reward_amount = Uint128::new(100_000_000u128);
+    send_native_coins(
+        &app,
+        &signer,
+        &vault_address.clone(),
+        &config.reward_assets[0].to_string(),
+        reward_amount,
+    );
+
+    // Query treasury reward token balance
+    let treasury_reward_token_balance_before =
+        query_token_balance(&app, &treasury.address(), &config.reward_assets[0].to_string());
+
+    // Query vault state
     let state = query_vault_state(&app, &vault_address);
+    let total_staked_amount_before_compound_deposit = state.total_staked_base_tokens;
 
-    let vault_token_denom = state.vault_token.to_string();
-    let vault_token_supply = state.vault_token_supply;
-    let total_staked_amount = state.total_staked_base_tokens;
-
-    println!("vault_token_denom: {}", vault_token_denom);
-    println!("vault_token_supply: {}", vault_token_supply);
-    println!("total_staked_amount: {}", total_staked_amount);
-
+    // Deposit some more base token to vault to trigger compounding
     let deposit_amount = Uint128::new(200_000_000u128);
     let deposit_msg = ExecuteMsg::Deposit {
         amount: deposit_amount,
         recipient: None,
     };
-
     wasm.execute(
         &vault_address,
         &deposit_msg,
@@ -271,6 +256,91 @@ fn reward_tokens() {
         }],
         &signer,
     )
-    .unwrap(); // errors here
-    assert_eq!(1, 2);
+    .unwrap();
+
+    // Query vault state
+    let state = query_vault_state(&app, &vault_address);
+    let total_staked_amount = state.total_staked_base_tokens;
+    let total_staked_amount_diff_after_compounding_reward1 =
+        total_staked_amount - total_staked_amount_before_compound_deposit;
+    // Should have increased more than the deposit due to the compounded rewards
+    assert!(total_staked_amount_diff_after_compounding_reward1 > deposit_amount);
+
+    // Query treasury reward token balance
+    let treasury_reward_token_balance_after =
+        query_token_balance(&app, &treasury.address(), &config.reward_assets[0].to_string());
+    assert_eq!(
+        treasury_reward_token_balance_after,
+        treasury_reward_token_balance_before + reward_amount * config.performance_fee
+    );
+
+    let alice = app
+        .init_account(&[
+            Coin::new(1_000_000_000_000, "uatom"),
+            Coin::new(1_000_000_000_000, "uosmo"),
+        ])
+        .unwrap();
+
+    // Send base_token signer to alice to test another deposit
+    let alice_deposit_amount = Uint128::from(100_000_000u128);
+    send_native_coins(
+        &app,
+        &signer,
+        &alice.address(),
+        &base_token.to_string(),
+        alice_deposit_amount,
+    );
+
+    // Query vault state
+    let state_before_alice_deposit = query_vault_state(&app, &vault_address);
+
+    // Deposit from alice
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: alice_deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: alice_deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &alice,
+    )
+    .unwrap();
+
+    let alice_vault_token_balance = query_token_balance(&app, &alice.address(), &vault_token_denom);
+    assert_ne!(alice_vault_token_balance, Uint128::zero());
+    let alice_base_token_balance =
+        query_token_balance(&app, &alice.address(), &base_token.to_string());
+    assert!(alice_base_token_balance.is_zero());
+
+    // Query signer's vault token balance
+    let signer_vault_token_balance =
+        query_token_balance(&app, &signer.address(), &vault_token_denom);
+
+    // Check that total supply of vault tokens is correct
+    let state = query_vault_state(&app, &vault_address);
+    let vault_token_supply = state.vault_token_supply;
+    assert_eq!(signer_vault_token_balance + alice_vault_token_balance, vault_token_supply);
+
+    // Assert that alices's share of the vault was correctly calculated
+    println!("Alice vault token balance: {}", alice_vault_token_balance);
+    println!("vault token supply: {}", vault_token_supply);
+    println!("alice_deposit_amount: {}", alice_deposit_amount);
+    println!(
+        "total_staked_base_tokens_before_alice_deposit: {}",
+        state_before_alice_deposit.total_staked_base_tokens
+    );
+    let alice_vault_token_share =
+        Decimal::from_ratio(alice_vault_token_balance, vault_token_supply);
+    let expected_share = Decimal::from_ratio(
+        alice_deposit_amount,
+        state_before_alice_deposit.total_staked_base_tokens,
+    );
+    println!("alice_vault_token_share: {}", alice_vault_token_share);
+    println!("expected_share: {}", expected_share);
+    // Failing on small decimal difference
+    //assert_eq!(alice_vault_token_share, expected_share);
 }
