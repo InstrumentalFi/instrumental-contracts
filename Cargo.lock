@@ -1428,6 +1428,7 @@ dependencies = [
  "cw-dex",
  "cw-dex-router",
  "cw-multi-test",
+ "cw-vault-standard",
  "cw-vault-token",
  "liquidity-helper",
  "osmosis-std 0.14.0",

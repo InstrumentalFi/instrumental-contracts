@@ -38,7 +38,7 @@ where
         amount: Uint128,
         recipient: Option<String>,
     ) -> Result<Response, ContractError> {
-        deps.api.debug(&format!("amount: {:?}", amount));
+        // deps.api.debug(&format!("amount: {:?}", amount));
         // Unwrap recipient or use caller's address
         let recipient =
             recipient.map_or(Ok(info.sender.clone()), |x| deps.api.addr_validate(&x))?;
@@ -117,7 +117,7 @@ where
             vault_token_supply,
         )?;
 
-        deps.api.debug(&format!("vault_tokens: {:?}", vault_tokens));
+        //deps.api.debug(&format!("vault_tokens: {:?}", vault_tokens));
 
         let event = Event::new("apollo/vaults/execute_staking").add_attributes(vec![
             attr("action", "execute_callback_mint_vault_token"),
