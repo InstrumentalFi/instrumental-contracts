@@ -203,7 +203,32 @@ fn reward_tokens() {
     let bank = Bank::new(&app);
 
     let state = query_vault_state(&app, &vault_address);
+
+    let vault_token_denom = state.vault_token.to_string();
+    let vault_token_supply = state.vault_token_supply;
+    let total_staked_amount = state.total_staked_base_tokens;
+
+    println!("vault_token_denom: {}", vault_token_denom);
+    println!("vault_token_supply: {}", vault_token_supply);
+    println!("total_staked_amount: {}", total_staked_amount);
     let config = state.config;
+
+    let deposit_amount = Uint128::new(200_000_000u128);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap(); // errors here
 
     // Send some reward tokens to vault to simulate reward accruing
     // This works as expected if I remove the wasm.execute call following this
@@ -221,7 +246,17 @@ fn reward_tokens() {
     )
     .unwrap();
 
-    let deposit_amount = Uint128::new(200);
+    let state = query_vault_state(&app, &vault_address);
+
+    let vault_token_denom = state.vault_token.to_string();
+    let vault_token_supply = state.vault_token_supply;
+    let total_staked_amount = state.total_staked_base_tokens;
+
+    println!("vault_token_denom: {}", vault_token_denom);
+    println!("vault_token_supply: {}", vault_token_supply);
+    println!("total_staked_amount: {}", total_staked_amount);
+
+    let deposit_amount = Uint128::new(200_000_000u128);
     let deposit_msg = ExecuteMsg::Deposit {
         amount: deposit_amount,
         recipient: None,
@@ -237,4 +272,5 @@ fn reward_tokens() {
         &signer,
     )
     .unwrap(); // errors here
+    assert_eq!(1, 2);
 }
