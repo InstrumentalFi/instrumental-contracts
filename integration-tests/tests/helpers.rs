@@ -8,6 +8,9 @@ use osmosis_std::types::osmosis::gamm::v1beta1::{
 use osmosis_test_tube::{Account, ExecuteResponse, OsmosisTestApp, Runner, SigningAccount};
 
 pub mod osmosis {
+
+    use apollo_cw_asset::AssetInfoBase;
+    use cosmwasm_std::Addr;
     use std::fmt::Display;
 
     use cosmwasm_schema::cw_serde;
@@ -38,7 +41,7 @@ pub mod osmosis {
         pub force_withdraw_admin: SigningAccount,
         pub treasury: SigningAccount,
         pub vault_address: String,
-        pub base_token: String,
+        pub base_token: AssetInfoBase<Addr>,
     }
 
     impl Setup {
@@ -59,6 +62,7 @@ pub mod osmosis {
                 .init_account(&[
                     Coin::new(1_000_000_000_000, "uatom"),
                     Coin::new(1_000_000_000_000, "uosmo"),
+                    Coin::new(1_000_000_000_000, "pica"),
                 ])
                 .unwrap();
 
@@ -184,7 +188,7 @@ pub mod osmosis {
                 signer,
                 force_withdraw_admin,
                 treasury,
-                base_token: base_token.to_string(),
+                base_token,
                 vault_address,
             }
         }

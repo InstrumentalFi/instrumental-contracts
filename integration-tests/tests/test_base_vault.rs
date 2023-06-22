@@ -1,18 +1,79 @@
 mod helpers;
+use std::str::FromStr;
+
 use apollo_cw_asset::AssetInfoBase;
 use base_vault::DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN;
-use cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
+use cosmrs::proto::cosmos::bank::v1beta1::{MsgSend, QueryBalanceRequest};
+use cosmrs::proto::cosmos::base::v1beta1::Coin as ProtoCoin;
 use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
     osmosis::{OsmosisPool, OsmosisStaking},
     traits::Pool as PoolTrait,
 };
 use cw_vault_token::osmosis::OsmosisDenom;
-use osmosis_test_tube::{Account, Bank, Module, Wasm};
+use osmosis_test_tube::{Account, Bank, Module, Runner, Wasm};
 use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
 use simple_vault::msg::{ExtensionQueryMsg, SimpleExtensionQueryMsg, StateResponse};
 
 use crate::helpers::osmosis::Setup;
+
+fn query_vault_state<'a, R>(
+    runner: &'a R,
+    vault_addr: &str,
+) -> StateResponse<OsmosisStaking, OsmosisPool, OsmosisDenom>
+where
+    R: Runner<'a>,
+{
+    let wasm = Wasm::new(runner);
+    let state: StateResponse<OsmosisStaking, OsmosisPool, OsmosisDenom> = wasm
+        .query(
+            vault_addr,
+            &QueryMsg::VaultExtension(ExtensionQueryMsg::Simple(SimpleExtensionQueryMsg::State {})),
+        )
+        .unwrap();
+    state
+}
+
+fn query_token_balance<'a, R>(runner: &'a R, address: &str, denom: &str) -> Uint128
+where
+    R: Runner<'a>,
+{
+    let bank = Bank::new(runner);
+    let balance = bank
+        .query_balance(&QueryBalanceRequest {
+            address: address.to_string(),
+            denom: denom.to_string(),
+        })
+        .unwrap()
+        .balance
+        .unwrap_or_default()
+        .amount;
+    Uint128::from_str(&balance).unwrap()
+}
+
+// fn send_native_coins<'a, R>(
+//     runner: &'a R,
+//     from: &SigningAccount,
+//     to: &str,
+//     denom: &str,
+//     amount: impl Into<String>,
+// ) where
+//     R: Runner<'a>,
+// {
+//     let bank = Bank::new(runner);
+//     bank.send(
+//         MsgSend {
+//             amount: vec![ProtoCoin {
+//                 denom: denom.to_string(),
+//                 amount: amount.into(),
+//             }],
+//             from_address: from.address(),
+//             to_address: to.to_string(),
+//         },
+//         from,
+//     )
+//     .unwrap();
+// }
 
 #[test]
 fn instantiation() {
@@ -26,14 +87,7 @@ fn instantiation() {
         base_token,
     } = Setup::new();
 
-    let wasm = Wasm::new(&app);
-
-    let state: StateResponse<OsmosisStaking, OsmosisPool, OsmosisDenom> = wasm
-        .query(
-            &vault_address,
-            &QueryMsg::VaultExtension(ExtensionQueryMsg::Simple(SimpleExtensionQueryMsg::State {})),
-        )
-        .unwrap();
+    let state = query_vault_state(&app, &vault_address);
 
     let vault_token_denom = state.vault_token.to_string();
     let total_staked_base_tokens = state.total_staked_base_tokens;
@@ -68,7 +122,7 @@ fn instantiation() {
     // TODO Check the Staking struct is set correctly
 
     // Check the Pool struct is set correctly
-    assert_eq!(pool.lp_token().to_string(), base_token);
+    assert_eq!(pool.lp_token().to_string(), base_token.to_string());
 
     // Check the vault token is set correctly
     // TODO replace string with regex
@@ -95,32 +149,18 @@ fn deposit() {
     } = Setup::new();
 
     let wasm = Wasm::new(&app);
-    let bank = Bank::new(&app);
 
-    let state: StateResponse<OsmosisStaking, OsmosisPool, OsmosisDenom> = wasm
-        .query(
-            &vault_address,
-            &QueryMsg::VaultExtension(ExtensionQueryMsg::Simple(SimpleExtensionQueryMsg::State {})),
-        )
-        .unwrap();
+    let state = query_vault_state(&app, &vault_address);
 
     let vault_token_denom = state.vault_token.to_string();
     let vault_token_supply = state.vault_token_supply;
     let total_staked_amount = state.total_staked_base_tokens;
 
-    let mut balance = bank
-        .query_balance(&QueryBalanceRequest {
-            address: signer.address(),
-            denom: vault_token_denom.clone(),
-        })
-        .unwrap()
-        .balance
-        .unwrap();
-
-    assert_eq!("0".to_string(), balance.amount);
+    let signer_vault_token_balance_before =
+        query_token_balance(&app, &signer.address(), &vault_token_denom);
+    assert_eq!(Uint128::zero(), signer_vault_token_balance_before);
 
     let deposit_amount = Uint128::new(2);
-
     let deposit_msg = ExecuteMsg::Deposit {
         amount: deposit_amount,
         recipient: None,
@@ -130,29 +170,69 @@ fn deposit() {
         &deposit_msg,
         &[Coin {
             amount: deposit_amount,
-            denom: base_token,
+            denom: base_token.to_string(),
         }],
         &signer,
     )
     .unwrap();
 
-    balance = bank
-        .query_balance(&QueryBalanceRequest {
-            address: signer.address(),
-            denom: vault_token_denom,
-        })
-        .unwrap()
-        .balance
-        .unwrap();
-
-    assert_eq!("2000000".to_string(), balance.amount);
-    assert_eq!(
-        "factory/osmo17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgs5yczr8/osmosis-vault"
-            .to_string(),
-        balance.denom
-    );
+    let signer_vault_token_balance_after =
+        query_token_balance(&app, &signer.address(), &vault_token_denom);
+    assert_eq!(Uint128::new(2000000), signer_vault_token_balance_after);
     assert_eq!(
         vault_token_supply,
         total_staked_amount * DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN
     );
+}
+
+#[test]
+fn reward_tokens() {
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin: _,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+    let bank = Bank::new(&app);
+
+    let state = query_vault_state(&app, &vault_address);
+    let config = state.config;
+
+    // Send some reward tokens to vault to simulate reward accruing
+    // This works as expected if I remove the wasm.execute call following this
+    let reward_amount = Uint128::from(100_000_000u128);
+    bank.send(
+        MsgSend {
+            from_address: signer.address(),
+            to_address: vault_address.clone(),
+            amount: vec![ProtoCoin {
+                amount: reward_amount.to_string(),
+                denom: config.reward_assets[0].to_string(),
+            }],
+        },
+        &signer,
+    )
+    .unwrap();
+
+    let deposit_amount = Uint128::new(200);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap(); // errors here
 }
