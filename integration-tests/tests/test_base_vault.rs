@@ -228,7 +228,7 @@ fn reward_tokens() {
     send_native_coins(
         &app,
         &signer,
-        &vault_address.clone(),
+        &vault_address,
         &config.reward_assets[0].to_string(),
         reward_amount,
     );
