@@ -12,8 +12,10 @@ use cw_dex::{
     osmosis::{OsmosisPool, OsmosisStaking},
     traits::Pool as PoolTrait,
 };
-use cw_vault_standard::extensions::force_unlock::ForceUnlockExecuteMsg;
-use cw_vault_standard::extensions::lockup::{LockupExecuteMsg, LockupQueryMsg, UnlockingPosition};
+use cw_vault_standard::extensions::{
+    force_unlock::ForceUnlockExecuteMsg,
+    lockup::{LockupExecuteMsg, LockupQueryMsg, UnlockingPosition},
+};
 use cw_vault_token::osmosis::OsmosisDenom;
 use osmosis_test_tube::{Account, Bank, Module, Runner, SigningAccount, Wasm};
 use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
