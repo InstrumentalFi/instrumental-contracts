@@ -1435,6 +1435,7 @@ dependencies = [
  "osmosis-test-tube 15.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "osmosis-vault",
  "pablo-vault-types",
+ "prost 0.11.9",
  "serde",
  "simple-vault",
 ]
