@@ -18,19 +18,28 @@ doctest = false
 backtraces = ["cosmwasm-std/backtraces"]
 
 [dev-dependencies]
-anyhow                         = { workspace = true }
-cosmwasm-std                   = { workspace = true }
-cw-multi-test                  = { workspace = true }
+anyhow                  = { workspace = true }
+cosmwasm-std            = { workspace = true }
+cw-multi-test           = { workspace = true }
 #mars-oracle-osmosis            = { workspace = true }
 #mars-oracle-base               = { workspace = true }
 #mars-osmosis                   = { workspace = true }
 #mars-red-bank                  = { workspace = true }
-pablo-vault-types               = { workspace = true }
-#mars-rewards-collector-base    = { workspace = true }
-#mars-rewards-collector-osmosis = { workspace = true }
+pablo-vault-types       = { workspace = true }
+base-vault              = { workspace = true }
+osmosis-vault           = { workspace = true }
+simple-vault            = { workspace = true }
+apollo-cw-asset         = { workspace = true }
 #mars-testing                   = { workspace = true }
 #mars-utils                     = { workspace = true }
-osmosis-std                    = { workspace = true }
-osmosis-test-tube              = { workspace = true }
-serde                          = { workspace = true }
-vault               = { version = "0.0.1", path = "../contracts/vault" }
+osmosis-std             = { workspace = true }
+osmosis-test-tube       = { workspace = true }
+serde                   = { workspace = true }
+cosmrs                  = { workspace = true }
+cosmwasm-schema         = { workspace = true }
+
+liquidity-helper = "0.1.0"
+cw-dex = { version = "0.1.1", features = ["osmosis"] }
+cw-dex-router = { version = "0.1.0", features = ["library","osmosis"] }
+cw-vault-token = "0.1.0"
+cw-vault-standard = { version = "0.2.0", features = ["lockup", "force-unlock"] }
