@@ -1,14 +1,15 @@
 mod helpers;
-use prost::Message;
 use std::str::FromStr;
 
 use apollo_cw_asset::AssetInfoBase;
 use base_vault::DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN;
-use cosmrs::proto::cosmos::{
-    bank::v1beta1::{MsgSend, QueryBalanceRequest},
-    base::v1beta1::Coin as ProtoCoin,
+use cosmrs::{
+    proto::cosmos::{
+        bank::v1beta1::{MsgSend, QueryBalanceRequest},
+        base::v1beta1::Coin as ProtoCoin,
+    },
+    Any,
 };
-use cosmrs::Any;
 use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
     osmosis::{OsmosisPool, OsmosisStaking},
@@ -18,11 +19,11 @@ use cw_vault_standard::extensions::{
     force_unlock::ForceUnlockExecuteMsg,
     lockup::{LockupExecuteMsg, LockupQueryMsg, UnlockingPosition},
 };
-
 use cw_vault_token::osmosis::OsmosisDenom;
 use osmosis_std::types::osmosis::lockup::Params as LockupParams;
 use osmosis_test_tube::{Account, Bank, Module, Runner, SigningAccount, Wasm};
 use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
+use prost::Message;
 use simple_vault::msg::{
     ExtensionExecuteMsg, ExtensionQueryMsg, SimpleExtensionQueryMsg, StateResponse,
 };
@@ -679,7 +680,7 @@ fn initiate_force_unlock_contract_unauthorized() {
             &vault_address,
             &QueryMsg::VaultExtension(ExtensionQueryMsg::Lockup(
                 LockupQueryMsg::UnlockingPositions {
-                    owner: force_withdraw_admin.address().clone(),
+                    owner: force_withdraw_admin.address(),
                     limit: None,
                     start_after: None,
                 },
@@ -783,7 +784,7 @@ fn initiate_force_unlock_contract_authorized() {
             &vault_address,
             &QueryMsg::VaultExtension(ExtensionQueryMsg::Lockup(
                 LockupQueryMsg::UnlockingPositions {
-                    owner: force_withdraw_admin.address().clone(),
+                    owner: force_withdraw_admin.address(),
                     limit: None,
                     start_after: None,
                 },
