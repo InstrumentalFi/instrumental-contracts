@@ -1,4 +1,4 @@
-# Fee distribution contract
+# Fee distribution contracts
 
 A smart contract that holds fee distribution logic.
 

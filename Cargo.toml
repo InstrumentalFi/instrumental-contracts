@@ -1,57 +1,70 @@
 [workspace]
 members = [
   "contracts/vault/*",
+  "contracts/fee-distribution/*",
   "integration-tests",
   "packages/base-vault",
   "packages/simple-vault",
+  "packages/fee-distribution",
+  "packages/testing",
 ]
 
 [workspace.package]
-version       = "1.0.0"
-authors       = [
+version = "1.0.0"
+authors = [
   "George Ornbo <george@shapeshed.com>",
   "Friedrich Grabner <max.grabner@margined.io>",
 ]
-edition       = "2021"
-license       = "GPL-3.0-or-later"
-repository    = "https://github.com/foo/bar"
-homepage      = "https://foo.bar"
+edition = "2021"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/foo/bar"
+homepage = "https://foo.bar"
 documentation = "https://docs.foo.bar/"
-keywords      = ["cosmos", "cosmwasm"]
+keywords = ["cosmos", "cosmwasm"]
 
 [workspace.dependencies]
-anyhow              = "1.0.68"
-bech32              = "0.9.1"
-cw2                 = "1.0.1"
-cosmwasm-schema     = "1.1.9"
-cosmwasm-std        = "1.1.9"
-cw-multi-test       = "0.16.1"
-cw-storage-plus     = "1.0.1"
-cw-utils            = "1.0.1"
-osmosis-std         = "0.14.0"
-osmosis-test-tube   = "15.1.0"
-cosmrs              = {version = "0.9.0", features = ["cosmwasm"]}
-prost               = { version = "0.11.5", default-features = false, features = ["prost-derive"] }
-schemars            = "0.8.11"
-serde               = { version = "1.0.152", default-features = false, features = ["derive"] }
-thiserror           = "1.0.38"
-apollo-cw-asset     = "0.1.0"
+anyhow = "1.0.68"
+bech32 = "0.9.1"
+cw2 = "1.0.1"
+cosmwasm-schema = "1.1.9"
+cosmwasm-std = "1.1.9"
+cosmwasm-storage = "1.2.2"
+cw-controllers = "0.15.1"
+cw-multi-test = "0.16.1"
+cw-storage-plus = "1.0.1"
+cw-utils = "1.0.1"
+# osmosis-std = "0.14.0"
+osmosis-std = { git = "https://github.com/osmosis-labs/osmosis-rust", branch = "main" }
+osmosis-test-tube = "15.1.0"
+cosmrs = { version = "0.9.0", features = ["cosmwasm"] }
+prost = { version = "0.11.5", default-features = false, features = [
+  "prost-derive",
+] }
+schemars = "0.8.11"
+serde = { version = "1.0.152", default-features = false, features = ["derive"] }
+serde_json = "1.0.94"
+thiserror = "1.0.38"
+apollo-cw-asset = "0.1.0"
 
 # packages
-pablo-vault-types   = { version = "1.0.0", path = "./packages/types" }
-base-vault          = { version = "1.0.0", path = "./packages/base-vault" }
-simple-vault        = { version = "1.0.0", path = "./packages/simple-vault" }
+pablo-vault-types = { version = "1.0.0", path = "./packages/types" }
+base-vault = { version = "1.0.0", path = "./packages/base-vault" }
+simple-vault = { version = "1.0.0", path = "./packages/simple-vault" }
+fee-distribution = { version = "0.1.0", path = "./packages/fee-distribution" }
+testing = { version = "0.1.0", path = "./packages/testing" }
 
 # contracts
-osmosis-vault       = { version = "1.0.0", path = "./contracts/vault/osmosis-vault" }
+osmosis-vault = { version = "1.0.0", path = "./contracts/vault/osmosis-vault" }
+collector = { version = "0.1.0", path = "./contracts/fee-distribution/collector" }
+staking = { version = "0.1.0", path = "./contracts/fee-distribution/staking" }
 
 [profile.release]
-codegen-units    = 1
-debug            = false
+codegen-units = 1
+debug = false
 debug-assertions = false
-incremental      = false
-lto              = true
-overflow-checks  = true
-opt-level        = 3
-panic            = "abort"
-rpath            = false
+incremental = false
+lto = true
+overflow-checks = true
+opt-level = 3
+panic = "abort"
+rpath = false
