@@ -2,8 +2,9 @@
 //use anyhow::Result as AnyResult;
 use cosmwasm_std::Coin;
 //use cw_multi_test::AppResponse;
-use osmosis_std::types::osmosis::gamm::v1beta1::{
-    MsgSwapExactAmountIn, MsgSwapExactAmountInResponse, SwapAmountInRoute,
+use osmosis_std::types::osmosis::{
+    gamm::v1beta1::{MsgSwapExactAmountIn, MsgSwapExactAmountInResponse},
+    poolmanager::v1beta1::SwapAmountInRoute,
 };
 use osmosis_test_tube::{Account, ExecuteResponse, OsmosisTestApp, Runner, SigningAccount};
 
@@ -199,10 +200,18 @@ pub mod osmosis {
     }
 
     pub fn wasm_file(contract_name: &str) -> String {
-        let artifacts_dir =
-            std::env::var("ARTIFACTS_DIR_PATH").unwrap_or_else(|_| "artifacts".to_string());
         let snaked_name = contract_name.replace('-', "_");
-        format!("../{artifacts_dir}/{snaked_name}.wasm")
+
+        let target = format!("../target/wasm32-unknown-unknown/release/{snaked_name}.wasm");
+
+        if std::path::Path::new(&target).exists() {
+            target
+        } else {
+            let arch = std::env::consts::ARCH;
+            let artifacts_dir =
+                std::env::var("ARTIFACTS_DIR_PATH").unwrap_or_else(|_| "artifacts".to_string());
+            format!("../{artifacts_dir}/{snaked_name}-{arch}.wasm")
+        }
     }
 
     pub fn instantiate_contract<M>(
