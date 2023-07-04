@@ -3,9 +3,12 @@ use std::str::FromStr;
 
 use apollo_cw_asset::AssetInfoBase;
 use base_vault::DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN;
-use cosmrs::proto::cosmos::{
-    bank::v1beta1::{MsgSend, QueryBalanceRequest},
-    base::v1beta1::Coin as ProtoCoin,
+use cosmrs::{
+    proto::cosmos::{
+        bank::v1beta1::{MsgSend, QueryBalanceRequest},
+        base::v1beta1::Coin as ProtoCoin,
+    },
+    Any,
 };
 use cosmwasm_std::{Coin, Decimal, Uint128};
 use cw_dex::{
@@ -17,8 +20,10 @@ use cw_vault_standard::extensions::{
     lockup::{LockupExecuteMsg, LockupQueryMsg, UnlockingPosition},
 };
 use cw_vault_token::osmosis::OsmosisDenom;
+use osmosis_std::types::osmosis::lockup::Params as LockupParams;
 use osmosis_test_tube::{Account, Bank, Module, Runner, SigningAccount, Wasm};
 use osmosis_vault::msg::{ExecuteMsg, QueryMsg};
+use prost::Message;
 use simple_vault::msg::{
     ExtensionExecuteMsg, ExtensionQueryMsg, SimpleExtensionQueryMsg, StateResponse,
 };
@@ -469,5 +474,364 @@ fn reward_tokens() {
     // assert!(res.to_string().contains("Unauthorized"));
     //
     // Send 3M vault tokens to force_withdraw_admin
-    //send_native_coins(&app, &signer, &force_withdraw_admin.address(), &vault_token_denom, "3000");
+    //let vault_token_balance = query_token_balance(&app, &signer.address(), &vault_token_denom);
+    //println!("vault_token_balance: {}", vault_token_balance);
+    //send_native_coins(&app, &signer, &force_withdraw_admin.address(), &vault_token_denom, "100");
+}
+#[test]
+fn force_redeem_unauthorized() {
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin: _,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+
+    // Deposit into the contract so signer has vault tokens
+    let deposit_amount = Uint128::new(200_000_000u128);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap();
+
+    let state = query_vault_state(&app, &vault_address);
+    let vault_token_denom = state.vault_token.to_string();
+
+    let vault_token_balance = query_token_balance(&app, &signer.address(), &vault_token_denom);
+    println!("vault_token_balance: {}", vault_token_balance);
+
+    // Generate a user and send vault tokens
+    let alice_vault_token_amount = Uint128::new(100_000_000u128);
+    let alice = app
+        .init_account(&[
+            Coin::new(1_000_000_000_000, "uatom"),
+            Coin::new(1_000_000_000_000, "uosmo"),
+        ])
+        .unwrap();
+    send_native_coins(
+        &app,
+        &signer,
+        &alice.address(),
+        &vault_token_denom,
+        alice_vault_token_amount,
+    );
+
+    // Try to force withdraw. This should fail as Alice is not whitelisted
+    let force_withdraw_msg = ExecuteMsg::VaultExtension(ExtensionExecuteMsg::ForceUnlock(
+        ForceUnlockExecuteMsg::ForceRedeem {
+            amount: alice_vault_token_amount,
+            recipient: None,
+        },
+    ));
+    let res = wasm
+        .execute(
+            &vault_address,
+            &force_withdraw_msg,
+            &[Coin::new(alice_vault_token_amount.into(), &vault_token_denom)],
+            &alice,
+        )
+        .unwrap_err(); // Should error because Alice is not authorized to force withdraw
+    assert_err(res, "Unauthorized");
+}
+
+#[test]
+fn force_redeem_authorized_contract_not_authorized() {
+    // This test should fail where a contract is not authorized to unlock
+    // See https://github.com/apollodao/apollo-vaults/blob/4af68b6d8e10c9f55f6f352c1980a9abe8c378d7/contracts/osmosis-vault/tests/integration_test.rs#L730
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+
+    // Deposit into the contract so signer has vault tokens
+    let deposit_amount = Uint128::new(200_000_000u128);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap();
+
+    let state = query_vault_state(&app, &vault_address);
+    let vault_token_denom = state.vault_token.to_string();
+    let force_withdraw_vault_token_amount = Uint128::new(100_000_000u128);
+
+    // Send vault tokens to the force withdraw account
+    send_native_coins(
+        &app,
+        &signer,
+        &force_withdraw_admin.address(),
+        &vault_token_denom,
+        force_withdraw_vault_token_amount,
+    );
+
+    let force_withdraw_msg = ExecuteMsg::VaultExtension(ExtensionExecuteMsg::ForceUnlock(
+        ForceUnlockExecuteMsg::ForceRedeem {
+            amount: force_withdraw_vault_token_amount,
+            recipient: None,
+        },
+    ));
+    let res = wasm
+        .execute(
+            &vault_address,
+            &force_withdraw_msg,
+            &[Coin::new(force_withdraw_vault_token_amount.into(), &vault_token_denom)],
+            &force_withdraw_admin,
+        )
+        .unwrap_err();
+
+    // Contract is no authorized to unlock so this fails
+    assert_err(res, "Sender (osmo17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgs5yczr8) not allowed to force unlock: unauthorized");
+}
+
+//#[test]
+//Need to add a successful unlock test, where the contract is added to whitelist
+//fn force_redeem_authorized_contract_unlocked() {}
+
+#[test]
+fn initiate_force_unlock_contract_unauthorized() {
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+
+    // Deposit into the contract so signer has vault tokens
+    let deposit_amount = Uint128::new(200_000_000u128);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap();
+
+    let state = query_vault_state(&app, &vault_address);
+    let vault_token_denom = state.vault_token.to_string();
+    let force_withdraw_vault_token_amount = Uint128::new(100_000_000u128);
+
+    // Send vault tokens to the force withdraw account
+    send_native_coins(
+        &app,
+        &signer,
+        &force_withdraw_admin.address(),
+        &vault_token_denom,
+        force_withdraw_vault_token_amount,
+    );
+
+    let unlock_msg =
+        ExecuteMsg::VaultExtension(ExtensionExecuteMsg::Lockup(LockupExecuteMsg::Unlock {
+            amount: force_withdraw_vault_token_amount,
+        }));
+    wasm.execute(
+        &vault_address,
+        &unlock_msg,
+        &[Coin::new(force_withdraw_vault_token_amount.into(), &vault_token_denom)],
+        &force_withdraw_admin,
+    )
+    .unwrap();
+
+    // Query unlocking positions
+    let unlocking_positions: Vec<UnlockingPosition> = wasm
+        .query(
+            &vault_address,
+            &QueryMsg::VaultExtension(ExtensionQueryMsg::Lockup(
+                LockupQueryMsg::UnlockingPositions {
+                    owner: force_withdraw_admin.address(),
+                    limit: None,
+                    start_after: None,
+                },
+            )),
+        )
+        .unwrap();
+
+    assert!(unlocking_positions.len() == 1);
+
+    let position = unlocking_positions[0].clone();
+    assert_eq!(
+        position.base_token_amount,
+        force_withdraw_vault_token_amount / DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN
+    );
+
+    // Try force withdraw unlocking from non-admin wallet, should fail
+    println!("Force withdraw unlocking, should fail as not admin");
+    let force_withdraw_msg = ExecuteMsg::VaultExtension(ExtensionExecuteMsg::ForceUnlock(
+        ForceUnlockExecuteMsg::ForceWithdrawUnlocking {
+            amount: Some(position.base_token_amount),
+            recipient: None,
+            lockup_id: position.id,
+        },
+    ));
+
+    let res = wasm.execute(&vault_address, &force_withdraw_msg, &[], &signer).unwrap_err(); // Should error because not admin
+    assert_err(res, "Unauthorized");
+
+    // Try force withdraw unlocking from whitelisted admin wallet, should work
+    let force_withdraw_admin_base_token_balance_before =
+        query_token_balance(&app, &force_withdraw_admin.address(), &base_token.to_string());
+
+    assert_eq!(force_withdraw_admin_base_token_balance_before, Uint128::zero());
+
+    let res =
+        wasm.execute(&vault_address, &force_withdraw_msg, &[], &force_withdraw_admin).unwrap_err();
+
+    // Contract is not authorized to unlock so this fails
+    assert_err(res, "Sender (osmo17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgs5yczr8) not allowed to force unlock: unauthorized");
+}
+
+#[test]
+fn initiate_force_unlock_contract_authorized() {
+    let Setup {
+        app,
+        signer,
+        admin: _,
+        force_withdraw_admin,
+        treasury: _,
+        vault_address,
+        base_token,
+    } = Setup::new();
+
+    let wasm = Wasm::new(&app);
+
+    // Deposit into the contract so signer has vault tokens
+    let deposit_amount = Uint128::new(200_000_000u128);
+    let deposit_msg = ExecuteMsg::Deposit {
+        amount: deposit_amount,
+        recipient: None,
+    };
+    wasm.execute(
+        &vault_address,
+        &deposit_msg,
+        &[Coin {
+            amount: deposit_amount,
+            denom: base_token.to_string(),
+        }],
+        &signer,
+    )
+    .unwrap();
+
+    let state = query_vault_state(&app, &vault_address);
+    let vault_token_denom = state.vault_token.to_string();
+    let force_withdraw_vault_token_amount = Uint128::new(100_000_000u128);
+
+    // Send vault tokens to the force withdraw account
+    send_native_coins(
+        &app,
+        &signer,
+        &force_withdraw_admin.address(),
+        &vault_token_denom,
+        force_withdraw_vault_token_amount,
+    );
+
+    let unlock_msg =
+        ExecuteMsg::VaultExtension(ExtensionExecuteMsg::Lockup(LockupExecuteMsg::Unlock {
+            amount: force_withdraw_vault_token_amount,
+        }));
+    wasm.execute(
+        &vault_address,
+        &unlock_msg,
+        &[Coin::new(force_withdraw_vault_token_amount.into(), &vault_token_denom)],
+        &force_withdraw_admin,
+    )
+    .unwrap();
+
+    // Query unlocking positions
+    let unlocking_positions: Vec<UnlockingPosition> = wasm
+        .query(
+            &vault_address,
+            &QueryMsg::VaultExtension(ExtensionQueryMsg::Lockup(
+                LockupQueryMsg::UnlockingPositions {
+                    owner: force_withdraw_admin.address(),
+                    limit: None,
+                    start_after: None,
+                },
+            )),
+        )
+        .unwrap();
+
+    assert!(unlocking_positions.len() == 1);
+
+    let position = unlocking_positions[0].clone();
+    assert_eq!(
+        position.base_token_amount,
+        force_withdraw_vault_token_amount / DEFAULT_VAULT_TOKENS_PER_STAKED_BASE_TOKEN
+    );
+
+    // Allow the contract to unlock positions on the gamm via governance
+    // https://github.com/osmosis-labs/test-tube/blob/a4a647726f7bd6d36f4e2d58ed8af37d5acd25a1/packages/osmosis-test-tube/src/runner/app.rs#L538-L549
+    app.set_param_set(
+        "lockup",
+        Any {
+            type_url: LockupParams::TYPE_URL.to_string(),
+            value: LockupParams {
+                force_unlock_allowed_addresses: vec![vault_address.clone()],
+            }
+            .encode_to_vec(),
+        },
+    )
+    .unwrap();
+
+    // Try force withdraw unlocking from whitelisted admin wallet, should work
+    let force_withdraw_admin_base_token_balance_before =
+        query_token_balance(&app, &force_withdraw_admin.address(), &base_token.to_string());
+
+    assert_eq!(force_withdraw_admin_base_token_balance_before, Uint128::zero());
+
+    let force_withdraw_msg = ExecuteMsg::VaultExtension(ExtensionExecuteMsg::ForceUnlock(
+        ForceUnlockExecuteMsg::ForceWithdrawUnlocking {
+            amount: Some(position.base_token_amount),
+            recipient: None,
+            lockup_id: position.id,
+        },
+    ));
+
+    wasm.execute(&vault_address, &force_withdraw_msg, &[], &force_withdraw_admin).unwrap();
+
+    let force_withdraw_admin_base_token_balance_after =
+        query_token_balance(&app, &force_withdraw_admin.address(), &base_token.to_string());
+
+    assert_eq!(force_withdraw_admin_base_token_balance_after, position.base_token_amount);
 }
