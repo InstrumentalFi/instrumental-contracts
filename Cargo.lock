@@ -1536,6 +1536,7 @@ dependencies = [
  "pablo-vault-types",
  "serde",
  "simple-vault",
+ "testing",
 ]
 
 [[package]]
