@@ -4,6 +4,8 @@ use osmosis_test_tube::{OsmosisTestApp, SigningAccount, Wasm};
 pub fn wasm_file(contract_name: String) -> String {
     let snaked_name = contract_name.replace('-', "_");
 
+    println!("snaked_name: {}", snaked_name);
+
     let target = format!("../../../target/wasm32-unknown-unknown/release/{snaked_name}.wasm");
 
     if std::path::Path::new(&target).exists() {

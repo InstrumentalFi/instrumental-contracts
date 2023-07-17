@@ -1,20 +1,15 @@
 use cosmwasm_std::{Deps, StdError, StdResult};
 use fee_distribution::collector::{
-    AllTokenResponse, ConfigResponse, OwnerResponse, TokenLengthResponse, TokenResponse,
+    AllTokenResponse, OwnerResponse, TokenLengthResponse, TokenResponse, WhitelistResponse,
 };
 
 use crate::{
     contract::OWNER,
-    state::{is_token, read_token_list, TOKEN_LIMIT},
+    state::{is_token, read_token_list, TOKEN_LIMIT, WHITELIST_ADDRESS},
 };
 
 const DEFAULT_PAGINATION_LIMIT: u32 = 10u32;
 const MAX_PAGINATION_LIMIT: u32 = TOKEN_LIMIT as u32;
-
-/// Queries contract config
-pub fn query_config(_: Deps) -> StdResult<ConfigResponse> {
-    Ok(ConfigResponse {})
-}
 
 /// Queries contract owner from the admin
 pub fn query_owner(deps: Deps) -> StdResult<OwnerResponse> {
@@ -24,6 +19,17 @@ pub fn query_owner(deps: Deps) -> StdResult<OwnerResponse> {
         })
     } else {
         Err(StdError::generic_err("No owner set"))
+    }
+}
+
+/// Queries contract whitelist address
+pub fn query_whitelist(deps: Deps) -> StdResult<WhitelistResponse> {
+    if let Some(address) = WHITELIST_ADDRESS.may_load(deps.storage)? {
+        Ok(WhitelistResponse {
+            address,
+        })
+    } else {
+        Err(StdError::generic_err("No whitelist set"))
     }
 }
 

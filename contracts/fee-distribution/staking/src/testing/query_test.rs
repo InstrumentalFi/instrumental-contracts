@@ -22,7 +22,7 @@ fn test_query_config() {
             owner: Addr::unchecked(env.signer.address()),
             fee_collector: Addr::unchecked(env.signer.address()),
             deposit_denom: env.denoms["deposit"].to_string(),
-            staked_denom: format!("factory/{}/staked{}", staking_address, env.denoms["deposit"]),
+            staked_denom: config.staked_denom.to_string(),
             deposit_decimals: 6u32,
             reward_denom: env.denoms["reward"].to_string(),
             reward_decimals: 6u32,

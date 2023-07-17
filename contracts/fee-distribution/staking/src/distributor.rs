@@ -1,5 +1,5 @@
 use crate::{
-    helper::{get_bank_balance, get_bank_total_supply},
+    helper::{get_bank_balance, get_token_total_supply},
     query::query_pending_rewards,
     state::{CONFIG, REWARDS_PER_TOKEN, STATE, USER_STAKE},
 };
@@ -38,7 +38,7 @@ pub fn update_rewards(deps: DepsMut, env: Env, account: Addr) -> StdResult<(Deps
     let block_rewards = calculate_rewards(deps.as_ref(), env.clone());
     update_distribution_time(deps.storage, env.clone()).unwrap();
 
-    let supply = get_bank_total_supply(deps.as_ref());
+    let supply = get_token_total_supply(deps.as_ref());
 
     let mut cumulative_rewards = REWARDS_PER_TOKEN.load(deps.storage).unwrap();
     if !supply.is_zero() && !block_rewards.is_zero() {
@@ -60,13 +60,10 @@ pub fn update_rewards(deps: DepsMut, env: Env, account: Addr) -> StdResult<(Deps
         return Ok((deps, block_rewards));
     }
 
-    let mut user = USER_STAKE
-        .load(deps.storage, account.clone())
-        .unwrap_or_default();
+    let mut user = USER_STAKE.load(deps.storage, account.clone()).unwrap_or_default();
 
-    let delta_rewards = cumulative_rewards
-        .checked_sub(user.previous_cumulative_rewards_per_token)
-        .unwrap();
+    let delta_rewards =
+        cumulative_rewards.checked_sub(user.previous_cumulative_rewards_per_token).unwrap();
 
     let account_reward = user
         .staked_amounts
@@ -79,10 +76,8 @@ pub fn update_rewards(deps: DepsMut, env: Env, account: Addr) -> StdResult<(Deps
     user.previous_cumulative_rewards_per_token = cumulative_rewards;
 
     if !user.claimable_rewards.is_zero() && !user.staked_amounts.is_zero() {
-        let next_cumulative_reward = user
-            .cumulative_rewards
-            .checked_add(user.claimable_rewards)
-            .unwrap();
+        let next_cumulative_reward =
+            user.cumulative_rewards.checked_add(user.claimable_rewards).unwrap();
 
         // TODO: tidy
         user.average_staked_amounts = user

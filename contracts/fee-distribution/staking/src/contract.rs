@@ -4,6 +4,7 @@ use crate::{
         handle_claim, handle_pause, handle_stake, handle_unpause, handle_unstake,
         handle_update_config, handle_update_rewards,
     },
+    messages::{create_instantiate_token_msg, receive_cw20},
     query::{query_claimable, query_user_staked_amount},
     state::{
         query_config, query_state, Config, State, CONFIG, REWARDS_PER_TOKEN, STATE, TOTAL_STAKED,
@@ -12,11 +13,12 @@ use crate::{
 
 use cosmwasm_std::{
     entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, ReplyOn, Response,
-    StdResult, SubMsg, Uint128,
+    StdError, StdResult, SubMsg, SubMsgResponse, SubMsgResult, Uint128,
 };
 use cw2::set_contract_version;
+use cw_utils::parse_instantiate_response_data;
 use fee_distribution::staking::{ExecuteMsg, InstantiateMsg, QueryMsg};
-use osmosis_std::types::osmosis::tokenfactory::v1beta1::{MsgCreateDenom, MsgCreateDenomResponse};
+// use osmosis_std::types::osmosis::tokenfactory::v1beta1::{MsgCreateDenom, MsgCreateDenomResponse};
 
 pub const INSTANTIATE_REPLY_ID: u64 = 1u64;
 
@@ -38,17 +40,6 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     deps.api.debug("instantiate");
     set_contract_version(deps.storage, format!("crates.io:{CONTRACT_NAME}"), CONTRACT_VERSION)?;
-
-    let create_denom_submsg = SubMsg {
-        id: INSTANTIATE_REPLY_ID,
-        msg: MsgCreateDenom {
-            sender: env.contract.address.to_string(),
-            subdenom: format!("staked{}", msg.deposit_denom),
-        }
-        .into(),
-        gas_limit: None,
-        reply_on: ReplyOn::Success,
-    };
 
     CONFIG.save(
         deps.storage,
@@ -75,21 +66,45 @@ pub fn instantiate(
     TOTAL_STAKED.save(deps.storage, &Uint128::zero())?;
     REWARDS_PER_TOKEN.save(deps.storage, &Uint128::zero())?;
 
-    Ok(Response::new().add_submessage(create_denom_submsg).add_attribute("action", "instantiate"))
+    let create_token_msg = create_instantiate_token_msg(
+        msg.token_code_id,
+        msg.token_name,
+        msg.deposit_denom,
+        msg.deposit_decimals as u8,
+        env.contract.address.to_string(),
+    );
+
+    Ok(Response::new().add_submessage(create_token_msg).add_attribute("action", "instantiate"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn reply(deps: DepsMut, _env: Env, msg: Reply) -> Result<Response, ContractError> {
     match msg.id {
         INSTANTIATE_REPLY_ID => {
-            let MsgCreateDenomResponse {
-                new_token_denom,
-            } = msg.result.try_into()?;
+            let mut config = CONFIG.load(deps.storage)?;
 
-            CONFIG.update(deps.storage, |mut config| -> StdResult<_> {
-                config.staked_denom = new_token_denom;
-                Ok(config)
-            })?;
+            if !config.staked_denom.is_empty() {
+                return Err(ContractError::Unauthorized {});
+            }
+
+            let data = match msg.result {
+                SubMsgResult::Ok(res) => res.data.unwrap(),
+                SubMsgResult::Err(err) => {
+                    return Err(ContractError::generic_err(format!(
+                        "reply (id {:?}) error: {:?}",
+                        msg.id, err
+                    )))
+                }
+            };
+
+            let init_response = parse_instantiate_response_data(data.as_slice())
+                .map_err(|e| StdError::generic_err(format!("{e}")))?;
+
+            deps.api.addr_validate(&init_response.contract_address)?;
+
+            config.staked_denom = init_response.contract_address;
+
+            CONFIG.save(deps.storage, &config)?;
 
             Ok(Response::new())
         }
@@ -110,7 +125,8 @@ pub fn execute(
         } => handle_update_config(deps, info, tokens_per_interval),
         ExecuteMsg::UpdateRewards {} => handle_update_rewards(deps, env),
         ExecuteMsg::Stake {} => handle_stake(deps, env, info),
-        ExecuteMsg::Unstake {} => handle_unstake(deps, env, info),
+        ExecuteMsg::Receive(msg) => receive_cw20(deps, env, info, msg),
+        // ExecuteMsg::Unstake {} => handle_unstake(deps, env, info),
         ExecuteMsg::Claim {
             recipient,
         } => handle_claim(deps, env, info, recipient),

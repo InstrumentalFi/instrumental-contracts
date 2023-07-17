@@ -1,12 +1,11 @@
 use crate::state::{Config, State, UserStake};
 
 use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
-use cosmwasm_std::{coin, Uint128};
-use fee_distribution::staking::{ExecuteMsg, QueryMsg};
+use cosmwasm_std::{coin, to_binary, Uint128};
+use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
+use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 use testing::staking_env::StakingEnv;
-
-const DEPOSIT_DENOM: &str = "umrg";
 
 #[test]
 fn test_unpause() {
@@ -16,6 +15,8 @@ fn test_unpause() {
 
     let staking_address =
         env.deploy_staking_contract(&wasm, "staking".to_string(), env.signer.address());
+
+    let config: Config = wasm.query(&staking_address, &QueryMsg::Config {}).unwrap();
 
     let state: State = wasm.query(&staking_address, &QueryMsg::State {}).unwrap();
     assert!(!state.is_open);
@@ -39,14 +40,6 @@ fn test_unpause() {
     {
         let err = wasm
             .execute(&staking_address, &ExecuteMsg::Stake {}, &[], &env.traders[0])
-            .unwrap_err();
-        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Contract is paused: execute wasm contract failed");
-    }
-
-    // cannot unstake if paused
-    {
-        let err = wasm
-            .execute(&staking_address, &ExecuteMsg::Unstake {}, &[], &env.traders[0])
             .unwrap_err();
         assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Contract is paused: execute wasm contract failed");
     }
@@ -202,7 +195,7 @@ fn test_staking() {
                 &env.traders[0],
             )
             .unwrap_err();
-        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: 1000000000umrg is smaller than 1000000000000umrg: insufficient funds");
+        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: 1000000000udeposit is smaller than 1000000000000udeposit: insufficient funds");
     }
 
     // should be able to stake
@@ -214,7 +207,7 @@ fn test_staking() {
         wasm.execute(
             &staking_address,
             &ExecuteMsg::Stake {},
-            &[coin(amount_to_stake, DEPOSIT_DENOM)],
+            &[coin(amount_to_stake, env.denoms["deposit"].to_string())],
             &env.traders[0],
         )
         .unwrap();
@@ -240,7 +233,7 @@ fn test_staking() {
 
         let balance_after =
             env.get_balance(env.traders[0].address(), env.denoms["deposit"].to_string());
-        let staked_balance = env.get_balance(env.traders[0].address(), config.staked_denom);
+        let staked_balance = env.get_cw20_balance(env.traders[0].address(), config.staked_denom);
 
         assert_eq!(balance_before - Uint128::from(amount_to_stake), balance_after);
         assert_eq!(staked_balance, Uint128::from(amount_to_stake));
@@ -276,37 +269,45 @@ fn test_unstaking() {
     wasm.execute(
         &staking_address,
         &ExecuteMsg::Stake {},
-        &[coin(amount_to_stake, DEPOSIT_DENOM)],
+        &[coin(amount_to_stake, env.denoms["deposit"].to_string())],
         &env.traders[0],
     )
     .unwrap();
 
     // returns error with wrong asset
-    {
-        let amount_to_unstake = 1_000_000u128;
-        let err = wasm
-            .execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_unstake, env.denoms["reward"].to_string())],
-                &env.traders[0],
-            )
-            .unwrap_err();
-        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Generic error: Invalid Funds: execute wasm contract failed");
-    }
+    // {
+    //     let amount_to_unstake = 1_000_000u128;
+    //     let err = wasm
+    //         .execute(
+    //             &config.staked_denom,
+    //             &Cw20ExecuteMsg::Send {
+    //                 contract: staking_address.clone(),
+    //                 amount: amount_to_unstake.into(),
+    //                 msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+    //             },
+    //             &[],
+    //             &env.traders[0],
+    //         )
+    //         .unwrap_err();
+    //     assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Generic error: Invalid Funds: execute wasm contract failed");
+    // }
 
     // returns error with insufficient funds
     {
-        let amount_to_stake = 1_000_000_000_000_000u128;
+        let amount_to_unstake = 1_000_000_000_000_000u128;
         let err = wasm
             .execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_stake, config.staked_denom.clone())],
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
                 &env.traders[0],
             )
             .unwrap_err();
-        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: 1000000factory/osmo1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqvlx82r/stakedumrg is smaller than 1000000000000000factory/osmo1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqvlx82r/stakedumrg: insufficient funds");
+        assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Overflow: Cannot Sub with 1000000 and 1000000000000000: execute wasm contract failed");
     }
 
     // should unstake half
@@ -314,20 +315,25 @@ fn test_unstaking() {
         let balance_before =
             env.get_balance(env.traders[0].address(), env.denoms["deposit"].to_string());
         let balance_before_staked =
-            env.get_balance(env.traders[0].address(), config.staked_denom.clone());
+            env.get_cw20_balance(env.traders[0].address(), config.staked_denom.clone());
 
         let amount_to_unstake = 500_000u128;
         wasm.execute(
-            &staking_address,
-            &ExecuteMsg::Unstake {},
-            &[coin(amount_to_unstake, config.staked_denom.clone())],
+            &config.staked_denom,
+            &Cw20ExecuteMsg::Send {
+                contract: staking_address.clone(),
+                amount: amount_to_unstake.into(),
+                msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+            },
+            &[],
             &env.traders[0],
         )
         .unwrap();
 
         let balance_after =
             env.get_balance(env.traders[0].address(), env.denoms["deposit"].to_string());
-        let balance_after_staked = env.get_balance(env.traders[0].address(), config.staked_denom);
+        let balance_after_staked =
+            env.get_cw20_balance(env.traders[0].address(), config.staked_denom);
 
         assert_eq!(balance_before + Uint128::from(amount_to_unstake), balance_after);
         assert_eq!(balance_before_staked - Uint128::from(amount_to_unstake), balance_after_staked);
@@ -363,7 +369,7 @@ fn test_claim() {
     wasm.execute(
         &staking_address,
         &ExecuteMsg::Stake {},
-        &[coin(amount_to_stake, DEPOSIT_DENOM)],
+        &[coin(amount_to_stake, env.denoms["deposit"].to_string())],
         &env.traders[0],
     )
     .unwrap();

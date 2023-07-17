@@ -1,9 +1,10 @@
-#[cfg(not(feature = "library"))]
-use crate::error::ContractError;
 use crate::{
-    handle::{add_token, remove_token, send_token, update_owner},
-    query::{query_all_token, query_config, query_is_token, query_owner, query_token_list_length},
-    state::{store_config, Config},
+    error::ContractError,
+    handle::{add_token, remove_token, send_token, update_owner, update_whitelist},
+    query::{
+        query_all_token, query_is_token, query_owner, query_token_list_length, query_whitelist,
+    },
+    state::WHITELIST_ADDRESS,
 };
 
 use cosmwasm_std::{
@@ -14,7 +15,7 @@ use cw_controllers::Admin;
 use fee_distribution::collector::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 /// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "crates.io:margined-fee-collector";
+const CONTRACT_NAME: &str = "collector";
 /// Contract version that is used for migration.
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Owner admin
@@ -29,13 +30,11 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
-    let config = Config {};
-
-    store_config(deps.storage, &config)?;
+    WHITELIST_ADDRESS.save(deps.storage, &info.sender)?;
 
     OWNER.set(deps, Some(info.sender))?;
 
-    Ok(Response::default())
+    Ok(Response::new().add_attribute("action", "instantiate"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -50,6 +49,9 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
         ExecuteMsg::RemoveToken {
             token,
         } => remove_token(deps, info, token),
+        ExecuteMsg::UpdateWhitelist {
+            address,
+        } => update_whitelist(deps, info, address),
         ExecuteMsg::SendToken {
             token,
             amount,
@@ -61,8 +63,8 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::Config {} => to_binary(&query_config(deps)?),
         QueryMsg::GetOwner {} => to_binary(&query_owner(deps)?),
+        QueryMsg::GetWhitelist {} => to_binary(&query_whitelist(deps)?),
         QueryMsg::IsToken {
             token,
         } => to_binary(&query_is_token(deps, token)?),

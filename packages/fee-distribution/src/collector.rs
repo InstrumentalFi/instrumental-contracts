@@ -17,6 +17,9 @@ pub enum ExecuteMsg {
     RemoveToken {
         token: String,
     },
+    UpdateWhitelist {
+        address: String,
+    },
     SendToken {
         token: String,
         amount: Uint128,
@@ -27,19 +30,25 @@ pub enum ExecuteMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    Config {},
     GetOwner {},
-    IsToken { token: String },
+    GetWhitelist {},
+    IsToken {
+        token: String,
+    },
     GetTokenLength {},
-    GetTokenList { limit: Option<u32> },
+    GetTokenList {
+        limit: Option<u32>,
+    },
 }
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-pub struct ConfigResponse {}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 pub struct OwnerResponse {
     pub owner: Addr,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+pub struct WhitelistResponse {
+    pub address: Addr,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]

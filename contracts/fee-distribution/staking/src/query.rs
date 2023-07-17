@@ -1,5 +1,5 @@
 use crate::{
-    helper::get_bank_total_supply,
+    helper::get_token_total_supply,
     state::{UserStake, CONFIG, REWARDS_PER_TOKEN, STATE, USER_STAKE},
 };
 
@@ -42,23 +42,19 @@ pub fn query_claimable(deps: Deps, env: Env, address: String) -> StdResult<Uint1
         return Ok(Uint128::zero());
     };
 
-    let pending_rewards = query_pending_rewards(deps, env)?
-        .checked_mul(decimal_places.into())
-        .unwrap();
+    let pending_rewards =
+        query_pending_rewards(deps, env)?.checked_mul(decimal_places.into()).unwrap();
 
-    let supply = get_bank_total_supply(deps);
+    let supply = get_token_total_supply(deps);
     let rewards_per_token = REWARDS_PER_TOKEN.load(deps.storage)?;
 
-    let next_reward_per_token = rewards_per_token
-        .checked_add(pending_rewards.checked_div(supply).unwrap())
-        .unwrap();
+    let next_reward_per_token =
+        rewards_per_token.checked_add(pending_rewards.checked_div(supply).unwrap()).unwrap();
 
     let latest_rewards = stake
         .staked_amounts
         .checked_mul(
-            next_reward_per_token
-                .checked_sub(stake.previous_cumulative_rewards_per_token)
-                .unwrap(),
+            next_reward_per_token.checked_sub(stake.previous_cumulative_rewards_per_token).unwrap(),
         )
         .unwrap()
         .checked_div(decimal_places.into())

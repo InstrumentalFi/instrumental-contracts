@@ -2,18 +2,15 @@ use crate::{
     distributor::update_rewards,
     error::ContractError,
     helper::{create_distribute_message, parse_funds},
+    messages::{create_burn_token_msg, create_mint_token_msg},
     state::{UserStake, CONFIG, STATE, TOTAL_STAKED, USER_STAKE},
 };
 
 use cosmwasm_std::{
-    ensure, ensure_eq, ensure_ne, CosmosMsg, DepsMut, Env, MessageInfo, Response, StdResult,
-    Uint128,
+    ensure, ensure_eq, ensure_ne, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
 };
-use osmosis_std::types::{
-    cosmos::bank::v1beta1::MsgSend,
-    cosmos::base::v1beta1::Coin,
-    osmosis::tokenfactory::v1beta1::{MsgBurn, MsgMint},
-};
+use cw20::Cw20ReceiveMsg;
+use osmosis_std::types::{cosmos::bank::v1beta1::MsgSend, cosmos::base::v1beta1::Coin};
 
 pub fn handle_update_config(
     deps: DepsMut,
@@ -190,15 +187,7 @@ pub fn handle_stake(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Respon
         response = response.add_message(distribute_msg);
     }
 
-    let msg_mint: CosmosMsg = MsgMint {
-        sender: env.contract.address.to_string(),
-        amount: Some(Coin {
-            denom: config.staked_denom,
-            amount: sent_funds.to_string(),
-        }),
-        mint_to_address: sender.to_string(),
-    }
-    .into();
+    let msg_mint = create_mint_token_msg(sent_funds, sender.to_string(), config.staked_denom);
 
     Ok(response.add_message(msg_mint).add_attribute("action", "stake"))
 }
@@ -207,14 +196,19 @@ pub fn handle_unstake(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
+    cw20_msg: Cw20ReceiveMsg,
 ) -> Result<Response, ContractError> {
     let config = CONFIG.load(deps.storage)?;
     let state = STATE.load(deps.storage)?;
 
-    let sender = info.sender;
-    let sent_funds: Uint128 = parse_funds(info.funds, config.staked_denom.clone())?;
+    let sender = deps.api.addr_validate(cw20_msg.sender.as_str())?;
+    let sent_funds: Uint128 = cw20_msg.amount;
+
+    deps.api.debug(&format!("unstake: sender: {}, amount: {}", sender, sent_funds));
 
     ensure!(state.is_open, ContractError::Paused {});
+
+    ensure_eq!(info.sender, config.staked_denom, ContractError::InvalidFunds {});
     ensure_ne!(sent_funds, Uint128::zero(), ContractError::InvalidFunds {});
 
     let (deps, rewards) = update_rewards(deps, env.clone(), sender.clone())?;
@@ -248,15 +242,7 @@ pub fn handle_unstake(
         response = response.add_message(distribute_msg);
     }
 
-    let msg_burn: CosmosMsg = MsgBurn {
-        sender: env.contract.address.to_string(),
-        amount: Some(Coin {
-            denom: config.staked_denom,
-            amount: sent_funds.to_string(),
-        }),
-        burn_from_address: env.contract.address.to_string(),
-    }
-    .into();
+    let msg_burn = create_burn_token_msg(sent_funds, config.staked_denom.clone());
 
     let msg_unstake = MsgSend {
         from_address: env.contract.address.to_string(),

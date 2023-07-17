@@ -1,13 +1,11 @@
-use cosmwasm_std::{
-    BankMsg, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
-    Uint128,
-};
-use osmosis_std::types::cosmos::bank::v1beta1::BankQuerier;
-use std::str::FromStr;
-
 use crate::{
     contract::OWNER,
-    state::{is_token, remove_token as remove_token_from_list, save_token},
+    state::{is_token, remove_token as remove_token_from_list, save_token, WHITELIST_ADDRESS},
+};
+
+use cosmwasm_std::{
+    BalanceResponse, BankMsg, BankQuery, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
+    QueryRequest, Response, StdError, StdResult, Uint128,
 };
 
 pub fn update_owner(deps: DepsMut, info: MessageInfo, owner: String) -> StdResult<Response> {
@@ -26,9 +24,9 @@ pub fn add_token(deps: DepsMut, info: MessageInfo, token: String) -> StdResult<R
     }
 
     // add the token
-    save_token(deps, token)?;
+    save_token(deps, token.clone())?;
 
-    Ok(Response::default())
+    Ok(Response::default().add_attributes([("action", "add_token"), ("denom", token.as_str())]))
 }
 
 pub fn remove_token(deps: DepsMut, info: MessageInfo, token: String) -> StdResult<Response> {
@@ -38,11 +36,25 @@ pub fn remove_token(deps: DepsMut, info: MessageInfo, token: String) -> StdResul
     }
 
     // remove token here
-    remove_token_from_list(deps, token)?;
+    remove_token_from_list(deps, token.clone())?;
 
-    Ok(Response::default())
+    Ok(Response::default().add_attributes([("action", "remove_token"), ("denom", token.as_str())]))
 }
 
+pub fn update_whitelist(deps: DepsMut, info: MessageInfo, address: String) -> StdResult<Response> {
+    // check permission
+    if !OWNER.is_admin(deps.as_ref(), &info.sender)? {
+        return Err(StdError::generic_err("unauthorized"));
+    }
+
+    let address = deps.api.addr_validate(&address)?;
+
+    // add the address to whitelist
+    WHITELIST_ADDRESS.save(deps.storage, &address)?;
+
+    Ok(Response::default()
+        .add_attributes([("action", "update_whitelist"), ("address", address.as_str())]))
+}
 pub fn send_token(
     deps: Deps,
     env: Env,
@@ -70,16 +82,11 @@ pub fn send_token(
     };
 
     // query the balance of the given token that this contract holds
-    let bank = BankQuerier::new(&deps.querier);
-
-    let balance = match bank
-        .balance(env.contract.address.to_string(), token.clone())
-        .unwrap()
-        .balance
-    {
-        Some(balance) => Uint128::from_str(balance.amount.as_str()).unwrap(),
-        None => Uint128::zero(),
-    };
+    let res: BalanceResponse = deps.querier.query(&QueryRequest::Bank(BankQuery::Balance {
+        address: env.contract.address.to_string(),
+        denom: token.clone(),
+    }))?;
+    let balance = res.amount.amount;
 
     // check that the balance is sufficient to pay the amount
     if balance < amount {

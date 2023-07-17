@@ -3,8 +3,8 @@ use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
 use cosmwasm_std::{from_binary, Addr, Uint128};
 use fee_distribution::collector::{
-    AllTokenResponse, ConfigResponse, ExecuteMsg, InstantiateMsg, OwnerResponse, QueryMsg,
-    TokenLengthResponse, TokenResponse,
+    AllTokenResponse, ExecuteMsg, InstantiateMsg, OwnerResponse, QueryMsg, TokenLengthResponse,
+    TokenResponse, WhitelistResponse,
 };
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 use testing::staking_env::StakingEnv;
@@ -17,9 +17,11 @@ fn test_instantiation() {
     let info = mock_info("addr0000", &[]);
     instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
-    let res = query(deps.as_ref(), mock_env(), QueryMsg::Config {}).unwrap();
-    let config: ConfigResponse = from_binary(&res).unwrap();
-    assert_eq!(config, ConfigResponse {});
+    let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
+    let resp: OwnerResponse = from_binary(&res).unwrap();
+    let owner = resp.owner;
+
+    assert_eq!(owner, Addr::unchecked("addr0000".to_string()));
 }
 
 #[test]
@@ -41,6 +43,29 @@ fn test_update_owner() {
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
     let resp: OwnerResponse = from_binary(&res).unwrap();
     let owner = resp.owner;
+
+    assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
+}
+
+#[test]
+fn test_update_whitelist() {
+    let mut deps = mock_dependencies();
+    let msg = InstantiateMsg {};
+    let info = mock_info("addr0000", &[]);
+
+    instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+    // Update the owner
+    let msg = ExecuteMsg::UpdateWhitelist {
+        address: "addr0001".to_string(),
+    };
+
+    let info = mock_info("addr0000", &[]);
+    execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+    let res = query(deps.as_ref(), mock_env(), QueryMsg::GetWhitelist {}).unwrap();
+    let resp: WhitelistResponse = from_binary(&res).unwrap();
+    let owner = resp.address;
 
     assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
 }
@@ -109,7 +134,7 @@ fn test_query_all_token() {
     // add another token
     let info = mock_info("owner", &[]);
     let msg = ExecuteMsg::AddToken {
-        token: "uosmo".to_string(),
+        token: "ubase".to_string(),
     };
 
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
@@ -127,7 +152,7 @@ fn test_query_all_token() {
     let res: AllTokenResponse = from_binary(&res).unwrap();
     let list = res.token_list;
 
-    assert_eq!(list, vec!["token1".to_string(), "uosmo".to_string(),]);
+    assert_eq!(list, vec!["token1".to_string(), "ubase".to_string(),]);
 }
 
 #[test]
@@ -501,7 +526,7 @@ fn test_send_native_token() {
             to_address: fee_collector.clone(),
             amount: vec![Coin {
                 amount: (5_000 * 10u128.pow(6)).to_string(),
-                denom: "uosmo".to_string(),
+                denom: "ubase".to_string(),
             }],
         },
         &env.signer,
@@ -512,7 +537,7 @@ fn test_send_native_token() {
     wasm.execute(
         &fee_collector,
         &ExecuteMsg::AddToken {
-            token: "uosmo".to_string(),
+            token: "ubase".to_string(),
         },
         &[],
         &env.signer,
@@ -520,18 +545,18 @@ fn test_send_native_token() {
     .unwrap();
 
     // query balance of bob
-    let balance = env.get_balance(env.empty.address(), "uosmo".to_string());
+    let balance = env.get_balance(env.empty.address(), "ubase".to_string());
     assert_eq!(balance, Uint128::zero());
 
     // query balance of contract
-    let balance = env.get_balance(fee_collector.clone(), "uosmo".to_string());
+    let balance = env.get_balance(fee_collector.clone(), "ubase".to_string());
     assert_eq!(balance, Uint128::from(5_000u128 * 10u128.pow(6)));
 
     // send token
     wasm.execute(
         &fee_collector,
         &ExecuteMsg::SendToken {
-            token: "uosmo".to_string(),
+            token: "ubase".to_string(),
             amount: Uint128::from(1000u128 * 10u128.pow(6)),
             recipient: env.empty.address(),
         },
@@ -541,11 +566,11 @@ fn test_send_native_token() {
     .unwrap();
 
     // query new balance of intended recipient
-    let balance = env.get_balance(env.empty.address(), "uosmo".to_string());
+    let balance = env.get_balance(env.empty.address(), "ubase".to_string());
     assert_eq!(balance, Uint128::from(1_000u128 * 10u128.pow(6)));
 
     // Query new contract balance
-    let balance = env.get_balance(fee_collector, "uosmo".to_string());
+    let balance = env.get_balance(fee_collector, "ubase".to_string());
     assert_eq!(balance, Uint128::from(4000u128 * 10u128.pow(6)));
 }
 
@@ -565,7 +590,7 @@ fn test_send_native_token_unsupported_token() {
             to_address: fee_collector.clone(),
             amount: vec![Coin {
                 amount: (5_000u128 * 10u128.pow(6)).to_string(),
-                denom: "uosmo".to_string(),
+                denom: "ubase".to_string(),
             }],
         },
         &env.signer,
@@ -577,7 +602,7 @@ fn test_send_native_token_unsupported_token() {
         .execute(
             &fee_collector,
             &ExecuteMsg::SendToken {
-                token: "uosmo".to_string(),
+                token: "ubase".to_string(),
                 amount: Uint128::from(1000u128 * 10u128.pow(6)),
                 recipient: env.empty.address(),
             },
@@ -607,7 +632,7 @@ fn test_send_native_token_insufficient_balance() {
             to_address: fee_collector.clone(),
             amount: vec![Coin {
                 amount: (1_000u128 * 10u128.pow(6)).to_string(),
-                denom: "uosmo".to_string(),
+                denom: "ubase".to_string(),
             }],
         },
         &env.signer,
@@ -618,7 +643,7 @@ fn test_send_native_token_insufficient_balance() {
     wasm.execute(
         &fee_collector,
         &ExecuteMsg::AddToken {
-            token: "uosmo".to_string(),
+            token: "ubase".to_string(),
         },
         &[],
         &env.signer,
@@ -626,11 +651,11 @@ fn test_send_native_token_insufficient_balance() {
     .unwrap();
 
     // query balance of bob
-    let balance = env.get_balance(env.empty.address(), "uosmo".to_string());
+    let balance = env.get_balance(env.empty.address(), "ubase".to_string());
     assert_eq!(balance, Uint128::zero());
 
     // query balance of contract
-    let balance = env.get_balance(fee_collector.clone(), "uosmo".to_string());
+    let balance = env.get_balance(fee_collector.clone(), "ubase".to_string());
     assert_eq!(balance, Uint128::from(1000u128 * 10u128.pow(6)));
 
     // send token
@@ -638,7 +663,7 @@ fn test_send_native_token_insufficient_balance() {
         .execute(
             &fee_collector,
             &ExecuteMsg::SendToken {
-                token: "uosmo".to_string(),
+                token: "ubase".to_string(),
                 amount: Uint128::from(2000u128 * 10u128.pow(6)),
                 recipient: env.empty.address(),
             },
@@ -651,11 +676,11 @@ fn test_send_native_token_insufficient_balance() {
         res.to_string()
     );
     // query new balance of intended recipient
-    let balance = env.get_balance(env.empty.address(), "uosmo".to_string());
+    let balance = env.get_balance(env.empty.address(), "ubase".to_string());
     assert_eq!(balance, Uint128::zero());
 
     // Query new contract balance
-    let balance = env.get_balance(fee_collector, "uosmo".to_string());
+    let balance = env.get_balance(fee_collector, "ubase".to_string());
     assert_eq!(balance, Uint128::from(1000u128 * 10u128.pow(6)));
 }
 
@@ -692,7 +717,7 @@ fn test_not_owner() {
         .execute(
             &fee_collector,
             &ExecuteMsg::AddToken {
-                token: "uosmo".to_string(),
+                token: "ubase".to_string(),
             },
             &[],
             &env.traders[0],
@@ -718,7 +743,7 @@ fn test_not_owner() {
         .execute(
             &fee_collector,
             &ExecuteMsg::SendToken {
-                token: "uosmo".to_string(),
+                token: "ubase".to_string(),
                 amount: Uint128::from(2000u128 * 10u128.pow(6)),
                 recipient: env.traders[0].address(),
             },
