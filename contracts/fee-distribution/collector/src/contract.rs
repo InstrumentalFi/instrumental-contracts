@@ -14,10 +14,9 @@ use cw2::set_contract_version;
 use cw_controllers::Admin;
 use fee_distribution::collector::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
-/// Contract name that is used for migration.
-const CONTRACT_NAME: &str = "collector";
-/// Contract version that is used for migration.
+pub const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// Owner admin
 pub const OWNER: Admin = Admin::new("owner");
 
@@ -28,7 +27,7 @@ pub fn instantiate(
     info: MessageInfo,
     _msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+    set_contract_version(deps.storage, format!("crates.io:{CONTRACT_NAME}"), CONTRACT_VERSION)?;
 
     WHITELIST_ADDRESS.save(deps.storage, &info.sender)?;
 

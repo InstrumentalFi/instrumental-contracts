@@ -4,8 +4,9 @@ use cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
 use cosmwasm_std::{coin, Addr, Uint128};
 use cw20::{BalanceResponse, Cw20QueryMsg};
 use fee_distribution::{
-    collector::{
-        ExecuteMsg as FeeCollectorExecuteMsg, InstantiateMsg as FeeCollectorInstantiateMsg,
+    collector::{ExecuteMsg as CollectorExecuteMsg, InstantiateMsg as CollectorInstantiateMsg},
+    distributor::{
+        ExecuteMsg as DistributorExecuteMsg, InstantiateMsg as DistributorInstantiateMsg,
     },
     staking::InstantiateMsg,
 };
@@ -55,23 +56,17 @@ impl StakingEnv {
 
         let handler = app.init_account(&[]).unwrap();
 
-        let trader1 = app
-            .init_account(&[
-                coin(1_000_000_000_000_000_000, denoms["gas"].to_string()),
-                coin(1_000_000_000_000_000_000, denoms["base"].to_string()),
-                coin(1_000_000_000_000, denoms["reward"].to_string()),
-                coin(1_000_000_000, denoms["deposit"].to_string()),
-            ])
-            .unwrap();
-
-        let trader2 = app
-            .init_account(&[
-                coin(1_000_000_000_000_000_000, denoms["gas"].to_string()),
-                coin(1_000_000_000_000_000_000, denoms["base"].to_string()),
-                coin(1_000_000_000_000, denoms["reward"].to_string()),
-                coin(1_000_000_000, denoms["deposit"].to_string()),
-            ])
-            .unwrap();
+        let mut traders: Vec<SigningAccount> = Vec::new();
+        for _ in 0..5 {
+            traders.push(
+                app.init_account(&[
+                    coin(1_000_000_000_000_000_000, denoms["gas"].to_string()),
+                    coin(1_000_000_000_000_000_000, denoms["base"].to_string()),
+                    coin(1_000_000_000, denoms["deposit"].to_string()),
+                ])
+                .unwrap(),
+            );
+        }
 
         let empty = app
             .init_account(&[
@@ -87,7 +82,7 @@ impl StakingEnv {
             signer,
             handler,
             empty,
-            traders: vec![trader1, trader2],
+            traders,
             denoms,
             cw20_code_id,
         }
@@ -98,7 +93,7 @@ impl StakingEnv {
         let fee_collector_address = wasm
             .instantiate(
                 code_id,
-                &FeeCollectorInstantiateMsg {},
+                &CollectorInstantiateMsg {},
                 None,
                 Some("collector-contract"),
                 &[coin(1_000_000_000_000, self.denoms["gas"].clone())],
@@ -135,7 +130,7 @@ impl StakingEnv {
         {
             wasm.execute(
                 fee_collector_address.as_str(),
-                &FeeCollectorExecuteMsg::AddToken {
+                &CollectorExecuteMsg::AddToken {
                     token: self.denoms["reward"].clone(),
                 },
                 &[],
@@ -148,7 +143,7 @@ impl StakingEnv {
         {
             wasm.execute(
                 fee_collector_address.as_str(),
-                &FeeCollectorExecuteMsg::UpdateOwner {
+                &CollectorExecuteMsg::UpdateOwner {
                     owner: staking_address.clone(),
                 },
                 &[],
@@ -197,9 +192,32 @@ impl StakingEnv {
         let code_id = store_code(wasm, &self.signer, contract_name);
         wasm.instantiate(
             code_id,
-            &FeeCollectorInstantiateMsg {},
+            &CollectorInstantiateMsg {},
             None,
             Some("collector-contract"),
+            &[],
+            &self.signer,
+        )
+        .unwrap()
+        .data
+        .address
+    }
+
+    pub fn deploy_distributor_contract(
+        &self,
+        wasm: &Wasm<OsmosisTestApp>,
+        contract_name: String,
+        distribution: Vec<(String, Uint128)>,
+    ) -> String {
+        let code_id = store_code(wasm, &self.signer, contract_name);
+        wasm.instantiate(
+            code_id,
+            &DistributorInstantiateMsg {
+                token: self.denoms["reward"].clone(),
+                distribution,
+            },
+            None,
+            Some("distributor-contract"),
             &[],
             &self.signer,
         )

@@ -12,17 +12,15 @@ use crate::{
 };
 
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, ReplyOn, Response,
-    StdError, StdResult, SubMsg, SubMsgResponse, SubMsgResult, Uint128,
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
+    StdResult, SubMsgResult, Uint128,
 };
 use cw2::set_contract_version;
 use cw_utils::parse_instantiate_response_data;
 use fee_distribution::staking::{ExecuteMsg, InstantiateMsg, QueryMsg};
-// use osmosis_std::types::osmosis::tokenfactory::v1beta1::{MsgCreateDenom, MsgCreateDenomResponse};
 
 pub const INSTANTIATE_REPLY_ID: u64 = 1u64;
 
-// version info for migration info
 pub const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
