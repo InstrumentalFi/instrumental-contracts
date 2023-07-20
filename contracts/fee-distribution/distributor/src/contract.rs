@@ -3,7 +3,7 @@ use crate::{
     handle::{distribute, update_config, update_owner},
     helpers::validate_distribution,
     query::{query_config, query_owner, query_token},
-    state::{Config, CONFIG},
+    state::{Config, CONFIG, TOKEN},
 };
 
 use cosmwasm_std::{
@@ -45,6 +45,8 @@ pub fn instantiate(
             distribution,
         },
     )?;
+
+    TOKEN.save(deps.storage, &msg.token)?;
 
     OWNER.set(deps, Some(info.sender))?;
 

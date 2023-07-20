@@ -12,15 +12,15 @@ pub fn validate_distribution(distribution: Vec<(Addr, Uint128)>) -> StdResult<()
         total_weight += *weight;
     }
 
-    if total_weight != Uint128::new(DECIMALS) {
-        return Err(StdError::generic_err("total weight must equal to 1_000_000"));
+    if distribution.len() > RECIPIENT_LIMIT || distribution.is_empty() {
+        return Err(StdError::generic_err(format!(
+            "Invalid number of recipients: {}",
+            distribution.len()
+        )));
     }
 
-    if distribution.len() > RECIPIENT_LIMIT {
-        return Err(StdError::generic_err(format!(
-            "number of recipients exceeds limit, max: {}",
-            RECIPIENT_LIMIT
-        )));
+    if total_weight != Uint128::new(DECIMALS) {
+        return Err(StdError::generic_err("total weight must equal to 1_000_000"));
     }
 
     Ok(())

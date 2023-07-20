@@ -2,7 +2,7 @@ use crate::state::{Config, UserStake};
 
 use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::{coin, to_binary, Uint128};
-use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
+use cw20::Cw20ExecuteMsg;
 use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 use testing::staking_env::StakingEnv;
@@ -192,20 +192,17 @@ fn test_stake_unstake_claim() {
             );
 
             let amount_to_unstake = 1_000_000_000u128;
-            let res = wasm
-                .execute(
-                    &config.staked_denom,
-                    &Cw20ExecuteMsg::Send {
-                        contract: staking_address.clone(),
-                        amount: amount_to_unstake.into(),
-                        msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
-                    },
-                    &[],
-                    &env.traders[0],
-                )
-                .unwrap();
-
-            // println!("res: {:#?}", res);
+            wasm.execute(
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
+                &env.traders[0],
+            )
+            .unwrap();
 
             assert_eq!(
                 env.get_cw20_balance(env.traders[0].address(), config.staked_denom.to_string()),

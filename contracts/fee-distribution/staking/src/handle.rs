@@ -204,8 +204,6 @@ pub fn handle_unstake(
     let sender = deps.api.addr_validate(cw20_msg.sender.as_str())?;
     let sent_funds: Uint128 = cw20_msg.amount;
 
-    deps.api.debug(&format!("unstake: sender: {}, amount: {}", sender, sent_funds));
-
     ensure!(state.is_open, ContractError::Paused {});
 
     ensure_eq!(info.sender, config.staked_denom, ContractError::InvalidFunds {});

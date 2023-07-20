@@ -5,9 +5,7 @@ use cosmwasm_std::{coin, Addr, Uint128};
 use cw20::{BalanceResponse, Cw20QueryMsg};
 use fee_distribution::{
     collector::{ExecuteMsg as CollectorExecuteMsg, InstantiateMsg as CollectorInstantiateMsg},
-    distributor::{
-        ExecuteMsg as DistributorExecuteMsg, InstantiateMsg as DistributorInstantiateMsg,
-    },
+    distributor::InstantiateMsg as DistributorInstantiateMsg,
     staking::InstantiateMsg,
 };
 use osmosis_test_tube::{Bank, Module, OsmosisTestApp, SigningAccount, Wasm};
@@ -244,9 +242,6 @@ impl StakingEnv {
 
     pub fn get_cw20_balance(&self, address: String, contract: String) -> Uint128 {
         let wasm = Wasm::new(&self.app);
-
-        println!("address: {}", address);
-        println!("contract: {}", contract);
 
         let response: BalanceResponse = wasm
             .query(

@@ -1,67 +1,90 @@
-# Fee Staking
+# Staking
 
-The Fee Staking is where token holders stake their token in order to earn rewards generated.
+The fee Staking is where token holders stake their tokens in order to earn rewards generated. Rewards are distributed using an emission of tokens per interval. When users stake they are issued with a receipt token that they can use then to unstake their tokens.
 
 ---
 
 ## InstantiateMsg
 
-The instantiation message is empty.
+The instantiation message contains the address of the fee collector contract and the relevant deposit and reward denoms. Further it defines the emission rate and the code id and name of the CW20 that is minted as receipt token.
+
 ```json
-{}
+{
+    "fee_collector": "centauri...",
+    "deposit_denom": "udeposit",
+    "reward_denom": "ureward",
+    "deposit_decimals": 6,
+    "reward_decimals": 6,
+    "tokens_per_interval": 100000,
+    "token_code_id": 1,
+    "token_name": "stakedDeposit",
+}
 ```
 
 ## ExecuteMsg
 
 ### `update_config`
 
-Transfers the contract owner.
+Enables the owner to alter the reward token emission.
 
 ```json
 {
    "update_config": {
-        "owner": "juno..."
+        "tokens_per_interval": 150000
    } 
 }
 ```
 
-### `add_token`
+### `update_rewards`
 
-Append token to be accepted for fee payments.
+Updates the internal accounting of rewards for users.
 
 ```json
 {
-   "add_token": {
-        "token": "juno..."
-   } 
+   "update_rewards": {} 
 }
 ```
 
 
-### `remove_token`
+### `stake`
 
-Remove token that is to be accepted for fee payments.
+Enables a user to stake deposit tokens, requires tokens to be sent in the transaction payload.
 
 ```json
 {
-   "remove_token": {
-        "token": "juno..."
+   "stake": {} 
+}
+```
+
+### `claim`
+
+Allows a user to claim the rewards that have accrued to their staked position. User can optionally define a recipient address for the rewards
+
+```json
+{
+   "claim": {
+        "recipient": "Some(centauri...)",
    } 
 }
 ```
 
+### `pause`
 
-### `send_token`
-
-Transfer tokens held by fee pool to a recipient address.
+Contract owner may pause staking.
 
 ```json
 {
-   "send_token": {
-        "token": "juno...",
-        "amount": "100",
-        "recipient": "juno...",
-   } 
+   "pause": {} 
+}
+```
+
+### `unpause`
+
+Contract owner may unpause staking.
+
+```json
+{
+   "unpause": {} 
 }
 ```
 
@@ -77,36 +100,36 @@ Returns contract parameters.
 }
 ```
 
-### `is_token`
+### `state`
 
-Returns bool showing if token is accepted as fees.
+Returns contract state parameters, such as total amounts staked.
 
 ```json
 {
-    "is_token": {
-        "token": "juno..."
+    "state": {}
+}
+```
+
+### `get_claimable`
+
+Returns the amounts claimable for a specific user.
+
+```json
+{
+    "get_claimable": {
+        "user": "centauri..."
     }
 }
 ```
 
-### `get_token_length`
+### `get_user_staked_amount`
 
-Returns number of tokens accepted as fees.
-
-```json
-{
-    "get_token_length": {}
-}
-```
-
-### `get_token_list`
-
-Returns list of fee tokens.
+Returns the amount staked by a specific user.
 
 ```json
 {
-    "get_token_list": {
-        "limit"?: 69,
+    "get_user_staked_amount": {
+        "user": "centauri..."
     }
 }
 ```

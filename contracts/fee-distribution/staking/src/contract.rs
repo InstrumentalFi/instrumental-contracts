@@ -1,8 +1,8 @@
 use crate::{
     error::ContractError,
     handle::{
-        handle_claim, handle_pause, handle_stake, handle_unpause, handle_unstake,
-        handle_update_config, handle_update_rewards,
+        handle_claim, handle_pause, handle_stake, handle_unpause, handle_update_config,
+        handle_update_rewards,
     },
     messages::{create_instantiate_token_msg, receive_cw20},
     query::{query_claimable, query_user_staked_amount},
@@ -36,7 +36,6 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    deps.api.debug("instantiate");
     set_contract_version(deps.storage, format!("crates.io:{CONTRACT_NAME}"), CONTRACT_VERSION)?;
 
     CONFIG.save(

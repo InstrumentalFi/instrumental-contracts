@@ -4,7 +4,7 @@ use cosmwasm_std::{
     to_binary, Coin, CosmosMsg, Deps, QueryRequest, StdError, StdResult, Uint128, WasmMsg,
     WasmQuery,
 };
-use cw20::{Cw20ExecuteMsg, Cw20QueryMsg, MinterResponse, TokenInfoResponse};
+use cw20::{Cw20QueryMsg, TokenInfoResponse};
 use fee_distribution::collector::ExecuteMsg as FeeExecuteMsg;
 use osmosis_std::types::cosmos::bank::v1beta1::BankQuerier;
 use std::str::FromStr;

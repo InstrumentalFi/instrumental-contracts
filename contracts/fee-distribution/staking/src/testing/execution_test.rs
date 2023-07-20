@@ -2,7 +2,7 @@ use crate::state::{Config, State, UserStake};
 
 use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::{coin, to_binary, Uint128};
-use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
+use cw20::Cw20ExecuteMsg;
 use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 use testing::staking_env::StakingEnv;
@@ -15,8 +15,6 @@ fn test_unpause() {
 
     let staking_address =
         env.deploy_staking_contract(&wasm, "staking".to_string(), env.signer.address());
-
-    let config: Config = wasm.query(&staking_address, &QueryMsg::Config {}).unwrap();
 
     let state: State = wasm.query(&staking_address, &QueryMsg::State {}).unwrap();
     assert!(!state.is_open);
@@ -177,7 +175,7 @@ fn test_staking() {
             .execute(
                 &staking_address,
                 &ExecuteMsg::Stake {},
-                &[coin(amount_to_stake, env.denoms["reward"].to_string())],
+                &[coin(amount_to_stake, env.denoms["gas"].to_string())],
                 &env.traders[0],
             )
             .unwrap_err();
@@ -274,24 +272,6 @@ fn test_unstaking() {
     )
     .unwrap();
 
-    // returns error with wrong asset
-    // {
-    //     let amount_to_unstake = 1_000_000u128;
-    //     let err = wasm
-    //         .execute(
-    //             &config.staked_denom,
-    //             &Cw20ExecuteMsg::Send {
-    //                 contract: staking_address.clone(),
-    //                 amount: amount_to_unstake.into(),
-    //                 msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
-    //             },
-    //             &[],
-    //             &env.traders[0],
-    //         )
-    //         .unwrap_err();
-    //     assert_eq!(err.to_string(), "execute error: failed to execute message; message index: 0: Generic error: Invalid Funds: execute wasm contract failed");
-    // }
-
     // returns error with insufficient funds
     {
         let amount_to_unstake = 1_000_000_000_000_000u128;
@@ -321,7 +301,7 @@ fn test_unstaking() {
         wasm.execute(
             &config.staked_denom,
             &Cw20ExecuteMsg::Send {
-                contract: staking_address.clone(),
+                contract: staking_address,
                 amount: amount_to_unstake.into(),
                 msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
             },

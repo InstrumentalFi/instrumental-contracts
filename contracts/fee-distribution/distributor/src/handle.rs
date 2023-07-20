@@ -40,7 +40,7 @@ pub fn update_config(
     Ok(Response::new().add_attribute("action", "update_config"))
 }
 
-pub fn distribute(deps: Deps, env: Env, info: MessageInfo) -> StdResult<Response> {
+pub fn distribute(deps: Deps, env: Env, _info: MessageInfo) -> StdResult<Response> {
     let config = CONFIG.load(deps.storage)?;
 
     let token = TOKEN.load(deps.storage)?;
