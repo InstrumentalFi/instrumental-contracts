@@ -1535,32 +1535,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "integration-tests"
-version = "1.0.0"
-dependencies = [
- "anyhow",
- "apollo-cw-asset",
- "base-vault",
- "cosmrs",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-dex",
- "cw-dex-router",
- "cw-multi-test",
- "cw-vault-standard",
- "cw-vault-token",
- "liquidity-helper",
- "osmosis-std 0.16.0-beta.1",
- "osmosis-test-tube 15.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "osmosis-vault",
- "pablo-vault-types",
- "prost 0.11.9",
- "serde",
- "simple-vault",
- "testing",
-]
-
-[[package]]
 name = "io-lifetimes"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"

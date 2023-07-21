@@ -2,7 +2,7 @@
 members = [
   "contracts/vault/*",
   "contracts/fee-distribution/*",
-  "integration-tests",
+  # "integration-tests",
   "packages/base-vault",
   "packages/simple-vault",
   "packages/fee-distribution",

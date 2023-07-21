@@ -45,7 +45,6 @@ Updates the internal accounting of rewards for users.
 }
 ```
 
-
 ### `stake`
 
 Enables a user to stake deposit tokens, requires tokens to be sent in the transaction payload.
