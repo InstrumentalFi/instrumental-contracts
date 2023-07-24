@@ -18,19 +18,10 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Install stable Rust
+      - name: Install Rust 1.69.0
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          components: clippy
-          profile: minimal
-          override: true
-
-      - name: Install nightly Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.69.0-nightly
+          toolchain: 1.69.0
           target: wasm32-unknown-unknown
           components: rustfmt
           profile: minimal
