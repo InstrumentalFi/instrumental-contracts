@@ -1,13 +1,17 @@
-use crate::contract::{execute, instantiate, query};
 use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
-use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-use cosmwasm_std::{from_binary, Addr, Uint128};
+use cosmwasm_std::{
+    from_binary,
+    testing::{mock_dependencies, mock_env, mock_info},
+    Addr, Uint128,
+};
 use fee_distribution::collector::{
     AllTokenResponse, ExecuteMsg, InstantiateMsg, OwnerResponse, QueryMsg, TokenLengthResponse,
     TokenResponse, WhitelistResponse,
 };
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 use testing::staking_env::StakingEnv;
+
+use crate::contract::{execute, instantiate, query};
 
 #[test]
 fn test_instantiation() {

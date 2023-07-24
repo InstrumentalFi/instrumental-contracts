@@ -1,11 +1,3 @@
-use crate::{
-    error::ContractError,
-    handle::{distribute, update_config, update_owner},
-    helpers::validate_distribution,
-    query::{query_config, query_owner, query_token},
-    state::{Config, CONFIG, TOKEN},
-};
-
 use cosmwasm_std::{
     entry_point, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
     Uint128,
@@ -13,6 +5,14 @@ use cosmwasm_std::{
 use cw2::set_contract_version;
 use cw_controllers::Admin;
 use fee_distribution::distributor::{ExecuteMsg, InstantiateMsg, QueryMsg};
+
+use crate::{
+    error::ContractError,
+    handle::{distribute, update_config, update_owner},
+    helpers::validate_distribution,
+    query::{query_config, query_owner, query_token},
+    state::{Config, CONFIG, TOKEN},
+};
 
 pub const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");

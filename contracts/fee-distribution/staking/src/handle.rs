@@ -1,3 +1,9 @@
+use cosmwasm_std::{
+    ensure, ensure_eq, ensure_ne, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
+};
+use cw20::Cw20ReceiveMsg;
+use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
+
 use crate::{
     distributor::update_rewards,
     error::ContractError,
@@ -5,12 +11,6 @@ use crate::{
     messages::{create_burn_token_msg, create_mint_token_msg},
     state::{UserStake, CONFIG, STATE, TOTAL_STAKED, USER_STAKE},
 };
-
-use cosmwasm_std::{
-    ensure, ensure_eq, ensure_ne, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
-};
-use cw20::Cw20ReceiveMsg;
-use osmosis_std::types::{cosmos::bank::v1beta1::MsgSend, cosmos::base::v1beta1::Coin};
 
 pub fn handle_update_config(
     deps: DepsMut,

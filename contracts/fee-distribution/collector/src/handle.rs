@@ -1,11 +1,11 @@
-use crate::{
-    contract::OWNER,
-    state::{is_token, remove_token as remove_token_from_list, save_token, WHITELIST_ADDRESS},
-};
-
 use cosmwasm_std::{
     BalanceResponse, BankMsg, BankQuery, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
     QueryRequest, Response, StdError, StdResult, Uint128,
+};
+
+use crate::{
+    contract::OWNER,
+    state::{is_token, remove_token as remove_token_from_list, save_token, WHITELIST_ADDRESS},
 };
 
 pub fn update_owner(deps: DepsMut, info: MessageInfo, owner: String) -> StdResult<Response> {

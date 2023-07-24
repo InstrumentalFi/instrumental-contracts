@@ -1,9 +1,9 @@
-use crate::state::{Config, State};
-
 use cosmwasm_std::{Addr, Timestamp};
 use fee_distribution::staking::QueryMsg;
 use osmosis_test_tube::{Account, Module, Wasm};
 use testing::staking_env::StakingEnv;
+
+use crate::state::{Config, State};
 
 #[test]
 fn test_instantiation() {

@@ -1,3 +1,10 @@
+use cosmwasm_std::{
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+};
+use cw2::set_contract_version;
+use cw_controllers::Admin;
+use fee_distribution::collector::{ExecuteMsg, InstantiateMsg, QueryMsg};
+
 use crate::{
     error::ContractError,
     handle::{add_token, remove_token, send_token, update_owner, update_whitelist},
@@ -6,13 +13,6 @@ use crate::{
     },
     state::WHITELIST_ADDRESS,
 };
-
-use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
-};
-use cw2::set_contract_version;
-use cw_controllers::Admin;
-use fee_distribution::collector::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 pub const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");

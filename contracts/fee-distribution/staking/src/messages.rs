@@ -1,11 +1,11 @@
-use crate::{contract::INSTANTIATE_REPLY_ID, error::ContractError, handle::handle_unstake};
-
 use cosmwasm_std::{
     from_binary, wasm_execute, wasm_instantiate, CosmosMsg, DepsMut, Env, MessageInfo, Response,
     SubMsg, Uint128,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
 use fee_distribution::staking::{Cw20HookMsg, Cw20TokenInstantiateMsg};
+
+use crate::{contract::INSTANTIATE_REPLY_ID, error::ContractError, handle::handle_unstake};
 
 pub fn receive_cw20(
     deps: DepsMut,

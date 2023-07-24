@@ -1,4 +1,4 @@
-use crate::state::CONFIG;
+use std::str::FromStr;
 
 use cosmwasm_std::{
     to_binary, Coin, CosmosMsg, Deps, QueryRequest, StdError, StdResult, Uint128, WasmMsg,
@@ -7,7 +7,8 @@ use cosmwasm_std::{
 use cw20::{Cw20QueryMsg, TokenInfoResponse};
 use fee_distribution::collector::ExecuteMsg as FeeExecuteMsg;
 use osmosis_std::types::cosmos::bank::v1beta1::BankQuerier;
-use std::str::FromStr;
+
+use crate::state::CONFIG;
 
 pub fn get_bank_balance(deps: Deps, address: String, denom: String) -> Uint128 {
     let bank = BankQuerier::new(&deps.querier);

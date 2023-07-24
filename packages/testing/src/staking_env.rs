@@ -1,4 +1,4 @@
-use crate::helpers::store_code;
+use std::{collections::HashMap, str::FromStr};
 
 use cosmrs::proto::cosmos::bank::v1beta1::QueryBalanceRequest;
 use cosmwasm_std::{coin, Addr, Uint128};
@@ -9,7 +9,8 @@ use fee_distribution::{
     staking::InstantiateMsg,
 };
 use osmosis_test_tube::{Bank, Module, OsmosisTestApp, SigningAccount, Wasm};
-use std::{collections::HashMap, str::FromStr};
+
+use crate::helpers::store_code;
 
 pub const ONE: u128 = 1_000_000; // 1.0@6dp
 pub const SCALE_FACTOR: u128 = 10_000;

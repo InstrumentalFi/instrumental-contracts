@@ -1,9 +1,9 @@
+use cosmwasm_std::{Deps, Env, StdResult, Uint128};
+
 use crate::{
     helper::get_token_total_supply,
     state::{UserStake, CONFIG, REWARDS_PER_TOKEN, STATE, USER_STAKE},
 };
-
-use cosmwasm_std::{Deps, Env, StdResult, Uint128};
 
 pub fn query_user_staked_amount(deps: Deps, address: String) -> StdResult<UserStake> {
     let user = deps.api.addr_validate(&address)?;

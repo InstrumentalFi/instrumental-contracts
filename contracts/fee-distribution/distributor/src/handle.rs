@@ -1,12 +1,12 @@
+use cosmwasm_std::{
+    Addr, BalanceResponse, BankMsg, BankQuery, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
+    QueryRequest, Response, StdError, StdResult, Uint128,
+};
+
 use crate::{
     contract::{DECIMALS, OWNER},
     helpers::validate_distribution,
     state::{Config, CONFIG, TOKEN},
-};
-
-use cosmwasm_std::{
-    Addr, BalanceResponse, BankMsg, BankQuery, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
-    QueryRequest, Response, StdError, StdResult, Uint128,
 };
 
 pub fn update_owner(deps: DepsMut, info: MessageInfo, owner: String) -> StdResult<Response> {

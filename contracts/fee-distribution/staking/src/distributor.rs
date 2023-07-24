@@ -1,10 +1,10 @@
+use cosmwasm_std::{Addr, Deps, DepsMut, Env, StdResult, Storage, Uint128};
+
 use crate::{
     helper::{get_bank_balance, get_token_total_supply},
     query::query_pending_rewards,
     state::{CONFIG, REWARDS_PER_TOKEN, STATE, USER_STAKE},
 };
-
-use cosmwasm_std::{Addr, Deps, DepsMut, Env, StdResult, Storage, Uint128};
 
 pub fn calculate_rewards(deps: Deps, env: Env) -> Uint128 {
     let config = CONFIG.load(deps.storage).unwrap();

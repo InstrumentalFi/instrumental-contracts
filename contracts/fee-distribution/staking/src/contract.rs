@@ -1,3 +1,11 @@
+use cosmwasm_std::{
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
+    StdResult, SubMsgResult, Uint128,
+};
+use cw2::set_contract_version;
+use cw_utils::parse_instantiate_response_data;
+use fee_distribution::staking::{ExecuteMsg, InstantiateMsg, QueryMsg};
+
 use crate::{
     error::ContractError,
     handle::{
@@ -10,14 +18,6 @@ use crate::{
         query_config, query_state, Config, State, CONFIG, REWARDS_PER_TOKEN, STATE, TOTAL_STAKED,
     },
 };
-
-use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
-    StdResult, SubMsgResult, Uint128,
-};
-use cw2::set_contract_version;
-use cw_utils::parse_instantiate_response_data;
-use fee_distribution::staking::{ExecuteMsg, InstantiateMsg, QueryMsg};
 
 pub const INSTANTIATE_REPLY_ID: u64 = 1u64;
 

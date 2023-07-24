@@ -1,6 +1,6 @@
-use crate::{contract::DECIMALS, state::RECIPIENT_LIMIT};
-
 use cosmwasm_std::{Addr, StdError, StdResult, Uint128};
+
+use crate::{contract::DECIMALS, state::RECIPIENT_LIMIT};
 
 pub fn validate_distribution(distribution: Vec<(Addr, Uint128)>) -> StdResult<()> {
     // validate the distribution
