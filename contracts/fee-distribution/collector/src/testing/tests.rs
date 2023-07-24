@@ -8,8 +8,8 @@ use fee_distribution::collector::{
     AllTokenResponse, ExecuteMsg, InstantiateMsg, OwnerResponse, QueryMsg, TokenLengthResponse,
     TokenResponse, WhitelistResponse,
 };
+use instrumental_testing::staking_env::StakingEnv;
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
-use testing::staking_env::StakingEnv;
 
 use crate::contract::{execute, instantiate, query};
 

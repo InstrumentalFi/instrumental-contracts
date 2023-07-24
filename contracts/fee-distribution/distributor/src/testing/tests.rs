@@ -5,8 +5,8 @@ use cosmwasm_std::{
     Addr, Uint128,
 };
 use fee_distribution::distributor::{ExecuteMsg, InstantiateMsg, OwnerResponse, QueryMsg};
+use instrumental_testing::staking_env::StakingEnv;
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
-use testing::staking_env::StakingEnv;
 
 use crate::{
     contract::{execute, instantiate, query},

@@ -2,8 +2,8 @@ use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::{coin, to_binary, Uint128};
 use cw20::Cw20ExecuteMsg;
 use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
+use instrumental_testing::staking_env::StakingEnv;
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
-use testing::staking_env::StakingEnv;
 
 use crate::state::{Config, UserStake};
 

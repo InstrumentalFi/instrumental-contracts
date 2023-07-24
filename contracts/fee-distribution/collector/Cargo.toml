@@ -54,4 +54,4 @@ cosmrs = { workspace = true }
 cosmwasm-schema = { workspace = true }
 cw-multi-test = { workspace = true }
 osmosis-test-tube = { workspace = true }
-testing = { workspace = true }
+instrumental-testing = { workspace = true }

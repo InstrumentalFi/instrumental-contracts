@@ -40,6 +40,7 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 """
 
 [dependencies]
+cosmrs = { workspace = true }
 cosmwasm-schema = { workspace = true }
 cosmwasm-std = { workspace = true }
 cosmwasm-storage = { workspace = true }
@@ -55,6 +56,5 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 cw-multi-test = { workspace = true }
-cosmrs = { workspace = true }
 osmosis-test-tube = { workspace = true }
-testing = { workspace = true }
+instrumental-testing = { workspace = true }

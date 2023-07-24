@@ -1,6 +1,6 @@
 extend = [
   { path = "schema.Makefile.toml" },
-  { path = "coverage_grcov.Makefile.toml" }
+  { path = "coverage_grcov.Makefile.toml" },
 ]
 
 [config]
@@ -11,10 +11,19 @@ default_to_workspace = false
 ARTIFACTS_DIR_PATH = "target/wasm32-unknown-unknown/release"
 
 [tasks.build]
-# toolchain = "stable"
 toolchain = "1.69.0"
 command = "cargo"
-args = ["build", "--release", "--target", "wasm32-unknown-unknown", "--locked"]
+args = [
+  "build",
+  "--release",
+  "--target",
+  "wasm32-unknown-unknown",
+  "--locked",
+  "--package",
+  "fee-distribition",
+  "--package",
+  "simple-vault",
+]
 
 [tasks.rust-optimizer]
 script = """
@@ -40,7 +49,6 @@ command = "cargo"
 args = ["test", "--locked", "--workspace", "--exclude", "integration-tests"]
 
 [tasks.integration-test]
-# toolchain = "stable"
 toolchain = "1.69.0"
 command = "cargo"
 args = ["test", "--locked", "--package", "integration-tests"]
