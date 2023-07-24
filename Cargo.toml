@@ -20,7 +20,6 @@ repository = "https://github.com/foo/bar"
 homepage = "https://foo.bar"
 documentation = "https://docs.foo.bar/"
 keywords = ["cosmos", "cosmwasm"]
-resolver = "2"
 
 [workspace.dependencies]
 anyhow = "1.0.68"

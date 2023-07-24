@@ -5,6 +5,7 @@ pub fn wasm_file(contract_name: String) -> String {
     let snaked_name = contract_name.replace('-', "_");
 
     let target = format!("../../../target/wasm32-unknown-unknown/release/{snaked_name}.wasm");
+    println!("target: {}", target);
 
     if std::path::Path::new(&target).exists() {
         target
@@ -12,6 +13,11 @@ pub fn wasm_file(contract_name: String) -> String {
         let arch = std::env::consts::ARCH;
         let artifacts_dir =
             std::env::var("ARTIFACTS_DIR_PATH").unwrap_or_else(|_| "artifacts".to_string());
+        println!("artifacts_dir: {}", artifacts_dir);
+        println!(
+            "artifacts_dir: {}",
+            format!("../../../{artifacts_dir}/{snaked_name}-{arch}.wasm")
+        );
         format!("../../../{artifacts_dir}/{snaked_name}-{arch}.wasm")
     }
 }
