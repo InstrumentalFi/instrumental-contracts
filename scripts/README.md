@@ -61,11 +61,10 @@ Deploy contracts to cosmwasm testnet:
 Then install npm packages and run deployment script:
 
 ```bash
-npm install
-node --loader ts-node/esm deploy.ts
+npm install && npm run deploy
 ```
 
-All contract addresses should be output to file `contract-address.json`.
+**All contract addresses should be output to file `./contract-address.json`.**
 
 ## Test Mnemonics
 

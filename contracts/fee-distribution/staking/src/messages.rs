@@ -5,8 +5,7 @@ use cosmwasm_std::{
     SubMsg, Uint128,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
-use cw20_base::msg::InstantiateMsg;
-use fee_distribution::staking::Cw20HookMsg;
+use fee_distribution::staking::{Cw20HookMsg, Cw20TokenInstantiateMsg};
 
 pub fn receive_cw20(
     deps: DepsMut,
@@ -29,7 +28,7 @@ pub fn create_instantiate_token_msg(
     SubMsg::reply_on_success(
         wasm_instantiate(
             code_id,
-            &InstantiateMsg {
+            &Cw20TokenInstantiateMsg {
                 name: token_name,
                 symbol: format!("ve{}", token_symbol),
                 decimals,

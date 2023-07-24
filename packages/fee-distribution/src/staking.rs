@@ -1,5 +1,7 @@
+use cosmwasm_schema::cw_serde;
 use cosmwasm_std::Uint128;
-use cw20::Cw20ReceiveMsg;
+use cw20::{Cw20Coin, Cw20ReceiveMsg, Logo, MinterResponse};
+// use cw20_base::InstantiateMsg as Cw20InstantiateMsg;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +15,25 @@ pub struct InstantiateMsg {
     pub tokens_per_interval: Uint128,
     pub token_code_id: u64,
     pub token_name: String,
+}
+
+#[cw_serde]
+pub struct InstantiateMarketingInfo {
+    pub project: Option<String>,
+    pub description: Option<String>,
+    pub marketing: Option<String>,
+    pub logo: Option<Logo>,
+}
+
+#[cw_serde]
+#[cfg_attr(test, derive(Default))]
+pub struct Cw20TokenInstantiateMsg {
+    pub name: String,
+    pub symbol: String,
+    pub decimals: u8,
+    pub initial_balances: Vec<Cw20Coin>,
+    pub mint: Option<MinterResponse>,
+    pub marketing: Option<InstantiateMarketingInfo>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
