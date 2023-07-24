@@ -1,4 +1,4 @@
-use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
+use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::{
     from_binary,
     testing::{mock_dependencies, mock_env, mock_info},

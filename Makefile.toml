@@ -39,12 +39,12 @@ docker run --rm -v "$(pwd)":/code \
 """
 
 [tasks.test]
-toolchain = "stable"
+toolchain = "1.69.0"
 command = "cargo"
 args = ["test", "--locked"]
 
 [tasks.unit-test]
-toolchain = "stable"
+toolchain = "1.69.0"
 command = "cargo"
 args = ["test", "--locked", "--workspace", "--exclude", "integration-tests"]
 
@@ -54,17 +54,17 @@ command = "cargo"
 args = ["test", "--locked", "--package", "integration-tests"]
 
 [tasks.fmt]
-toolchain = "nightly"
+toolchain = "1.69.0"
 command = "cargo"
 args = ["fmt", "--all", "--check"]
 
 [tasks.clippy]
-toolchain = "stable"
+toolchain = "1.69.0"
 command = "cargo"
 args = ["clippy", "--tests", "--", "-D", "warnings"]
 
 [tasks.audit]
-toolchain = "stable"
+toolchain = "1.69.0"
 command = "cargo"
 args = ["audit"]
 
