@@ -1,4 +1,3 @@
-use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use cosmwasm_std::{
     from_binary,
     testing::{mock_dependencies, mock_env, mock_info},
@@ -9,6 +8,7 @@ use fee_distribution::collector::{
     TokenResponse, WhitelistResponse,
 };
 use instrumental_testing::staking_env::StakingEnv;
+use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
 
 use crate::contract::{execute, instantiate, query};
