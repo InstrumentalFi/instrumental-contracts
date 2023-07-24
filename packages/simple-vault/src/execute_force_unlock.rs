@@ -161,7 +161,7 @@ where
         let new_whitelist: Vec<Addr> = whitelist
             .into_iter()
             .filter(|x| !remove_addresses.contains(x))
-            .chain(add_addresses.into_iter())
+            .chain(add_addresses)
             .collect::<HashSet<_>>()
             .into_iter()
             .collect::<Vec<_>>();
