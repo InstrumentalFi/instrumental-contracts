@@ -21,6 +21,7 @@ pub fn store_code(
     owner: &SigningAccount,
     contract_name: String,
 ) -> u64 {
+    println!("wasm_file: {}", wasm_file(contract_name.clone()));
     let wasm_byte_code = std::fs::read(wasm_file(contract_name)).unwrap();
     wasm.store_code(&wasm_byte_code, None, owner).unwrap().data.code_id
 }
