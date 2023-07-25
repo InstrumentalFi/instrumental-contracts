@@ -17,23 +17,13 @@ This repository contains the source code for the Pablo Vault and Fee Distributio
   rustup target add wasm32-unknown-unknown
   ```
 
+- Install [Docker][6]
+
 - Install [cargo-make][5]
 
   ```bash
   cargo install --force cargo-make
   ```
-
-- Install [Docker][6]
-
-- Install [Node.js v16][7]
-
-- Install [Yarn][8]
-
-- Create the build folder:
-
-```bash
-yarn build
-```
 
 - Compile all contracts:
 
@@ -41,39 +31,21 @@ yarn build
 cargo make rust-optimizer
 ```
 
-- Formatting:
+- Download CW20 contract:
 
 ```bash
-yarn format
-yarn lint
+wget -P ./artifacts/ https://github.com/CosmWasm/cw-plus/releases/download/v1.1.0/cw20_base.wasm
 ```
 
 This compiles and optimizes all contracts, storing them in `/artifacts` directory along with `checksum.txt` which contains sha256 hashes of each of the `.wasm` files (The script just uses CosmWasm's [rust-optimizer][9]).
 
 **Note:** Intel/Amd 64-bit processor is required. While there is experimental ARM support for CosmWasm/rust-optimizer, it's discouraged to use in production.
 
+**NOTE:** on Apple devices an architecture suffix may be required.
+
 ## Deployment
 
-When the deployment scripts run for the first time, it will upload code IDs for each contract, instantiate each contract, initialize assets, and set oracles. If you want to redeploy, you must locally delete the `osmo-test-4.json` file in the artifacts directory.
-
-Everything related to deployment must be ran from the `scripts` directory.
-
-Each outpost has a config file for its respective deployment and assets.
-
-For Osmosis:
-
-```bash
-cd scripts
-
-# for testnet deployment with deployerAddr set as owner & admin:
-yarn deploy:osmosis-testnet
-
-# for testnet deployment with multisigAddr set as owner & admin:
-yarn deploy:osmosis-testnet-multisig
-
-# for mainnet deployment:
-yarn deploy:osmosis-mainnet
-```
+See deployment [scripts](./scripts/README.md).
 
 ## Schemas
 
@@ -105,12 +77,6 @@ Run unit tests:
 
 ```bash
 cargo make unit-test
-```
-
-Run integration tests:
-
-```bash
-cargo make integration-test
 ```
 
 Run all tests:

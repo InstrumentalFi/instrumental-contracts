@@ -27,12 +27,20 @@ jobs:
           profile: minimal
           override: true
 
+
+      - name: Pull CW20 contract
+        run: wget -P ./artifacts/ https://github.com/CosmWasm/cw-plus/releases/download/v1.1.0/cw20_base.wasm
+
+
       # selecting a toolchain should happen before the plugin, as the cache uses the current rustc version as its cache key
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
 
       - name: Install cargo make
         uses: davidB/rust-cargo-make@v1
+
+      - name: Run tests
+        run: cargo make test
 
       - name: Format
         run: cargo make fmt
