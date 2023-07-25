@@ -31,7 +31,7 @@ jobs:
           RUSTFLAGS: "-C link-arg=-s"
 
       - name: Pull CW20 contract
-        run: wget -P ./target/wasm32-unknow-unknown/release https://github.com/CosmWasm/cw-plus/releases/download/v1.1.0/cw20_base.wasm
+        run: wget -P ./artifacts/ https://github.com/CosmWasm/cw-plus/releases/download/v1.1.0/cw20_base.wasm
 
       - name: Run Integration Tests
         uses: actions-rs/cargo@v1
