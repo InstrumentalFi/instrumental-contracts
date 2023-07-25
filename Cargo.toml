@@ -1,9 +1,9 @@
 [workspace]
 members = [
   "contracts/vault/*",
-  "contracts/collector",
-  "contracts/distributor",
-  "contracts/staking",
+  "contracts/fee-distribution/collector",
+  "contracts/fee-distribution/distributor",
+  "contracts/fee-distribution/staking",
   "packages/base-vault",
   "packages/simple-vault",
   "packages/fee-distribution",
