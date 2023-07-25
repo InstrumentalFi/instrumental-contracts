@@ -26,7 +26,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target wasm32-unknown-unknown --locked --package fee-distribution --package simple-vault
+          args: --release --target wasm32-unknown-unknown --locked  --package collector --package distributor --package staking --package simple-vault
         env:
           RUSTFLAGS: "-C link-arg=-s"
 

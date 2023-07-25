@@ -1,7 +1,9 @@
 [workspace]
 members = [
   "contracts/vault/*",
-  "contracts/fee-distribution/*",
+  "contracts/collector",
+  "contracts/distributor",
+  "contracts/staking",
   "packages/base-vault",
   "packages/simple-vault",
   "packages/fee-distribution",
@@ -54,8 +56,9 @@ instrumental-testing = { version = "0.1.0", path = "./packages/instrumental-test
 
 # contracts
 osmosis-vault = { version = "1.0.0", path = "./contracts/vault/osmosis-vault" }
-collector = { version = "0.1.0", path = "./contracts/fee-distribution/collector" }
-staking = { version = "0.1.0", path = "./contracts/fee-distribution/staking" }
+collector = { version = "0.1.0", path = "./contracts/collector" }
+distributor = { version = "0.1.0", path = "./contracts/distributor" }
+staking = { version = "0.1.0", path = "./contracts/staking" }
 
 [profile.release]
 codegen-units = 1
