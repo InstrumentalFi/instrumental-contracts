@@ -1,10 +1,11 @@
-use crate::state::{Config, UserStake};
-
-use cosmrs::proto::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
-use cosmwasm_std::{coin, Uint128};
-use fee_distribution::staking::{ExecuteMsg, QueryMsg};
+use cosmwasm_std::{coin, to_binary, Uint128};
+use cw20::Cw20ExecuteMsg;
+use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
+use instrumental_testing::staking_env::StakingEnv;
+use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use osmosis_test_tube::{Account, Bank, Module, Wasm};
-use testing::staking_env::StakingEnv;
+
+use crate::state::{Config, UserStake};
 
 #[test]
 fn test_stake_unstake_claim() {
@@ -158,18 +159,26 @@ fn test_stake_unstake_claim() {
         {
             let amount_to_unstake = 1_000_000_001u128; // 1000.000001@6dp stakedTOKEN
             let res = wasm.execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_unstake, config.staked_denom.clone())],
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
                 &env.traders[0],
             );
             assert!(res.is_err());
 
             let amount_to_unstake = 500_000_001u128; // 500.000001@6dp stakedTOKEN
             let res = wasm.execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_unstake, config.staked_denom.clone())],
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
                 &env.traders[1],
             );
             assert!(res.is_err());
@@ -184,13 +193,21 @@ fn test_stake_unstake_claim() {
 
             let amount_to_unstake = 1_000_000_000u128;
             wasm.execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_unstake, config.staked_denom.clone())],
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
                 &env.traders[0],
             )
             .unwrap();
 
+            assert_eq!(
+                env.get_cw20_balance(env.traders[0].address(), config.staked_denom.to_string()),
+                Uint128::zero()
+            );
             assert_eq!(
                 env.get_balance(env.traders[0].address(), env.denoms["deposit"].to_string()),
                 Uint128::from(amount_to_unstake)
@@ -220,9 +237,13 @@ fn test_stake_unstake_claim() {
         {
             let amount_to_unstake = 1u128;
             let res = wasm.execute(
-                &staking_address,
-                &ExecuteMsg::Unstake {},
-                &[coin(amount_to_unstake, config.staked_denom.clone())],
+                &config.staked_denom,
+                &Cw20ExecuteMsg::Send {
+                    contract: staking_address.clone(),
+                    amount: amount_to_unstake.into(),
+                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                },
+                &[],
                 &env.traders[0],
             );
             assert!(res.is_err());

@@ -1,20 +1,9 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
-use cosmwasm_std::{Deps, DepsMut, StdError::GenericErr, StdResult, Storage};
-use cosmwasm_storage::singleton;
+use cosmwasm_std::{Addr, Deps, DepsMut, StdError::GenericErr, StdResult, Storage};
 use cw_storage_plus::Item;
 
-pub static KEY_CONFIG: &[u8] = b"config";
+pub const WHITELIST_ADDRESS: Item<Addr> = Item::new("whitelist-address");
 pub const TOKEN_LIST: Item<Vec<String>> = Item::new("token-list");
 pub const TOKEN_LIMIT: usize = 3usize;
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-pub struct Config {}
-
-pub fn store_config(storage: &mut dyn Storage, config: &Config) -> StdResult<()> {
-    singleton(storage, KEY_CONFIG).save(config)
-}
 
 // function checks if an addr is already added and adds it if not
 // We also check that we have not reached the limit of tokens here
@@ -86,11 +75,7 @@ pub fn remove_token(deps: DepsMut, denom: String) -> StdResult<()> {
     }
 
     // change token_list
-    let index = token_list
-        .clone()
-        .iter()
-        .position(|x| x.eq(&denom))
-        .unwrap();
+    let index = token_list.clone().iter().position(|x| x.eq(&denom)).unwrap();
     token_list.swap_remove(index);
 
     // saves the updated token_list

@@ -3,6 +3,7 @@ pub mod distributor;
 mod error;
 pub mod handle;
 pub mod helper;
+pub mod messages;
 pub mod query;
 pub mod state;
 

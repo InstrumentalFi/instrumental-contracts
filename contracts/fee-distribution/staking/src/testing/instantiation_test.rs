@@ -1,12 +1,9 @@
-use crate::state::{Config, State};
-
 use cosmwasm_std::{Addr, Timestamp};
 use fee_distribution::staking::QueryMsg;
+use instrumental_testing::staking_env::StakingEnv;
 use osmosis_test_tube::{Account, Module, Wasm};
-use testing::staking_env::StakingEnv;
 
-const DEPOSIT_DENOM: &str = "umrg";
-const REWARD_DENOM: &str = "uusdc";
+use crate::state::{Config, State};
 
 #[test]
 fn test_instantiation() {
@@ -23,10 +20,10 @@ fn test_instantiation() {
         Config {
             owner: Addr::unchecked(env.signer.address()),
             fee_collector: Addr::unchecked(env.signer.address()),
-            deposit_denom: DEPOSIT_DENOM.to_string(),
-            staked_denom: format!("factory/{}/staked{}", staking_address, DEPOSIT_DENOM),
+            deposit_denom: env.denoms["deposit"].to_string(),
+            staked_denom: config.staked_denom.to_string(),
             deposit_decimals: 6u32,
-            reward_denom: REWARD_DENOM.to_string(),
+            reward_denom: env.denoms["reward"].to_string(),
             reward_decimals: 6u32,
             tokens_per_interval: 1_000_000u128.into(),
         }

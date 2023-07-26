@@ -14,17 +14,6 @@ exclude = [
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[profile.release]
-opt-level = 3
-debug = false
-rpath = false
-lto = true
-debug-assertions = false
-codegen-units = 1
-panic = 'abort'
-incremental = false
-overflow-checks = true
-
 [features]
 # for more explicit tests, cargo test --features=backtraces
 backtraces = ["cosmwasm-std/backtraces"]
@@ -40,19 +29,17 @@ optimize = """docker run --rm -v "$(pwd)":/code \
 
 [dependencies]
 cosmwasm-std = { workspace = true }
-cosmwasm-storage = { workspace = true }
 cw2 = { workspace = true }
 cw-controllers = { workspace = true }
 cw-storage-plus = { workspace = true }
 fee-distribution = { workspace = true }
-osmosis-std = { workspace = true }
 schemars = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-cosmrs = { workspace = true }
 cosmwasm-schema = { workspace = true }
 cw-multi-test = { workspace = true }
+osmosis-std = { workspace = true }
 osmosis-test-tube = { workspace = true }
-testing = { workspace = true }
+instrumental-testing = { workspace = true }

@@ -1,9 +1,14 @@
-use crate::state::CONFIG;
+use std::str::FromStr;
 
-use cosmwasm_std::{to_binary, Coin, CosmosMsg, Deps, StdError, StdResult, Uint128, WasmMsg};
+use cosmwasm_std::{
+    to_binary, Coin, CosmosMsg, Deps, QueryRequest, StdError, StdResult, Uint128, WasmMsg,
+    WasmQuery,
+};
+use cw20::{Cw20QueryMsg, TokenInfoResponse};
 use fee_distribution::collector::ExecuteMsg as FeeExecuteMsg;
 use osmosis_std::types::cosmos::bank::v1beta1::BankQuerier;
-use std::str::FromStr;
+
+use crate::state::CONFIG;
 
 pub fn get_bank_balance(deps: Deps, address: String, denom: String) -> Uint128 {
     let bank = BankQuerier::new(&deps.querier);
@@ -14,15 +19,18 @@ pub fn get_bank_balance(deps: Deps, address: String, denom: String) -> Uint128 {
     }
 }
 
-pub fn get_bank_total_supply(deps: Deps) -> Uint128 {
-    let bank = BankQuerier::new(&deps.querier);
-
+pub fn get_token_total_supply(deps: Deps) -> Uint128 {
     let config = CONFIG.load(deps.storage).unwrap();
 
-    match bank.supply_of(config.staked_denom).unwrap().amount {
-        Some(supply) => Uint128::from_str(supply.amount.as_str()).unwrap(),
-        None => Uint128::zero(),
-    }
+    let res: TokenInfoResponse = deps
+        .querier
+        .query(&QueryRequest::Wasm(WasmQuery::Smart {
+            contract_addr: config.staked_denom,
+            msg: to_binary(&Cw20QueryMsg::TokenInfo {}).unwrap(),
+        }))
+        .unwrap();
+
+    res.total_supply
 }
 
 pub fn create_distribute_message(

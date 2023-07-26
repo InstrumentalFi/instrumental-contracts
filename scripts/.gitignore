@@ -1,0 +1,5 @@
+.env
+/node-modules
+/tests
+package-lock.json
+contract-address.json
