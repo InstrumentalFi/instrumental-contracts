@@ -48,6 +48,8 @@ account.
 In terms of user experience, this can be handled by the front-end application.
 Keplr supports showing this to the user when signing the transaction.
 
+![Keplr grants][12]
+
 Enabling grants can also be executed using `osmosisd`. Here
 `osmo2yrg6daqkxyeqye4aac09stzvvwppqwls6wgpxr` is the bot account.
 
@@ -71,7 +73,7 @@ Here are the osmosis-testnet transactions for these grants:
 - [MsgJoinSwapExternAmountIn][1]
 - [MsgJoinPool][2]
 - [MsgLockTokens][3]
-- [MsgLockAndSuperfluidDelegate[4]
+- [MsgLockAndSuperfluidDelegatea[4]
 
 Grants by default are 1 year, but can be any period of time and can be revoked
 from either from `osmosisd` or Keplr at any time.
@@ -306,24 +308,15 @@ work.
 - [Authz Fee Capture Request][11] - This has been accepted as a proposal but not
   implemented.
 
-[1]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/B7143AE38C7C8FB497271A78A8E0FC9A930A3FE46704F7CC928595E5D01C7EFE?height=1988844
-[2]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/0F8BF3DC09E62598DF1182818CB49A1989F1194485F6BB951018869AA4142A70?height=1988845
-[3]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/C502B96BA0FD400EA373BEBD9DC025E1270C49A9A8227E7BC899208CB8AD3168?height=1988968
-[4]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/9F8E20338FAFCBA8F562327E21E94472DE12CDE22C436165AC2D668C81F69149?height=1988982
-[5]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/1169B95116CA32CFA9704F39623C468EA8DF1B06DFE805F16634F3CFC4F7027C?height=1989500
-[6]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/E83C30F32978688E109893B7C6D597D61090AE591F78E38EAAEB66517C335E72?height=1989645
-[7]:
-  https://www.mintscan.io/osmosis/transactions/3C7A8CF9B4A170E354159204D8543A545BD7FD47E418097CE0C52492A5A9E04F
-[8]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/F9CAC58F146FEAF9C8FA83D35525F13725A01D484A1CA55DC33E84096C12FF22?height=1989850
-[9]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/151B8A78EF04BCF154A29CE7B294F094616A9795A82EF2627019E112B1FDC026?height=1989942
-[10]:
-  https://testnet.mintscan.io/osmosis-testnet/txs/D497970DDCB19596311AB43E406BC4FB285E31803DE78A26417777F2888585F9?height=1989987
+[1]: https://testnet.mintscan.io/osmosis-testnet/txs/B7143AE38C7C8FB497271A78A8E0FC9A930A3FE46704F7CC928595E5D01C7EFE?height=1988844
+[2]: https://testnet.mintscan.io/osmosis-testnet/txs/0F8BF3DC09E62598DF1182818CB49A1989F1194485F6BB951018869AA4142A70?height=1988845
+[3]: https://testnet.mintscan.io/osmosis-testnet/txs/C502B96BA0FD400EA373BEBD9DC025E1270C49A9A8227E7BC899208CB8AD3168?height=1988968
+[4]: https://testnet.mintscan.io/osmosis-testnet/txs/9F8E20338FAFCBA8F562327E21E94472DE12CDE22C436165AC2D668C81F69149?height=1988982
+[5]: https://testnet.mintscan.io/osmosis-testnet/txs/1169B95116CA32CFA9704F39623C468EA8DF1B06DFE805F16634F3CFC4F7027C?height=1989500
+[6]: https://testnet.mintscan.io/osmosis-testnet/txs/E83C30F32978688E109893B7C6D597D61090AE591F78E38EAAEB66517C335E72?height=1989645
+[7]: https://www.mintscan.io/osmosis/transactions/3C7A8CF9B4A170E354159204D8543A545BD7FD47E418097CE0C52492A5A9E04F
+[8]: https://testnet.mintscan.io/osmosis-testnet/txs/F9CAC58F146FEAF9C8FA83D35525F13725A01D484A1CA55DC33E84096C12FF22?height=1989850
+[9]: https://testnet.mintscan.io/osmosis-testnet/txs/151B8A78EF04BCF154A29CE7B294F094616A9795A82EF2627019E112B1FDC026?height=1989942
+[10]: https://testnet.mintscan.io/osmosis-testnet/txs/D497970DDCB19596311AB43E406BC4FB285E31803DE78A26417777F2888585F9?height=1989987
 [11]: https://github.com/cosmos/cosmos-sdk/issues/11583
+[12]: img/grants.png
