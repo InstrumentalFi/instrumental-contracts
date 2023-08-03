@@ -73,7 +73,7 @@ Here are the osmosis-testnet transactions for these grants:
 - [MsgJoinSwapExternAmountIn][1]
 - [MsgJoinPool][2]
 - [MsgLockTokens][3]
-- [MsgLockAndSuperfluidDelegatea[4]
+- [MsgLockAndSuperfluidDelegate][4]
 
 Grants by default are 1 year, but can be any period of time and can be revoked
 from either from `osmosisd` or Keplr at any time.
