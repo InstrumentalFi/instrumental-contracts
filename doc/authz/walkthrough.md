@@ -99,7 +99,7 @@ autocompound this back into the OSMO/ION pool.
 
 The bot will use the Authz grant to perform this on her behalf.
 
-First an unsigned transation is generated to at the 10uosmo to the pool.
+First an unsigned transation is generated to join the 10uosmo to the pool.
 
 ```sh
 osmosisd tx gamm join-swap-extern-amount-in \
@@ -186,13 +186,13 @@ The [resulting transaction][9] shows funds being moved from Alice's account.
 If the bot tries to move more than the allowance it has the [transaction will
 fail][10].
 
-Note that the send authorization is somewhat of a security risk in that whoever
-controls the bot account can now transfer funds from Alice's account to the
-limit specified.
-
 ```sh
 failed to execute message; message index: 0: requested amount is more than spend limit: insufficient funds
 ```
+
+Note that the send authorization is somewhat of a security risk in that whoever
+controls the bot account can now transfer funds from Alice's account to the
+limit specified.
 
 This technique can be used to send the fee to any address (a contract) which can
 then liquidate and send the fee via IBC to Centauri. It may also be possible to
@@ -206,10 +206,10 @@ in both the Osmosis developer group and a private channel that we have with
 Osmosis. Our conclusion is that we either would need to create an indexer or use
 an external data provider.
 
-The following data source is community based project
+The following [data source][15] is community based project
 
-https://api-osmosis-chain.imperator.co/lp/v1/rewards/token/{walletAddress}
-https://api-osmosis-chain.imperator.co/lp/v1/rewards/historical/{walletAddress}/{token}
+- https://api-osmosis-chain.imperator.co/lp/v1/rewards/token/{walletAddress}
+- https://api-osmosis-chain.imperator.co/lp/v1/rewards/historical/{walletAddress}/{token}
 
 If we look at the an address that is using Yieldmos we can get tokens that have
 been rewarded to this address
@@ -326,3 +326,4 @@ work.
 [12]: img/grants.png
 [13]: img/keplr.png
 [14]: img/revoke.png
+[15]: https://api-osmosis-chain.imperator.co/swagger/
