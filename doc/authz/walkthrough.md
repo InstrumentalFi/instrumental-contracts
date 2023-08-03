@@ -78,6 +78,8 @@ Here are the osmosis-testnet transactions for these grants:
 Grants by default are 1 year, but can be any period of time and can be revoked
 from either from `osmosisd` or Keplr at any time.
 
+![Authz Grants][13]
+
 ```sh
 osmosisd tx authz revoke \
     osmo1yrg6daqkxyeqye4aac09stzvvwppqwls6wgpxr \
@@ -86,6 +88,8 @@ osmosisd tx authz revoke \
 
 Grants can be seen and revoked within Keplr under Settings > General > Manage
 Authz
+
+![Authz Revoking][14]
 
 ## Autocompounding
 
@@ -320,3 +324,5 @@ work.
 [10]: https://testnet.mintscan.io/osmosis-testnet/txs/D497970DDCB19596311AB43E406BC4FB285E31803DE78A26417777F2888585F9?height=1989987
 [11]: https://github.com/cosmos/cosmos-sdk/issues/11583
 [12]: img/grants.png
+[13]: img/keplr.png
+[14]: img/revoke.png
