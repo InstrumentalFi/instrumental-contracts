@@ -1,0 +1,33 @@
+@startuml
+
+actor Alice as alice
+entity  "Instrumental Vault (Osmosis)" as vault
+entity  "DEX (Osmosis)" as dex
+entity  "Fee Collection Contract (Centauri)" as collection
+entity  "Fee Distribution Contract (Centauri)" as staking
+entity  "Instrumental Protocol Contract (Centauri)" as protocol
+entity  "Strategy Manager Contract (Centauri)" as manager
+
+group Withdraw
+alice -> vault: Initiate unlock
+alice -> vault: Withdraw LP tokens
+note right
+    This can only be done afer the unbonding period
+    (normally 14 days on Osmosis)
+end note
+vault -> dex: Unbond LP Tokens
+vault -> dex: Withdraw liquidity
+dex -> vault: OSMO
+vault -> alice: OSMO * 0.99
+vault -> collection: OSMO * 0.01 via IBC
+collection -> staking: ibcOSMO * 0.5
+note right
+    How is this swapped to PICA?
+end note
+collection -> protocol: ibcOSMO * 0.3
+collection -> manager: ibcOSMO * 0.2
+note right
+    Is this still relevant?
+end note
+end
+@enduml
