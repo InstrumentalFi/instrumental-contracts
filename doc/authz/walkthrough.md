@@ -278,19 +278,19 @@ This amount looks to be in dollars rather than the token amount and there is no
 split on the different pools that a user might receive OSMO rewards from. So
 unfortunately this data source does not provide what we need.
 
-Yieldmos partner with Dexmos who have a porition of the data provided by
+Yieldmos partner with Dexmos who have a portion of the data provided by
 Imperator.co so it may be an option to reach out to Imperator to see if they
 have an api with rewards emitted to an account by date, denom and pool.
 
-The other option is to build an indexer to harvest this data which seems a lot o
+The other option is to build an indexer to harvest this data which seems a lot of
 work.
 
 ## Conclusions
 
 - It is technically possible to create an autocompounding product that takes a
   fee using Authz
-- To take the fee a SendAuthorization grant must be given for each reward token
-  so the front-end probably needs to know about which pools are supported.
+- To take the fee a SendAuthorization grant must be given for each reward token.
+  The front-end will need to handle this.
 - The bot account will have control over funds authorized via SendAuthorization
   so this could represent a security risk.
 - Superfluid LP positions are hard to autocompound since the range affects
@@ -298,8 +298,8 @@ work.
 - There is an [open issue][11] around adding fee capture to Authz which has been
   accepted but not implemented.
 - There is no first-party API to get historical rewards sent to users. This must
-  be possible as Yieldmos must have a way to understand this. It is suggested
-  that we open a dialogue with Imperator if this is seen as a viable product.
+  be possible as Yieldmos have a way to understand this. It is suggested
+  that we open a dialogue with Imperator if this is seen as a viable.
 - Fees can be sent to another contract and this contract can liquidate and send
   via IBC to Centauri. Another option is to send protocol fees directly via IBC
   but since rewards can be in multiple tokens this is thought to be sub-optimal.
