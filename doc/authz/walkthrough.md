@@ -206,7 +206,7 @@ in both the Osmosis developer group and a private channel that we have with
 Osmosis. Our conclusion is that we either would need to create an indexer or use
 an external data provider.
 
-The following [data source][15] is community based project
+The following [data source][15] is a community based project
 
 - https://api-osmosis-chain.imperator.co/lp/v1/rewards/token/{walletAddress}
 - https://api-osmosis-chain.imperator.co/lp/v1/rewards/historical/{walletAddress}/{token}
