@@ -71,7 +71,15 @@ export async function queryContract(
   query: Record<string, unknown>,
 ): Promise<any> {
   let result = await client.queryContractSmart(contractAddress, query)
-  console.log(result)
+  return result
+}
+
+export async function queryBalance(
+  client: SigningCosmWasmClient,
+  address: string,
+  denom: string,
+): Promise<any> {
+  let result = await client.getBalance(address, denom)
   return result
 }
 

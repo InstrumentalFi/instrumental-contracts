@@ -141,8 +141,8 @@ impl StakingEnv {
         {
             wasm.execute(
                 fee_collector_address.as_str(),
-                &CollectorExecuteMsg::UpdateOwner {
-                    owner: staking_address.clone(),
+                &CollectorExecuteMsg::UpdateWhitelist {
+                    address: staking_address.clone(),
                 },
                 &[],
                 &self.signer,

@@ -68,8 +68,10 @@ pub fn send_token(
         return Err(StdError::generic_err("Cannot transfer zero tokens"));
     }
 
+    let whitelist = WHITELIST_ADDRESS.load(deps.storage)?;
+
     // check permissions to send the message
-    if !OWNER.is_admin(deps, &info.sender)? {
+    if !OWNER.is_admin(deps, &info.sender)? && whitelist != info.sender {
         return Err(StdError::generic_err("unauthorized"));
     }
 
