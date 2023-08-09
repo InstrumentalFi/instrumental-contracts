@@ -125,6 +125,6 @@ export async function sendToken(
     senderAddress,
     recipientAddress,
     [{ denom: denom, amount: amount }],
-    10,
+    'auto',
   )
 }

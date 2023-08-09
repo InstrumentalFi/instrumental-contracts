@@ -1,0 +1,33 @@
+@startuml
+
+actor Alice as alice
+entity  "Instrumental Vault (Osmosis)" as vault
+entity  "DEX (Osmosis)" as dex
+entity  "Fee Collection Contract (Centauri)" as collection
+entity  "Fee Distribution Contract (Centauri)" as staking
+entity  "Instrumental Protocol Contract (Centauri)" as protocol
+entity  "Strategy Manager Contract (Centauri)" as manager
+
+group Deposit
+alice -> vault: Deposit Osmosis LP Token
+vault -> dex: Bond LP Token
+dex -> vault: Rewards (OSMO) at epoch each day, roughly 17:15 UTC
+vault -> dex: Add Liquidity (Rewards OSMO * 0.8)
+note right
+    Called via an admin, bot
+    Or next user transaction after epoch
+end note
+dex -> vault: LP Token
+vault -> dex: Bond LP Token
+vault -> collection: Rewards OSMO * 0.2 via IBC
+collection -> staking: ibcOSMO * 0.5
+note right
+    How is this swapped to PICA?
+end note
+collection -> protocol: ibcOSMO * 0.3
+collection -> manager: ibcOSMO * 0.2
+note right
+    Is this still relevant?
+end note
+end
+@enduml

@@ -1,0 +1,25 @@
+Compound daily
+
+MsgJoinSwapExternAmountIn
+MsgJoinPool
+MsgLockTokens
+MsgLockAndSuperfluidDelegate
+
+Ledger support available for authz on Cosmos SDK v0.46 (on Osmosis)
+
+* Add liquidity one asset
+* Add liquidity two or more assets
+* Bond that liqudity
+* Perform a Superfluid bond and delegate
+
+What to delegate to each validator
+No need to unbond
+
+No performance mechanism in authz
+
+For each grant
+
+
+Every 30 minutes
+Nothing specific from validators
+Split rewards between validators
