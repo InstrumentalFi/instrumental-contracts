@@ -2,6 +2,14 @@
 
 The fee Staking is where token holders stake their tokens in order to earn rewards generated. Rewards are distributed using an emission of tokens per interval. When users stake they are issued with a receipt token that they can use then to unstake their tokens.
 
+## General flow
+
+Contract has defined a deposit and reward token.
+
+Users are able to stake the deposit token, receiving a receipt token (CW20) in return, and then claim rewards emitted over time.
+
+The contract owner is able to define and update the rewards emitted per token interval.
+
 ---
 
 ## InstantiateMsg
