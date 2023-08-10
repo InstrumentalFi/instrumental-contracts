@@ -13,11 +13,7 @@ pub fn calculate_rewards(deps: Deps, env: Env) -> Uint128 {
 
     let balance = get_bank_balance(deps, config.fee_collector.to_string(), config.reward_denom);
 
-    if block_rewards > balance {
-        return balance;
-    }
-
-    block_rewards
+    block_rewards.min(balance)
 }
 
 pub fn update_distribution_time(storage: &mut dyn Storage, env: Env) -> StdResult<()> {

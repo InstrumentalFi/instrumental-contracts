@@ -7,7 +7,7 @@ use osmosis_std::types::cosmos::{bank::v1beta1::MsgSend, base::v1beta1::Coin};
 use crate::{
     distributor::update_rewards,
     error::ContractError,
-    helper::{create_distribute_message, parse_funds},
+    helper::{distribute_and_update_response, parse_funds},
     messages::{create_burn_token_msg, create_mint_token_msg},
     state::{UserStake, CONFIG, STATE, TOTAL_STAKED, USER_STAKE},
 };
@@ -35,17 +35,13 @@ pub fn handle_update_rewards(deps: DepsMut, env: Env) -> Result<Response, Contra
 
     let (_, rewards) = update_rewards(deps, env.clone(), env.contract.address.clone())?;
 
-    let mut response = Response::new();
-    if !rewards.is_zero() {
-        let distribute_msg = create_distribute_message(
-            config.fee_collector.to_string(),
-            config.reward_denom,
-            rewards,
-            env.contract.address.to_string(),
-        );
-
-        response = response.add_message(distribute_msg);
-    }
+    let response = distribute_and_update_response(
+        Response::new(),
+        config.fee_collector.to_string(),
+        config.reward_denom,
+        rewards,
+        env.contract.address.to_string(),
+    )?;
 
     Ok(response.add_attribute("action", "update_rewards"))
 }
@@ -119,17 +115,13 @@ pub fn handle_claim(
         Ok(stake)
     })?;
 
-    let mut response = Response::new();
-    if !rewards.is_zero() {
-        let distribute_msg = create_distribute_message(
-            config.fee_collector.to_string(),
-            config.reward_denom.clone(),
-            rewards,
-            env.contract.address.to_string(),
-        );
-
-        response = response.add_message(distribute_msg);
-    }
+    let mut response = distribute_and_update_response(
+        Response::new(),
+        config.fee_collector.to_string(),
+        config.reward_denom.clone(),
+        rewards,
+        env.contract.address.to_string(),
+    )?;
 
     if !claimable_amount.is_zero() {
         let msg_claim = MsgSend {
@@ -175,17 +167,13 @@ pub fn handle_stake(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Respon
         })
         .unwrap();
 
-    let mut response = Response::new();
-    if !rewards.is_zero() {
-        let distribute_msg = create_distribute_message(
-            config.fee_collector.to_string(),
-            config.reward_denom,
-            rewards,
-            env.contract.address.to_string(),
-        );
-
-        response = response.add_message(distribute_msg);
-    }
+    let response = distribute_and_update_response(
+        Response::new(),
+        config.fee_collector.to_string(),
+        config.reward_denom,
+        rewards,
+        env.contract.address.to_string(),
+    )?;
 
     let msg_mint = create_mint_token_msg(sent_funds, sender.to_string(), config.staked_denom);
 
@@ -228,17 +216,13 @@ pub fn handle_unstake(
         })
         .unwrap();
 
-    let mut response = Response::new();
-    if !rewards.is_zero() {
-        let distribute_msg = create_distribute_message(
-            config.fee_collector.to_string(),
-            config.reward_denom,
-            rewards,
-            env.contract.address.to_string(),
-        );
-
-        response = response.add_message(distribute_msg);
-    }
+    let response = distribute_and_update_response(
+        Response::new(),
+        config.fee_collector.to_string(),
+        config.reward_denom,
+        rewards,
+        env.contract.address.to_string(),
+    )?;
 
     let msg_burn = create_burn_token_msg(sent_funds, config.staked_denom.clone());
 
