@@ -41,8 +41,7 @@ pub fn distribute_and_update_response(
     recipient: String,
 ) -> StdResult<Response> {
     if !amount.is_zero() {
-        let distribute_msg =
-            create_distribute_message(fee_collector.to_string(), token, amount, recipient);
+        let distribute_msg = create_distribute_message(fee_collector, token, amount, recipient);
 
         response = response.add_message(distribute_msg);
     }
