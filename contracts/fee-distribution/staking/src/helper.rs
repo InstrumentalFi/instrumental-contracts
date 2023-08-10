@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use cosmwasm_std::{
-    to_binary, Coin, CosmosMsg, Deps, QueryRequest, StdError, StdResult, Uint128, WasmMsg,
-    WasmQuery,
+    to_binary, Coin, CosmosMsg, Deps, QueryRequest, Response, StdError, StdResult, Uint128,
+    WasmMsg, WasmQuery,
 };
 use cw20::{Cw20QueryMsg, TokenInfoResponse};
 use fee_distribution::collector::ExecuteMsg as FeeExecuteMsg;
@@ -31,6 +31,23 @@ pub fn get_token_total_supply(deps: Deps) -> Uint128 {
         .unwrap();
 
     res.total_supply
+}
+
+pub fn distribute_and_update_response(
+    mut response: Response,
+    fee_collector: String,
+    token: String,
+    amount: Uint128,
+    recipient: String,
+) -> StdResult<Response> {
+    if !amount.is_zero() {
+        let distribute_msg =
+            create_distribute_message(fee_collector.to_string(), token, amount, recipient);
+
+        response = response.add_message(distribute_msg);
+    }
+
+    Ok(response)
 }
 
 pub fn create_distribute_message(
