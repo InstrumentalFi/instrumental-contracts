@@ -164,7 +164,7 @@ def calculate_rewards():
 
 def update_rewards():
     block_rewards = calculate_rewards()
-    delta_cumulative = block_rewards / pool.stake_supply
+    delta_cumulative = block_rewards / pool.stake_supply if pool.stake_supply > 0 else 0 
     pool.cumulative_rewards += delta_cumulative
     pool.last_distribution_time = pool.now_time
     
@@ -176,19 +176,28 @@ def claim(user):
     
 def stake(user, amount):
     users[user].stake = amount
+    users[user].previous_cumulative_per_token = pool.cumulative_rewards
+    
     pool.stake_supply += amount
 
 pool = Pool()
-users = [User(), User()]
+users = [User(), User(), User()]
         
 def main():    
-    stake(0,1_000)
-    update_rewards() # imagine user 3 updates
-    stake(1,1_000_000)
+    stake(2,100)
+    update_rewards()
+    print("Pool cumulative : ", pool.cumulative_rewards)
+    stake(0,100_000)
+    stake(1,1_000)
     pool.now_time += 1
     update_rewards()
+    print("Pool cumulative : ", pool.cumulative_rewards)
+    claim(2)
     claim(0)
+    claim(1)
     print("User 0 reward: ", users[0].reward)
+    print("User 1 reward: ", users[1].reward)
+    print("User 2 reward: ", users[2].reward)
     
 main()
 ```
