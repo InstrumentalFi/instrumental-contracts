@@ -180,7 +180,6 @@ users = [User(), User(), User()]
         
 def main():    
     stake(2,100)
-    update_rewards()
     print("Pool cumulative : ", pool.cumulative_rewards)
     stake(0,100_000)
     stake(1,1_000)
