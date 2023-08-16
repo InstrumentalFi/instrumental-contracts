@@ -150,34 +150,28 @@ class Pool:
     rewards_collected = 1_000_000
     last_distribution_time = 0
     now_time = 10
-    rewards_per_interval = 1_000
-    
+    rewards_per_interval = 1_000    
 class User:    
     stake = 0
     reward = 0
     previous_cumulative_per_token = 0
-
 def calculate_rewards():
     delta = pool.now_time - pool.last_distribution_time
     possible_rewards = delta * pool.rewards_per_interval
     return min(possible_rewards, pool.rewards_collected)
-
 def update_rewards():
     block_rewards = calculate_rewards()
     delta_cumulative = block_rewards / pool.stake_supply if pool.stake_supply > 0 else 0 
     pool.cumulative_rewards += delta_cumulative
     pool.last_distribution_time = pool.now_time
-    
 def claim(user):    
     user_delta = pool.cumulative_rewards - users[user].previous_cumulative_per_token
     user_reward = users[user].stake * user_delta 
     users[user].reward += user_reward
     users[user].previous_cumulative_per_token = pool.cumulative_rewards
-    
 def stake(user, amount):
+    claim(user)
     users[user].stake = amount
-    users[user].previous_cumulative_per_token = pool.cumulative_rewards
-    
     pool.stake_supply += amount
 
 pool = Pool()
