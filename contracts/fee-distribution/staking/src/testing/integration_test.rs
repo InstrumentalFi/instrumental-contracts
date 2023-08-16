@@ -80,7 +80,6 @@ fn test_stake_unstake_claim() {
                 previous_cumulative_rewards_per_token: Uint128::zero(),
                 claimable_rewards: Uint128::zero(),
                 cumulative_rewards: Uint128::zero(),
-                average_staked_amounts: Uint128::zero(),
             }
         );
 
@@ -228,7 +227,6 @@ fn test_stake_unstake_claim() {
                     previous_cumulative_rewards_per_token: Uint128::from(2_976_501u128),
                     claimable_rewards: Uint128::from(2_976_501_000u128),
                     cumulative_rewards: Uint128::from(2_976_501_000u128),
-                    average_staked_amounts: Uint128::from(1_000_000_000u128),
                 }
             );
         }

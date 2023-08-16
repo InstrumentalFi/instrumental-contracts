@@ -9,7 +9,7 @@ use crate::{
     error::ContractError,
     helper::{distribute_and_update_response, parse_funds},
     messages::{create_burn_token_msg, create_mint_token_msg},
-    state::{UserStake, CONFIG, STATE, TOTAL_STAKED, USER_STAKE},
+    state::{UserStake, CONFIG, STATE, USER_STAKE},
 };
 
 pub fn handle_update_config(
@@ -161,12 +161,6 @@ pub fn handle_stake(deps: DepsMut, env: Env, info: MessageInfo) -> Result<Respon
         Ok(stake)
     })?;
 
-    TOTAL_STAKED
-        .update(deps.storage, |balance| -> StdResult<Uint128> {
-            Ok(balance.checked_add(sent_funds).unwrap())
-        })
-        .unwrap();
-
     let response = distribute_and_update_response(
         Response::new(),
         config.fee_collector.to_string(),
@@ -209,12 +203,6 @@ pub fn handle_unstake(
 
         Ok(stake)
     })?;
-
-    TOTAL_STAKED
-        .update(deps.storage, |balance| -> StdResult<Uint128> {
-            Ok(balance.checked_sub(sent_funds).unwrap())
-        })
-        .unwrap();
 
     let response = distribute_and_update_response(
         Response::new(),
