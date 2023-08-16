@@ -7,7 +7,6 @@ pub const CONFIG: Item<Config> = Item::new("config");
 pub const STATE: Item<State> = Item::new("state");
 
 pub const STAKERS: Item<u64> = Item::new("stakers_counter");
-pub const TOTAL_STAKED: Item<Uint128> = Item::new("total_staked");
 pub const REWARDS_PER_TOKEN: Item<Uint128> = Item::new("rewards_per_token");
 pub const USER_STAKE: Map<Addr, UserStake> = Map::new("staked_amounts");
 
@@ -35,7 +34,6 @@ pub struct UserStake {
     pub claimable_rewards: Uint128,
     pub previous_cumulative_rewards_per_token: Uint128,
     pub cumulative_rewards: Uint128,
-    pub average_staked_amounts: Uint128,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]

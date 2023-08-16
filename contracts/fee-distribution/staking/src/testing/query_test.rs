@@ -168,7 +168,6 @@ fn test_query_get_user_staked_amount() {
             previous_cumulative_rewards_per_token: Uint128::zero(),
             claimable_rewards: Uint128::zero(),
             cumulative_rewards: Uint128::zero(),
-            average_staked_amounts: Uint128::zero(),
         }
     );
 
@@ -197,7 +196,6 @@ fn test_query_get_user_staked_amount() {
             previous_cumulative_rewards_per_token: Uint128::from(10_000_000u128),
             claimable_rewards: Uint128::zero(),
             cumulative_rewards: Uint128::from(10_000_000u128),
-            average_staked_amounts: Uint128::from(1_000_000u128),
         }
     );
 }

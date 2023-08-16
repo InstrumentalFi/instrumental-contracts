@@ -75,22 +75,6 @@ pub fn update_rewards(deps: DepsMut, env: Env, account: Addr) -> StdResult<(Deps
         let next_cumulative_reward =
             user.cumulative_rewards.checked_add(user.claimable_rewards).unwrap();
 
-        // TODO: tidy
-        user.average_staked_amounts = user
-            .average_staked_amounts
-            .checked_mul(user.cumulative_rewards)
-            .unwrap()
-            .checked_div(next_cumulative_reward)
-            .unwrap()
-            .checked_add(
-                user.staked_amounts
-                    .checked_mul(user.claimable_rewards)
-                    .unwrap()
-                    .checked_div(next_cumulative_reward)
-                    .unwrap(),
-            )
-            .unwrap();
-
         user.cumulative_rewards = next_cumulative_reward;
     }
 

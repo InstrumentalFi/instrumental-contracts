@@ -225,7 +225,6 @@ fn test_staking() {
                 previous_cumulative_rewards_per_token: Uint128::zero(),
                 claimable_rewards: Uint128::zero(),
                 cumulative_rewards: Uint128::zero(),
-                average_staked_amounts: Uint128::zero(),
             }
         );
 
@@ -371,7 +370,6 @@ fn test_claim() {
                 previous_cumulative_rewards_per_token: Uint128::zero(),
                 claimable_rewards: Uint128::zero(),
                 cumulative_rewards: Uint128::zero(),
-                average_staked_amounts: Uint128::zero(),
             }
         );
     }
@@ -419,7 +417,6 @@ fn test_claim() {
                 previous_cumulative_rewards_per_token: Uint128::zero(),
                 claimable_rewards: Uint128::zero(),
                 cumulative_rewards: Uint128::zero(),
-                average_staked_amounts: Uint128::zero(),
             }
         );
     }

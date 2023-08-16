@@ -14,9 +14,7 @@ use crate::{
     },
     messages::{create_instantiate_token_msg, receive_cw20},
     query::{query_claimable, query_user_staked_amount},
-    state::{
-        query_config, query_state, Config, State, CONFIG, REWARDS_PER_TOKEN, STATE, TOTAL_STAKED,
-    },
+    state::{query_config, query_state, Config, State, CONFIG, REWARDS_PER_TOKEN, STATE},
 };
 
 pub const INSTANTIATE_REPLY_ID: u64 = 1u64;
@@ -60,7 +58,6 @@ pub fn instantiate(
         },
     )?;
 
-    TOTAL_STAKED.save(deps.storage, &Uint128::zero())?;
     REWARDS_PER_TOKEN.save(deps.storage, &Uint128::zero())?;
 
     let create_token_msg = create_instantiate_token_msg(
