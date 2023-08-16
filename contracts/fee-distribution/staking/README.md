@@ -164,7 +164,8 @@ def update_rewards():
     delta_cumulative = block_rewards / pool.stake_supply if pool.stake_supply > 0 else 0 
     pool.cumulative_rewards += delta_cumulative
     pool.last_distribution_time = pool.now_time
-def claim(user):    
+def claim(user):
+    update_rewards()
     user_delta = pool.cumulative_rewards - users[user].previous_cumulative_per_token
     user_reward = users[user].stake * user_delta 
     users[user].reward += user_reward
