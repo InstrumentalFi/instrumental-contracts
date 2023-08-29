@@ -1,5 +1,6 @@
 use cosmwasm_std::{
-    Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, Response, StdError, StdResult, Uint128,
+    BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, QueryRequest,
+    Response, StdError, StdResult, Uint128,
 };
 
 pub const PACKET_LIFETIME: u64 = 60 * 60; // One hour
@@ -20,11 +21,14 @@ pub fn update_owner(deps: DepsMut, info: MessageInfo, owner: String) -> StdResul
 
 pub fn update_config(
     deps: DepsMut,
-    _info: MessageInfo,
+    info: MessageInfo,
     ibc_to_address: String,
     ibc_channel_id: String,
     liquidation_target: String,
 ) -> StdResult<Response> {
+    if !OWNER.is_admin(deps.as_ref(), &info.sender)? {
+        return Err(StdError::generic_err("unauthorized"));
+    }
     CONFIG.save(
         deps.storage,
         &Config {
@@ -39,13 +43,25 @@ pub fn update_config(
 
 pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> StdResult<Response> {
     let config = CONFIG.load(deps.storage)?;
+    let liquidation_target = config.liquidation_target.clone();
+
+    let res: BalanceResponse = deps.querier.query(&QueryRequest::Bank(BankQuery::Balance {
+        address: env.contract.address.to_string(),
+        denom: liquidation_target,
+    }))?;
+
+    let balance = res.amount.amount;
+
+    if balance.is_zero() {
+        return Err(StdError::generic_err("Balance is zero"));
+    }
 
     let msg = IbcMsg::Transfer {
         channel_id: config.ibc_channel_id,
         to_address: config.ibc_to_address,
         amount: Coin {
             amount: Uint128::from(50u128),
-            denom: "uosmo".to_string(),
+            denom: config.liquidation_target,
         },
         timeout: env.block.time.plus_seconds(PACKET_LIFETIME).into(),
     };
