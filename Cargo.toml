@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "contracts/vault/*",
+  "contracts/liquidator",
   "contracts/fee-distribution/collector",
   "contracts/fee-distribution/distributor",
   "contracts/fee-distribution/staking",
