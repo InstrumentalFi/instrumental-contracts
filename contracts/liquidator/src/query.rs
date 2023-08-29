@@ -2,8 +2,8 @@ use cosmwasm_std::{Deps, StdError, StdResult};
 
 use crate::{
     contract::OWNER,
-    state::{Config, CONFIG},
     msg::OwnerResponse,
+    state::{Config, CONFIG},
 };
 
 /// Queries contract owner from the admin
