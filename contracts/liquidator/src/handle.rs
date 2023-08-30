@@ -1,22 +1,28 @@
 use cosmwasm_std::{
     BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, QueryRequest,
-    Response, StdError, StdResult, Uint128,
+    Response,
 };
+use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
 
 pub const PACKET_LIFETIME: u64 = 60 * 60; // One hour
 
 use crate::{
-    contract::OWNER,
-    state::{Config, CONFIG},
+    error::ContractError,
+    helpers::{validate_is_owner, validate_pool_route},
+    state::{Config, CONFIG, OWNER, ROUTING_TABLE},
 };
 
-pub fn update_owner(deps: DepsMut, info: MessageInfo, owner: String) -> StdResult<Response> {
-    // validate the address
-    let valid_owner = deps.api.addr_validate(&owner)?;
-
-    OWNER
-        .execute_update_admin(deps, info, Some(valid_owner))
-        .map_err(|error| StdError::generic_err(format!("{}", error)))
+pub fn update_owner(
+    deps: DepsMut,
+    info: MessageInfo,
+    owner: String,
+) -> Result<Response, ContractError> {
+    validate_is_owner(deps.as_ref(), info.sender)?;
+    let new_owner = deps.api.addr_validate(&owner)?;
+    OWNER.save(deps.storage, &new_owner)?;
+    Ok(Response::new()
+        .add_attribute("action", "change_contract_owner")
+        .add_attribute("new_owner", new_owner))
 }
 
 pub fn update_config(
@@ -25,10 +31,8 @@ pub fn update_config(
     ibc_to_address: String,
     ibc_channel_id: String,
     liquidation_target: String,
-) -> StdResult<Response> {
-    if !OWNER.is_admin(deps.as_ref(), &info.sender)? {
-        return Err(StdError::generic_err("unauthorized"));
-    }
+) -> Result<Response, ContractError> {
+    validate_is_owner(deps.as_ref(), info.sender)?;
     CONFIG.save(
         deps.storage,
         &Config {
@@ -41,7 +45,7 @@ pub fn update_config(
     Ok(Response::new().add_attribute("action", "update_config"))
 }
 
-pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> StdResult<Response> {
+pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
     let config = CONFIG.load(deps.storage)?;
     let liquidation_target = config.liquidation_target.clone();
 
@@ -53,14 +57,14 @@ pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> StdResult<Respo
     let balance = res.amount.amount;
 
     if balance.is_zero() {
-        return Err(StdError::generic_err("Balance is zero"));
+        return Err(ContractError::ZeroAmount {});
     }
 
     let msg = IbcMsg::Transfer {
         channel_id: config.ibc_channel_id,
         to_address: config.ibc_to_address,
         amount: Coin {
-            amount: Uint128::from(50u128),
+            amount: balance,
             denom: config.liquidation_target,
         },
         timeout: env.block.time.plus_seconds(PACKET_LIFETIME).into(),
@@ -71,7 +75,31 @@ pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> StdResult<Respo
     Ok(res)
 }
 
-pub fn liquidate(_deps: Deps, _env: Env, _info: MessageInfo) -> StdResult<Response> {
+pub fn liquidate(_deps: Deps, _env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
+    // for item in ROUTING_TABLE.range(deps.storage, None, None, Order::Ascending) {
+    //     let ((key1, key2), values) = item?;
+    // }
     let res = Response::new();
     Ok(res)
+}
+
+pub fn set_route(
+    deps: DepsMut,
+    info: MessageInfo,
+    input_denom: String,
+    output_denom: String,
+    pool_route: Vec<SwapAmountInRoute>,
+) -> Result<Response, ContractError> {
+    validate_is_owner(deps.as_ref(), info.sender)?;
+
+    validate_pool_route(
+        deps.as_ref(),
+        input_denom.clone(),
+        output_denom.clone(),
+        pool_route.clone(),
+    )?;
+
+    ROUTING_TABLE.save(deps.storage, (&input_denom, &output_denom), &pool_route)?;
+
+    Ok(Response::new().add_attribute("action", "set_route"))
 }

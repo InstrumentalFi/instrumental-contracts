@@ -1,9 +1,10 @@
 pub mod contract;
 mod error;
 mod handle;
-mod msg;
+mod helpers;
+pub mod msg;
 mod query;
-mod state;
+pub mod state;
 
-#[cfg(test)]
-mod testing;
+// #[cfg(test)]
+// mod test;

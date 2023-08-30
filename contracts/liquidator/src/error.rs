@@ -11,4 +11,24 @@ pub enum ContractError {
 
     #[error("Unauthorized")]
     Unauthorized {},
+
+    #[error("Invalid Pool Route: {reason:?}")]
+    InvalidPoolRoute {
+        reason: String,
+    },
+    #[error("Amount was zero")]
+    ZeroAmount {},
+
+    #[error("Insufficient Funds")]
+    InsufficientFunds {},
+
+    #[error("Failed Swap: {reason:?}")]
+    FailedSwap {
+        reason: String,
+    },
+
+    #[error("Custom Error val: {val:?}")]
+    CustomError {
+        val: String,
+    },
 }

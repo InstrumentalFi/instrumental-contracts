@@ -1,9 +1,10 @@
-use cosmwasm_std::Addr;
+use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 pub struct InstantiateMsg {
+    pub owner: String,
     pub ibc_channel_id: String,
     pub ibc_to_address: String,
     pub liquidation_target: String,
@@ -20,6 +21,11 @@ pub enum ExecuteMsg {
         ibc_to_address: String,
         liquidation_target: String,
     },
+    SetRoute {
+        input_denom: String,
+        output_denom: String,
+        pool_route: Vec<SwapAmountInRoute>,
+    },
     Liquidate {},
     IbcTransfer {},
 }
@@ -29,9 +35,18 @@ pub enum ExecuteMsg {
 pub enum QueryMsg {
     GetOwner {},
     GetConfig {},
+    GetRoute {
+        input_denom: String,
+        output_denom: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-pub struct OwnerResponse {
-    pub owner: Addr,
+pub struct GetOwnerResponse {
+    pub owner: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+pub struct GetRouteResponse {
+    pub pool_route: Vec<SwapAmountInRoute>,
 }
