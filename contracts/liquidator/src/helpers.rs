@@ -1,3 +1,8 @@
+#![allow(deprecated)]
+// Once osmosis and osmisis-test-tube are updated
+// The QueryTotalPoolLiquidityRequest can be move to poolmanager
+// https://github.com/osmosis-labs/osmosis/issues/5812
+#![allow(dead_code)] // remove after implementation
 use std::ops::{Div, Mul};
 
 use cosmwasm_std::{Addr, Coin, Decimal, Deps, Timestamp, Uint128};
@@ -152,11 +157,10 @@ pub fn calculate_min_output_from_twap(
             val: "Invalid twap value received from the chain".to_string(),
         })?;
 
-        twap_price = twap_price.checked_mul(current_twap.into()).map_err(|_e| {
-            ContractError::CustomError {
+        twap_price =
+            twap_price.checked_mul(current_twap).map_err(|_e| ContractError::CustomError {
                 val: format!("Invalid value for twap price: {twap_price} * {twap}"),
-            }
-        })?;
+            })?;
 
         // the current output is the input for the next route_part
         quote_denom = route_part.token_out_denom;
