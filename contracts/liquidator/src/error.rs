@@ -6,6 +6,12 @@ pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
 
+    #[error("Owner not set")]
+    NoOwner {},
+
+    #[error("Owner update error")]
+    OwnerUpdateError {},
+
     #[error("InvalidTokenShare")]
     InvalidTokenShare {},
 

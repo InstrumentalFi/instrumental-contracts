@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
 };
 use cw2::set_contract_version;
 
@@ -34,7 +34,7 @@ pub fn instantiate(
 
     let owner_address = deps.api.addr_validate(&msg.owner)?;
 
-    OWNER.save(deps.storage, &owner_address)?;
+    OWNER.set(deps, Some(owner_address))?;
 
     Ok(Response::new().add_attribute("method", "instantiate").add_attribute("owner", info.sender))
 }
@@ -68,7 +68,9 @@ pub fn execute(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetOwner {} => to_binary(&query_owner(deps)?),
+        QueryMsg::GetOwner {} => {
+            to_binary(&query_owner(deps).map_err(|err| StdError::generic_err(err.to_string()))?)
+        }
         QueryMsg::GetConfig {} => to_binary(&query_config(deps)?),
         QueryMsg::GetRoute {
             input_denom,

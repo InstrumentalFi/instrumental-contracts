@@ -15,21 +15,7 @@ use osmosis_std::{
     },
 };
 
-use crate::{
-    error::ContractError,
-    state::{OWNER, ROUTING_TABLE},
-};
-
-// Validate if sender is the contract owner.
-// Returns success if sender is the owner, error otherwise.
-pub fn validate_is_owner(deps: Deps, sender: Addr) -> Result<(), ContractError> {
-    let owner = OWNER.load(deps.storage).unwrap();
-    if owner != sender {
-        Err(ContractError::Unauthorized {})
-    } else {
-        Ok(())
-    }
-}
+use crate::{error::ContractError, state::ROUTING_TABLE};
 
 // validate_pool_route validates if the pool route is valid.
 // Returns success if it is, error otherwise.

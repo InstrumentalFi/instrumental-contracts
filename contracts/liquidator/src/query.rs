@@ -1,16 +1,20 @@
 use cosmwasm_std::{Deps, StdError, StdResult};
 
 use crate::{
+    error::ContractError,
     msg::{GetOwnerResponse, GetRouteResponse},
     state::{Config, CONFIG, OWNER, ROUTING_TABLE},
 };
 
 /// Queries contract owner from the admin
-pub fn query_owner(deps: Deps) -> StdResult<GetOwnerResponse> {
-    let owner = OWNER.load(deps.storage)?;
-    Ok(GetOwnerResponse {
-        owner: owner.into_string(),
-    })
+pub fn query_owner(deps: Deps) -> Result<GetOwnerResponse, ContractError> {
+    if let Some(owner) = OWNER.get(deps)? {
+        Ok(GetOwnerResponse {
+            owner: owner.to_string(),
+        })
+    } else {
+        Err(ContractError::NoOwner {})
+    }
 }
 
 /// Queries config

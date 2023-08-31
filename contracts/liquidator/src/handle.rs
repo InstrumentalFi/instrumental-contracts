@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    Addr, BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, Order,
+    ensure, Addr, BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, Order,
     QueryRequest, Response, Uint128,
 };
 use osmosis_std::types::osmosis::poolmanager::v1beta1::{MsgSwapExactAmountIn, SwapAmountInRoute};
@@ -8,7 +8,7 @@ pub const PACKET_LIFETIME: u64 = 60 * 60; // One hour
 
 use crate::{
     error::ContractError,
-    helpers::{generate_swap_msg, validate_is_owner, validate_pool_route},
+    helpers::{generate_swap_msg, validate_pool_route},
     state::{Config, CONFIG, OWNER, ROUTING_TABLE},
 };
 
@@ -17,12 +17,11 @@ pub fn update_owner(
     info: MessageInfo,
     owner: String,
 ) -> Result<Response, ContractError> {
-    validate_is_owner(deps.as_ref(), info.sender)?;
-    let new_owner = deps.api.addr_validate(&owner)?;
-    OWNER.save(deps.storage, &new_owner)?;
-    Ok(Response::new()
-        .add_attribute("action", "change_contract_owner")
-        .add_attribute("new_owner", new_owner))
+    let valid_owner = deps.api.addr_validate(&owner)?;
+    match OWNER.execute_update_admin(deps, info, Some(valid_owner)) {
+        Ok(response) => Ok(response),
+        Err(_e) => Err(ContractError::OwnerUpdateError {}),
+    }
 }
 
 pub fn update_config(
@@ -32,7 +31,7 @@ pub fn update_config(
     ibc_channel_id: String,
     liquidation_target: String,
 ) -> Result<Response, ContractError> {
-    validate_is_owner(deps.as_ref(), info.sender)?;
+    ensure!(OWNER.is_admin(deps.as_ref(), &info.sender)?, ContractError::Unauthorized {});
     CONFIG.save(
         deps.storage,
         &Config {
@@ -119,7 +118,7 @@ pub fn set_route(
     output_denom: String,
     pool_route: Vec<SwapAmountInRoute>,
 ) -> Result<Response, ContractError> {
-    validate_is_owner(deps.as_ref(), info.sender)?;
+    ensure!(OWNER.is_admin(deps.as_ref(), &info.sender)?, ContractError::Unauthorized {});
 
     validate_pool_route(
         deps.as_ref(),
