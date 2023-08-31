@@ -14,7 +14,9 @@ The owner can set parameters at Instatiation.
 - `ibc_to_address` - The account address on the receiving chain.
 - `liquidation_target` - The denomination of the liquidation target.
 
----
+In order for contract to know which routes to use to liqiuidate assets routes must be set for pairs. These can be set by `set_route`.
+
+When the liquidate function is call the contract will loop through routes and liquidate any balances on the contract that it has routes for.
 
 ## InstantiateMsg
 
