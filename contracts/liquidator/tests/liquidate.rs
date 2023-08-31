@@ -99,7 +99,7 @@ fn test_liquidate() {
     // Verify that the uion balance is greater than zero
     let balance = bank
         .query_balance(&QueryBalanceRequest {
-            address: contract_address.clone(),
+            address: contract_address,
             denom: "uion".to_string(),
         })
         .unwrap()

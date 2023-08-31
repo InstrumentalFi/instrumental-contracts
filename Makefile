@@ -6,7 +6,7 @@ check:
 
 .PHONY: clippy
 clippy:
-	@cargo clippy -- -D warnings
+	@cargo clippy --tests -- -D warnings
 
 .PHONY: fmt
 fmt:
