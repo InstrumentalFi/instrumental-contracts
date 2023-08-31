@@ -1,5 +1,6 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
+    entry_point, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError,
+    StdResult,
 };
 use cw2::set_contract_version;
 
@@ -23,11 +24,14 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, format!("crates.io:{CONTRACT_NAME}"), CONTRACT_VERSION)?;
 
+    let ibc_to_address_string: String = msg.ibc_to_address;
+    let ibc_address: Addr = Addr::unchecked(ibc_to_address_string);
+
     CONFIG.save(
         deps.storage,
         &Config {
             ibc_channel_id: msg.ibc_channel_id,
-            ibc_to_address: msg.ibc_to_address,
+            ibc_to_address: ibc_address,
             liquidation_target: msg.liquidation_target,
         },
     )?;
@@ -54,7 +58,13 @@ pub fn execute(
             ibc_to_address,
             ibc_channel_id,
             liquidation_target,
-        } => update_config(deps, info, ibc_to_address, ibc_channel_id, liquidation_target),
+        } => update_config(
+            deps,
+            info,
+            Some(ibc_to_address),
+            Some(ibc_channel_id),
+            Some(liquidation_target),
+        ),
         ExecuteMsg::SetRoute {
             input_denom,
             output_denom,

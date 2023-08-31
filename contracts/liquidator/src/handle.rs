@@ -1,6 +1,6 @@
 use cosmwasm_std::{
-    ensure, Addr, BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, Order,
-    QueryRequest, Response, Uint128,
+    ensure, Addr, BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, Event, IbcMsg, MessageInfo,
+    Order, QueryRequest, Response, Uint128,
 };
 use osmosis_std::types::osmosis::poolmanager::v1beta1::{MsgSwapExactAmountIn, SwapAmountInRoute};
 
@@ -9,7 +9,7 @@ pub const PACKET_LIFETIME: u64 = 60 * 60; // One hour
 use crate::{
     error::ContractError,
     helpers::{generate_swap_msg, validate_pool_route},
-    state::{Config, CONFIG, OWNER, ROUTING_TABLE},
+    state::{CONFIG, OWNER, ROUTING_TABLE},
 };
 
 pub fn update_owner(
@@ -27,21 +27,32 @@ pub fn update_owner(
 pub fn update_config(
     deps: DepsMut,
     info: MessageInfo,
-    ibc_to_address: String,
-    ibc_channel_id: String,
-    liquidation_target: String,
+    ibc_to_address: Option<String>,
+    ibc_channel_id: Option<String>,
+    liquidation_target: Option<String>,
 ) -> Result<Response, ContractError> {
+    let mut config = CONFIG.load(deps.storage)?;
     ensure!(OWNER.is_admin(deps.as_ref(), &info.sender)?, ContractError::Unauthorized {});
-    CONFIG.save(
-        deps.storage,
-        &Config {
-            ibc_to_address,
-            ibc_channel_id,
-            liquidation_target,
-        },
-    )?;
+    let mut event = Event::new("update_config");
 
-    Ok(Response::new().add_attribute("action", "update_config"))
+    if let Some(ibc_to_address) = ibc_to_address {
+        config.ibc_to_address = deps.api.addr_validate(&ibc_to_address)?;
+        event = event.add_attribute("ibc_to_address", ibc_to_address);
+    }
+
+    if let Some(ibc_channel_id) = ibc_channel_id {
+        config.ibc_channel_id = ibc_channel_id.clone();
+        event = event.add_attribute("ibc_channel_id", ibc_channel_id);
+    }
+
+    if let Some(liquidation_target) = liquidation_target {
+        config.liquidation_target = liquidation_target.clone();
+        event = event.add_attribute("liquidation_target", liquidation_target);
+    }
+
+    CONFIG.save(deps.storage, &config)?;
+
+    Ok(Response::default().add_event(event))
 }
 
 pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
@@ -61,7 +72,7 @@ pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response
 
     let msg = IbcMsg::Transfer {
         channel_id: config.ibc_channel_id,
-        to_address: config.ibc_to_address,
+        to_address: config.ibc_to_address.to_string(),
         amount: Coin {
             amount: balance,
             denom: config.liquidation_target,
