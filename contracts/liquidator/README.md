@@ -56,9 +56,23 @@ Enables the owner to update and edit the distribution address and proportions.
 }
 ```
 
+### `set_route`
+
+Specifies a route to liquidate an asset via the gamm.
+
+```json
+{
+  "set_route": {
+    "input_denom": "uosmo",
+    "output_denom": "uion",
+    "pool_route": [{ "pool_id": 1, "token_out_denom": "uion" }]
+  }
+}
+```
+
 ### `liquidate`
 
-Permissionless method that liquidates assets to the liquidation target denom.
+Permissionless method that liquidates assets.
 
 ```json
 {
@@ -95,5 +109,18 @@ Returns contract parameters.
 ```json
 {
   "get_config": {}
+}
+```
+
+### `get_route`
+
+Returns contract parameters.
+
+```json
+{
+  "get_route": {
+    "input_demon": "uosmo",
+    "output_denom": "uion"
+  }
 }
 ```
