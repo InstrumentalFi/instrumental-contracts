@@ -1,14 +1,14 @@
 use cosmwasm_std::{
-    BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, QueryRequest,
-    Response,
+    Addr, BalanceResponse, BankQuery, Coin, Deps, DepsMut, Env, IbcMsg, MessageInfo, Order,
+    QueryRequest, Response, Uint128,
 };
-use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
+use osmosis_std::types::osmosis::poolmanager::v1beta1::{MsgSwapExactAmountIn, SwapAmountInRoute};
 
 pub const PACKET_LIFETIME: u64 = 60 * 60; // One hour
 
 use crate::{
     error::ContractError,
-    helpers::{validate_is_owner, validate_pool_route},
+    helpers::{generate_swap_msg, validate_is_owner, validate_pool_route},
     state::{Config, CONFIG, OWNER, ROUTING_TABLE},
 };
 
@@ -75,11 +75,40 @@ pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response
     Ok(res)
 }
 
-pub fn liquidate(_deps: Deps, _env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
-    // for item in ROUTING_TABLE.range(deps.storage, None, None, Order::Ascending) {
-    //     let ((key1, key2), values) = item?;
-    // }
-    let res = Response::new();
+pub fn liquidate(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response, ContractError> {
+    let contract_address = env.contract.address.to_string();
+    let mut swap_msgs: Vec<MsgSwapExactAmountIn> = Vec::new();
+
+    // Loop through pairs in ROUTING_TABLE
+    // If the contract has balance liquidate to target via the route
+    for item in ROUTING_TABLE.range(deps.storage, None, None, Order::Ascending) {
+        let ((token1, token2), _routes) = item?;
+
+        // Check if the contract has any balance of the token_in denom
+        let res: BalanceResponse = deps.querier.query(&QueryRequest::Bank(BankQuery::Balance {
+            address: contract_address.clone(),
+            denom: token1.clone(),
+        }))?;
+
+        let balance = res.amount.amount;
+
+        // If there is some balance liquidate via the route
+        if !balance.is_zero() {
+            let token_in = Coin {
+                amount: res.amount.amount,
+                denom: token1,
+            };
+
+            let token_out = Coin {
+                amount: Uint128::from(1u128),
+                denom: token2,
+            };
+            let address = Addr::unchecked(contract_address.clone());
+            let msg = generate_swap_msg(deps, address, token_in, token_out);
+            swap_msgs.push(msg.unwrap());
+        }
+    }
+    let res = Response::new().add_messages(swap_msgs).add_attribute("action", "liquidate");
     Ok(res)
 }
 
