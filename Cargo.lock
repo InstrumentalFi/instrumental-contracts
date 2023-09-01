@@ -1674,6 +1674,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09fc20d2ca12cb9f044c93e3bd6d32d523e6e2ec3db4f7b2939cd99026ecd3f0"
 
 [[package]]
+name = "liquidator"
+version = "0.1.0"
+dependencies = [
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-controllers 0.15.1",
+ "cw-multi-test",
+ "cw-storage-plus 1.1.0",
+ "cw2 1.1.0",
+ "instrumental-testing",
+ "osmosis-std 0.16.1",
+ "osmosis-test-tube 16.0.1",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "liquidity-helper"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
