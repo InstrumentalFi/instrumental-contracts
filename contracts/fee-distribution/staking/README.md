@@ -140,3 +140,58 @@ Returns the amount staked by a specific user.
     }
 }
 ```
+
+## Model
+
+```python
+class Pool:
+    cumulative_rewards = 0
+    stake_supply = 0
+    rewards_collected = 1_000_000
+    last_distribution_time = 0
+    now_time = 10
+    rewards_per_interval = 1_000    
+class User:    
+    stake = 0
+    reward = 0
+    previous_cumulative_per_token = 0
+def calculate_rewards():
+    delta = pool.now_time - pool.last_distribution_time
+    possible_rewards = delta * pool.rewards_per_interval
+    return min(possible_rewards, pool.rewards_collected)
+def update_rewards():
+    block_rewards = calculate_rewards()
+    delta_cumulative = block_rewards / pool.stake_supply if pool.stake_supply > 0 else 0 
+    pool.cumulative_rewards += delta_cumulative
+    pool.last_distribution_time = pool.now_time
+def claim(user):
+    update_rewards()
+    user_delta = pool.cumulative_rewards - users[user].previous_cumulative_per_token
+    user_reward = users[user].stake * user_delta 
+    users[user].reward += user_reward
+    users[user].previous_cumulative_per_token = pool.cumulative_rewards
+def stake(user, amount):
+    claim(user)
+    users[user].stake = amount
+    pool.stake_supply += amount
+
+pool = Pool()
+users = [User(), User(), User()]
+        
+def main():    
+    stake(2,100)
+    print("Pool cumulative : ", pool.cumulative_rewards)
+    stake(0,100_000)
+    stake(1,1_000)
+    pool.now_time += 1
+    update_rewards()
+    print("Pool cumulative : ", pool.cumulative_rewards)
+    claim(2)
+    claim(0)
+    claim(1)
+    print("User 0 reward: ", users[0].reward)
+    print("User 1 reward: ", users[1].reward)
+    print("User 2 reward: ", users[2].reward)
+    
+main()
+```
