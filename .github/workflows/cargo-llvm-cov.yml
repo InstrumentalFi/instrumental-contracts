@@ -32,6 +32,9 @@ jobs:
       - name: Install Rust
         run: rustup toolchain install 1.69.0 --component llvm-tools-preview
 
+      - name: Get CW20 contract
+        run: wget -P ./artifacts/ https://github.com/CosmWasm/cw-plus/releases/download/v1.1.0/cw20_base.wasm
+
       - name: Compile contracts (used in tests)
         run: cargo wasm
 
