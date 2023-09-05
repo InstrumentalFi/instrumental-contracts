@@ -32,6 +32,9 @@ jobs:
       - name: Install Rust
         run: rustup toolchain install 1.69.0 --component llvm-tools-preview
 
+      - name: Compile contracts (used in tests)
+        run: cargo wasm
+
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
