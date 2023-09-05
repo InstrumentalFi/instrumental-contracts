@@ -10,11 +10,11 @@ jobs:
     steps:
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: 1.69.0
           override: true
       - uses: actions/checkout@v3
       - name: Install Rust
-        run: rustup toolchain install nightly --component llvm-tools-preview
+        run: rustup toolchain install --component llvm-tools-preview
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: Generate code coverage
