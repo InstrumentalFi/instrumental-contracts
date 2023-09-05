@@ -13,12 +13,31 @@ jobs:
           toolchain: 1.69.0
           override: true
       - uses: actions/checkout@v3
+
+      - name: Set up cargo cache
+        uses: actions/cache@v3
+        id: coverage-cache
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/crates.toml
+            ~/.cargo/crates2.json
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-llvm-cov-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-llvm-cov-${{ hashFiles('**/Cargo.lock') }}
       - name: Install Rust
         run: rustup toolchain install 1.69.0 --component llvm-tools-preview
+
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
+
       - name: Generate code coverage
         run: cargo llvm-cov --workspace --lcov --output-path lcov.info
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
