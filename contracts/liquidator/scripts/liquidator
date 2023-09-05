@@ -1,6 +1,28 @@
 #!/usr/bin/env sh
 
-# The contract address if known
+##############################################################################
+# Script Name   : liquidator
+# Description   : A utility script for the liquidator contract using the
+#                 osmosisd command.
+# Author        : George Ornbo <george@shapeshed.com>
+# Date          : 5th September 2023
+#
+# Usage         : ./liquidator
+#
+# Dependencies  :
+#   - jq        : This script requires 'jq' for parsing JSON.
+#   - osmosisd  : This script relies on the 'osmosisd' command being available.
+#
+# Notes         :
+#   Ensure that the 'osmosisd' is properly set up and available in PATH.
+#   Ensure that you have configured accounts in osmosisd
+#   Ensure that the accounts have some testnet funds via the faucet
+##############################################################################
+
+##############
+# CONSTANTS  #
+##############
+# The contract address if stored and instantiated
 # This won't be known for store and instantiate
 CONTRACT_ADDRESS="osmo1rcv3xs7ur822q63jxcg3exzpdhsmqstgplyjjytjenh0ewg45c4qqq6pj9"
 # The osmosisd account to deploy the contract
@@ -13,6 +35,20 @@ ACCOUNT=bot-2
 LABEL="Instrumental Liquidator"
 # Version of this script
 VERSION=0.0.1
+
+#############################################################
+# Don't edit below here unless you know what you are doing
+#############################################################
+# Guard checks to ensure required commands are available
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: jq command not found. Please ensure you have jq installed and available in your PATH."
+  exit 1
+fi
+
+if ! command -v osmosisd >/dev/null 2>&1; then
+  echo "Error: osmosisd command not found. Please ensure you have osmosisd installed and available in your PATH."
+  exit 1
+fi
 
 _execute() {
   cmd="osmosisd tx wasm execute $CONTRACT_ADDRESS '$1' --from $ACCOUNT --yes -b block --output json"

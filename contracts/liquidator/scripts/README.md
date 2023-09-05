@@ -55,6 +55,9 @@ anywhere on your filesystem.
 liquidator
 ```
 
+Autocompletion files are available for `bash` and `zsh` in the autocomplete
+folder.
+
 ## liquidator Configuration
 
 At the top of the `liquidator` script are a number of constants. These are
