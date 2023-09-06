@@ -6,9 +6,9 @@ use cw2::set_contract_version;
 
 use crate::{
     error::ContractError,
-    handle::{ibc_transfer, liquidate, set_route, update_config, update_owner},
+    handle::{ibc_transfer, liquidate, remove_route, set_route, update_config, update_owner},
     msg::{ExecuteMsg, InstantiateMsg, QueryMsg},
-    query::{query_config, query_owner, query_route},
+    query::{query_all_routes, query_config, query_owner, query_route},
     state::{Config, CONFIG, OWNER},
 };
 
@@ -22,10 +22,9 @@ pub fn instantiate(
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
-    set_contract_version(deps.storage, format!("crates.io:{CONTRACT_NAME}"), CONTRACT_VERSION)?;
+    set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
-    let ibc_to_address_string: String = msg.ibc_to_address;
-    let ibc_address: Addr = Addr::unchecked(ibc_to_address_string);
+    let ibc_address = Addr::unchecked(msg.ibc_to_address);
 
     CONFIG.save(
         deps.storage,
@@ -37,7 +36,6 @@ pub fn instantiate(
     )?;
 
     let owner_address = deps.api.addr_validate(&msg.owner)?;
-
     OWNER.set(deps, Some(owner_address))?;
 
     Ok(Response::new().add_attribute("method", "instantiate").add_attribute("owner", info.sender))
@@ -70,6 +68,10 @@ pub fn execute(
             output_denom,
             pool_route,
         } => set_route(deps, info, input_denom, output_denom, pool_route),
+        ExecuteMsg::RemoveRoute {
+            input_denom,
+            output_denom,
+        } => remove_route(deps, &input_denom, &output_denom),
         ExecuteMsg::Liquidate {} => liquidate(deps.as_ref(), env, info),
         ExecuteMsg::IbcTransfer {} => ibc_transfer(deps.as_ref(), env, info),
     }
@@ -86,5 +88,9 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             input_denom,
             output_denom,
         } => to_binary(&query_route(deps, input_denom, output_denom)?),
+        QueryMsg::GetAllRoutes {
+            start_after,
+            limit,
+        } => to_binary(&query_all_routes(deps, start_after, limit)?),
     }
 }

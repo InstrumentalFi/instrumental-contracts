@@ -142,3 +142,12 @@ pub fn set_route(
 
     Ok(Response::new().add_attribute("action", "set_route"))
 }
+
+pub fn remove_route(
+    deps: DepsMut,
+    input_denom: &str,
+    output_denom: &str,
+) -> Result<Response, ContractError> {
+    ROUTING_TABLE.remove(deps.storage, (input_denom, output_denom));
+    Ok(Response::new().add_attribute("action", "delete_route"))
+}

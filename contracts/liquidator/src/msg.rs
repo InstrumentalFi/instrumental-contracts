@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -26,6 +28,10 @@ pub enum ExecuteMsg {
         output_denom: String,
         pool_route: Vec<SwapAmountInRoute>,
     },
+    RemoveRoute {
+        input_denom: String,
+        output_denom: String,
+    },
     Liquidate {},
     IbcTransfer {},
 }
@@ -39,6 +45,10 @@ pub enum QueryMsg {
         input_denom: String,
         output_denom: String,
     },
+    GetAllRoutes {
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
@@ -49,4 +59,9 @@ pub struct GetOwnerResponse {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
 pub struct GetRouteResponse {
     pub pool_route: Vec<SwapAmountInRoute>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, JsonSchema, Debug, Default)]
+pub struct GetAllRoutesResponse {
+    pub routes: HashMap<String, Vec<SwapAmountInRoute>>,
 }
