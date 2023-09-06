@@ -71,7 +71,7 @@ pub fn execute(
         ExecuteMsg::RemoveRoute {
             input_denom,
             output_denom,
-        } => remove_route(deps, &input_denom, &output_denom),
+        } => remove_route(deps, info, &input_denom, &output_denom),
         ExecuteMsg::Liquidate {} => liquidate(deps.as_ref(), env, info),
         ExecuteMsg::IbcTransfer {} => ibc_transfer(deps.as_ref(), env, info),
     }
