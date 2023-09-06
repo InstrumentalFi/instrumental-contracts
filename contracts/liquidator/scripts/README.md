@@ -127,10 +127,14 @@ trade.
 A single pool trade selling uosmo for uion.
 
 ```sh
-liquidator execute route  \
-    uosmo \
-    uion \
-    '[{ "pool_id": "1", "token_out_denom": "uion" }]'
+liquidator execute set_route \
+uosmo uion \
+'[
+  {
+    "pool_id": "1",
+    "token_out_denom": "uion"
+  }
+]'
 ```
 
 We can verify the route was set correctly
@@ -152,14 +156,34 @@ liquidator query route uosmo uion
 ```
 
 A multi-hop trade selling
-`ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4` to
+`ibc/4DAE26570FD24ABA40E2BE4137E39D946C78B00B248D3F78B0919567C4371156` to
 `uion`.
 
 ```sh
-liquidator execute route  \
-    ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4 \
-    uion \
-    '[{ "pool_id": "6", "token_out_denom": "uosmo" }, { "pool_id": "1", "token_out_denom": "uion" }]'
+liquidator execute set_route \
+ibc/4DAE26570FD24ABA40E2BE4137E39D946C78B00B248D3F78B0919567C4371156 uion \
+'[
+  {
+    "pool_id": "2",
+    "token_out_denom": "uosmo"
+  },
+  {
+    "pool_id": "1",
+    "token_out_denom": "uion"
+  }
+]'
+```
+
+<!-- prettier-ignore -->
+> [!NOTE]
+> The `ACCOUNT` constant in the script must be the owner account for this operation.
+
+### Remove route
+
+Remove a route for a pair
+
+```sh
+liquidator execute remove_route uosmo uion
 ```
 
 <!-- prettier-ignore -->
@@ -279,6 +303,39 @@ liquidator query route uosmo uion
         "token_out_denom": "uion"
       }
     ]
+  }
+}
+```
+
+### All Routes
+
+Returns all routes
+
+```sh
+liquidator query all_routes
+```
+
+```json
+{
+  "data": {
+    "routes": {
+      "ibc/4DAE26570FD24ABA40E2BE4137E39D946C78B00B248D3F78B0919567C4371156:uion": [
+        {
+          "pool_id": "2",
+          "token_out_denom": "uosmo"
+        },
+        {
+          "pool_id": "1",
+          "token_out_denom": "uion"
+        }
+      ],
+      "uosmo:uion": [
+        {
+          "pool_id": "1",
+          "token_out_denom": "uion"
+        }
+      ]
+    }
   }
 }
 ```
