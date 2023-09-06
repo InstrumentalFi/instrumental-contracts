@@ -1,0 +1,287 @@
+#!/usr/bin/env sh
+
+##############################################################################
+# Script Name   : liquidator
+# Description   : A utility script for the liquidator contract using the
+#                 osmosisd command.
+# Author        : George Ornbo <george@shapeshed.com>
+# Date          : 5th September 2023
+#
+# Usage         : ./liquidator
+#
+# Dependencies  :
+#   - jq        : This script requires 'jq' for parsing JSON.
+#   - osmosisd  : This script relies on the 'osmosisd' command being available.
+#
+# Notes         :
+#   Ensure that the 'osmosisd' is properly set up and available in PATH.
+#   Ensure that you have configured accounts in osmosisd
+#   Ensure that the accounts have some testnet funds via the faucet
+##############################################################################
+
+##############
+# CONSTANTS  #
+##############
+# The contract address if stored and instantiated
+# This won't be known for store and instantiate
+CONTRACT_ADDRESS="osmo1rcv3xs7ur822q63jxcg3exzpdhsmqstgplyjjytjenh0ewg45c4qqq6pj9"
+# The osmosisd account to deploy the contract
+DEPLOYER=bot-1
+# The osmosisd account to be the contract admin
+ADMIN="bot-1"
+# The osmosisd account to be make execute transactions
+ACCOUNT=bot-2
+# The label applied to the contract
+LABEL="Instrumental Liquidator"
+# Version of this script
+VERSION=0.0.1
+
+#############################################################
+# Don't edit below here unless you know what you are doing
+#############################################################
+# Guard checks to ensure required commands are available
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: jq command not found. Please ensure you have jq installed and available in your PATH."
+  exit 1
+fi
+
+if ! command -v osmosisd >/dev/null 2>&1; then
+  echo "Error: osmosisd command not found. Please ensure you have osmosisd installed and available in your PATH."
+  exit 1
+fi
+
+_execute() {
+  cmd="osmosisd tx wasm execute $CONTRACT_ADDRESS '$1' --from $ACCOUNT --yes -b block --output json"
+
+  if [ -n "$FEES" ]; then
+    cmd="$cmd --fees=$FEES"
+  fi
+
+  if [ -n "$GAS" ]; then
+    cmd="$cmd --gas $GAS"
+  fi
+
+  if [ -n "$AMOUNT" ]; then
+    cmd="$cmd --amount=$AMOUNT"
+  fi
+
+  eval "$cmd" |
+    jq -r .txhash |
+    xargs -I{} bash -c 'sleep 6 && osmosisd query tx {} --output json | jq .'
+
+  unset "$FEES" "$GAS"
+}
+
+_query() {
+  osmosisd query wasm contract-state smart "$CONTRACT_ADDRESS" "$1" --output=json | jq .
+}
+
+_store() {
+  osmosisd tx wasm store "$1" \
+    --from="$DEPLOYER" --gas auto --gas-adjustment 1.3 \
+    --fees=4608uosmo --output json -b block --yes | jq -r '.logs[0].events[-1].attributes[1].value'
+}
+
+_instantiate() {
+
+  payload=$(
+    cat <<EOF
+{
+  "owner": "$2",
+  "ibc_channel_id": "$3",
+  "ibc_to_address": "$4",
+  "liquidation_target": "$5"
+}
+EOF
+  )
+
+  osmosisd tx wasm instantiate "$1" \
+    "$payload" \
+    --from wallet --label "$LABEL" \
+    --gas-prices 0.025uosmo --gas auto \
+    --gas-adjustment 1.3 -b block --admin "$ADMIN" \
+    --from="$DEPLOYER" --yes \
+    --output json | jq .
+}
+
+_query_config() {
+  _query '{"get_config": { }}'
+}
+
+_query_owner() {
+  _query '{"get_owner": { }}'
+}
+
+_query_route() {
+  _query '{"get_route": { "input_denom": "'"$1"'", "output_denom": "'"$2"'" }}'
+}
+
+query_usage() {
+  cat <<EOF
+  $PROGRAM query config
+    Show the contract config
+  $PROGRAM query owner
+    Query the contract owner
+  $PROGRAM query route [token1] [token2]
+    Query the route for a pair of assets
+EOF
+}
+
+_execute_set_route() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"set_route\": { \"input_denom\": \"$1\", \"output_denom\": \"$2\", \"pool_route\": $3 }}"
+}
+
+_execute_update_config() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"update_config\": { \"ibc_channel_id\": \"$1\", \"ibc_to_address\": \"$2\", \"liquidation_target\": \"$3\" }}"
+}
+
+_execute_update_owner() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"update_owner\": { \"owner\": \"$1\" }}"
+}
+
+_execute_liquidate() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"liquidate\": {}}"
+}
+
+_execute_ibc_transfer() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"ibc_transfer\": {}}"
+}
+
+execute_usage() {
+  cat <<EOF
+  $PROGRAM execute route [input_denom] [output_denom] [pool_route]
+    Set a liquidation route
+  $PROGRAM execute config [ibc_channel_id] [ibc_to_address] [liquidation_target]
+    Update the contract config
+  $PROGRAM execute owner [owner]
+    Update the contract owner
+  $PROGRAM execute liquidate
+    Liquidate assets on the contract with routes
+  $PROGRAM execute ibc_transfer
+    Transfer liquidated funds via IBC
+EOF
+}
+
+cmd_execute() {
+  case "$1" in
+    route | r)
+      shift
+      _execute_set_route "$@"
+      ;;
+    config | c)
+      shift
+      _execute_update_config "$@"
+      ;;
+    owner | o)
+      shift
+      _execute_update_owner "$@"
+      ;;
+    liquidate)
+      shift
+      _execute_liquidate "$@"
+      ;;
+    ibc_transfer)
+      shift
+      _execute_ibc_transfer "$@"
+      ;;
+    *) execute_usage "$@" ;;
+  esac
+  exit 0
+}
+
+cmd_query() {
+  case "$1" in
+    config | c)
+      shift
+      _query_config
+      ;;
+    state | s)
+      shift
+      _query_state
+      ;;
+    owner | o)
+      shift
+      _query_owner
+      ;;
+    route | r)
+      shift
+      _query_route "$@"
+      ;;
+    *) query_usage "$@" ;;
+  esac
+  exit 0
+}
+
+cmd_store() {
+  _store "$@"
+  exit 0
+}
+
+cmd_instantiate() {
+  _instantiate "$@"
+  exit 0
+}
+
+cmd_version() {
+  cat <<EOF
+$VERSION
+EOF
+}
+
+cmd_usage() {
+  cat <<EOF
+  $PROGRAM store [path-to-contract]
+    Store the $PROGRAM contract
+  $PROGRAM instantiate
+    Store the $PROGRAM contract
+  $PROGRAM help
+    Show this text
+  $PROGRAM version
+    Show version information.
+  $PROGRAM query
+    Query the $PROGRAM contract
+  $PROGRAM execute
+    Execute the $PROGRAM contract
+EOF
+}
+
+PROGRAM="${0##*/}"
+
+case "$1" in
+  help | --help | -h)
+    shift
+    cmd_usage
+    ;;
+  version | --version | -v)
+    shift
+    cmd_version "$@"
+    ;;
+  query)
+    shift
+    cmd_query "$@"
+    ;;
+  store)
+    shift
+    cmd_store "$@"
+    ;;
+  execute)
+    shift
+    cmd_execute "$@"
+    ;;
+  instantiate)
+    shift
+    cmd_instantiate "$@"
+    ;;
+  *) cmd_usage "$@" ;;
+esac
+exit 0
