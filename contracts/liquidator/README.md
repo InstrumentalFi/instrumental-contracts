@@ -27,7 +27,7 @@ The instantiation message defines ibc information and the liquidation target
 
 ```json
 {
-  "ibc_channel_id": "osmo...",
+  "owner": "osmo...",
   "ibc_channel_id": "channel-169",
   "ibc_to_address": "juno1yrg6daqkxyeqye4aac09stzvvwppqwls6kwegl",
   "liquidation_target": "56D7C03B8F6A07AD322EEE1BEF3AE996E09D1C1E34C27CF37E0D4A0AC5972516"
