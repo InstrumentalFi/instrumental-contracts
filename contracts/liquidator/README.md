@@ -1,6 +1,7 @@
 # Liquidator Contract
 
-The liquidator contract receives protocol fees, liquidates fees and forwards proceeds via IBC.
+The liquidator contract receives protocol fees, liquidates fees and forwards
+proceeds via IBC.
 
 ## General flow
 
@@ -14,9 +15,11 @@ The owner can set parameters at Instatiation.
 - `ibc_to_address` - The account address on the receiving chain.
 - `liquidation_target` - The denomination of the liquidation target.
 
-In order for contract to know which routes to use to liqiuidate assets routes must be set for pairs. These can be set by `set_route`.
+In order for contract to know which routes to use to liqiuidate assets routes
+must be set for pairs. These can be set by `set_route`.
 
-When the liquidate function is call the contract will loop through routes and liquidate any balances on the contract that it has routes for.
+When the liquidate function is call the contract will loop through routes and
+liquidate any balances on the contract that it has routes for.
 
 ## InstantiateMsg
 
@@ -24,6 +27,7 @@ The instantiation message defines ibc information and the liquidation target
 
 ```json
 {
+  "owner": "osmo...",
   "ibc_channel_id": "channel-169",
   "ibc_to_address": "juno1yrg6daqkxyeqye4aac09stzvvwppqwls6kwegl",
   "liquidation_target": "56D7C03B8F6A07AD322EEE1BEF3AE996E09D1C1E34C27CF37E0D4A0AC5972516"
@@ -72,6 +76,19 @@ Specifies a route to liquidate an asset via the gamm.
 }
 ```
 
+### `remove_route`
+
+Removes a route for trading pair
+
+```json
+{
+  "set_route": {
+    "input_denom": "uosmo",
+    "output_denom": "uion"
+  }
+}
+```
+
 ### `liquidate`
 
 Permissionless method that liquidates assets.
@@ -84,7 +101,8 @@ Permissionless method that liquidates assets.
 
 ### `ibc_transfer`
 
-Permissionless method that transfers liquidation target tokens via IBC to the `ibc_channel_id` and `ibc_to_address`.
+Permissionless method that transfers liquidation target tokens via IBC to the
+`ibc_channel_id` and `ibc_to_address`.
 
 ```json
 {
@@ -124,5 +142,15 @@ Returns contract parameters.
     "input_demon": "uosmo",
     "output_denom": "uion"
   }
+}
+```
+
+### `get_all_routes`
+
+Returns contract parameters.
+
+```json
+{
+  "get_all_routes": {}
 }
 ```

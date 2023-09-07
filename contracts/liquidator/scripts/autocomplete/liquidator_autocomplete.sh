@@ -15,11 +15,11 @@ _liquidator_autocomplete() {
   # Handle subcommands
   case "${prev}" in
     query)
-      local subopts="config state owner route"
+      local subopts="config state owner route all_routes"
       COMPREPLY=($(compgen -W "${subopts}" -- ${cur}))
       ;;
     execute)
-      local subopts="route config owner liquidate ibc_transfer"
+      local subopts="set_route remove_route config owner liquidate ibc_transfer"
       COMPREPLY=($(compgen -W "${subopts}" -- ${cur}))
       ;;
     *) ;;

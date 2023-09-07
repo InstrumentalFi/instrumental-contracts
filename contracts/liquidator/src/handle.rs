@@ -142,3 +142,14 @@ pub fn set_route(
 
     Ok(Response::new().add_attribute("action", "set_route"))
 }
+
+pub fn remove_route(
+    deps: DepsMut,
+    info: MessageInfo,
+    input_denom: &str,
+    output_denom: &str,
+) -> Result<Response, ContractError> {
+    ensure!(OWNER.is_admin(deps.as_ref(), &info.sender)?, ContractError::Unauthorized {});
+    ROUTING_TABLE.remove(deps.storage, (input_denom, output_denom));
+    Ok(Response::new().add_attribute("action", "delete_route"))
+}
