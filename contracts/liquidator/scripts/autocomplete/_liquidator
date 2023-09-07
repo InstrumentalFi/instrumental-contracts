@@ -21,11 +21,11 @@ _liquidator() {
     other)
       case $line[1] in
         query)
-          subcommands=('config:Show the contract config' 'state:Query the state' 'owner:Query the contract owner' 'route:Query the route for a pair of assets')
+          subcommands=('config:Show the contract config' 'state:Query the state' 'owner:Query the contract owner' 'route:Query the route for a pair of assets' 'all_routes:Query all routes')
           _describe 'query command' subcommands
           ;;
         execute)
-          subcommands=('route:Set a liquidation route' 'config:Update the contract config' 'owner:Update the contract owner' 'liquidate:Liquidate assets on the contract with routes' 'ibc_transfer:Transfer liquidated funds via IBC')
+          subcommands=('set_route:Set a liquidation route' 'remove_route: Remove a liquidation route' 'config:Update the contract config' 'owner:Update the contract owner' 'liquidate:Liquidate assets on the contract with routes' 'ibc_transfer:Transfer liquidated funds via IBC')
           _describe 'execute command' subcommands
           ;;
       esac

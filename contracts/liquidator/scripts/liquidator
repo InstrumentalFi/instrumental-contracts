@@ -116,6 +116,10 @@ _query_route() {
   _query '{"get_route": { "input_denom": "'"$1"'", "output_denom": "'"$2"'" }}'
 }
 
+_query_all_routes() {
+  _query '{"get_all_routes": { }}'
+}
+
 query_usage() {
   cat <<EOF
   $PROGRAM query config
@@ -124,6 +128,8 @@ query_usage() {
     Query the contract owner
   $PROGRAM query route [token1] [token2]
     Query the route for a pair of assets
+  $PROGRAM query all_routes
+    Query all routes
 EOF
 }
 
@@ -131,6 +137,12 @@ _execute_set_route() {
   FEES=1500uosmo
   GAS=600000
   _execute "{\"set_route\": { \"input_denom\": \"$1\", \"output_denom\": \"$2\", \"pool_route\": $3 }}"
+}
+
+_execute_remove_route() {
+  FEES=1500uosmo
+  GAS=600000
+  _execute "{\"remove_route\": { \"input_denom\": \"$1\", \"output_denom\": \"$2\" }}"
 }
 
 _execute_update_config() {
@@ -159,8 +171,10 @@ _execute_ibc_transfer() {
 
 execute_usage() {
   cat <<EOF
-  $PROGRAM execute route [input_denom] [output_denom] [pool_route]
+  $PROGRAM execute set_route [input_denom] [output_denom] [pool_route]
     Set a liquidation route
+  $PROGRAM execute remove_route [input_denom] [output_denom]
+    Remove a liquidation route
   $PROGRAM execute config [ibc_channel_id] [ibc_to_address] [liquidation_target]
     Update the contract config
   $PROGRAM execute owner [owner]
@@ -174,9 +188,13 @@ EOF
 
 cmd_execute() {
   case "$1" in
-    route | r)
+    set_route | sr)
       shift
       _execute_set_route "$@"
+      ;;
+    remove_route | rr)
+      shift
+      _execute_remove_route "$@"
       ;;
     config | c)
       shift
@@ -216,6 +234,10 @@ cmd_query() {
     route | r)
       shift
       _query_route "$@"
+      ;;
+    all_routes | ar)
+      shift
+      _query_all_routes "$@"
       ;;
     *) query_usage "$@" ;;
   esac

@@ -2,7 +2,7 @@ mod common;
 use cosmwasm_std::Coin;
 use liquidator::msg::{ExecuteMsg, GetRouteResponse, QueryMsg};
 use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
-use osmosis_test_tube::{Module, Wasm};
+use osmosis_test_tube::{Module, RunnerResult, Wasm};
 
 const INITIAL_AMOUNT: u128 = 1_000_000_000_000;
 
@@ -204,4 +204,62 @@ fn test_pool_does_not_have_output_asset() {
     let res = wasm.execute(&contract_address, &set_route_msg, &[], &owner).unwrap_err();
 
     assert_eq!(res.to_string(), "execute error: failed to execute message; message index: 0: Invalid Pool Route: \"last denom doesn't match\": execute wasm contract failed");
+}
+
+#[test]
+fn test_adding_and_removing_route() {
+    let TestEnv {
+        app,
+        contract_address,
+        owner,
+    } = TestEnv::new();
+    let wasm = Wasm::new(&app);
+
+    // setup route
+    // uosmo/uion = pool(2): uosmo/stake -> pool(3): stake/uion
+    let set_route_msg = ExecuteMsg::SetRoute {
+        input_denom: "uosmo".to_string(),
+        output_denom: "uion".to_string(),
+        pool_route: vec![SwapAmountInRoute {
+            pool_id: 1,
+            token_out_denom: "uion".to_string(),
+        }],
+    };
+
+    wasm.execute(&contract_address, &set_route_msg, &[], &owner).unwrap();
+
+    let resp: GetRouteResponse = wasm
+        .query(
+            &contract_address,
+            &QueryMsg::GetRoute {
+                input_denom: "uosmo".to_string(),
+                output_denom: "uion".to_string(),
+            },
+        )
+        .unwrap();
+
+    assert_eq!(
+        resp.pool_route,
+        vec![SwapAmountInRoute {
+            pool_id: 1, // stake/uosmo
+            token_out_denom: "uion".to_string(),
+        },],
+    );
+
+    let set_route_msg = ExecuteMsg::RemoveRoute {
+        input_denom: "uosmo".to_string(),
+        output_denom: "uion".to_string(),
+    };
+
+    wasm.execute(&contract_address, &set_route_msg, &[], &owner).unwrap();
+
+    let resp: RunnerResult<GetRouteResponse> = wasm.query(
+        &contract_address,
+        &QueryMsg::GetRoute {
+            input_denom: "uosmo".to_string(),
+            output_denom: "uion".to_string(),
+        },
+    );
+    let err = resp.unwrap_err();
+    assert_eq!(err.to_string(), "query error: Route not found: query wasm contract failed");
 }

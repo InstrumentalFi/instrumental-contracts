@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
 
@@ -26,6 +28,10 @@ pub enum ExecuteMsg {
         output_denom: String,
         pool_route: Vec<SwapAmountInRoute>,
     },
+    RemoveRoute {
+        input_denom: String,
+        output_denom: String,
+    },
     Liquidate {},
     IbcTransfer {},
 }
@@ -42,6 +48,11 @@ pub enum QueryMsg {
         input_denom: String,
         output_denom: String,
     },
+    #[returns(GetAllRoutesResponse)]
+    GetAllRoutes {
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
 }
 
 #[cw_serde]
@@ -52,4 +63,9 @@ pub struct GetOwnerResponse {
 #[cw_serde]
 pub struct GetRouteResponse {
     pub pool_route: Vec<SwapAmountInRoute>,
+}
+
+#[cw_serde]
+pub struct GetAllRoutesResponse {
+    pub routes: HashMap<String, Vec<SwapAmountInRoute>>,
 }
