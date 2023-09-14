@@ -1,0 +1,51 @@
+@startuml
+title Instrumental
+actor RetailUser
+actor StrategyManager
+actor InstrumentalProtocolManager 
+
+node Osmosis {
+  component GammPoolModule
+  component LockupModule
+  component LiquidatorContract
+  component AuthZModule
+  file RetailUserAccountOnOsmosis
+  file BotAccount
+  file StrategyManagerAccountOnOsmosis
+}
+
+node Bot {
+    component Compoundr
+    component Liquidator
+}
+
+node Neutron {
+  file InstrumentalProtocolManagerAccount 
+  file StrategyManagerAccountOnNeutron 
+  file RetailUserAccountOnNeutron 
+  component DistributorContract
+  component FeeCollectorContract
+  component StakingContract
+}
+
+StrategyManager --> StrategyManagerAccountOnNeutron : owns
+InstrumentalProtocolManager --> InstrumentalProtocolManagerAccount : owns
+Bot --> BotAccount : owns
+RetailUser --> RetailUserAccountOnNeutron : owns
+RetailUser --> RetailUserAccountOnOsmosis: owns
+RetailUserAccountOnOsmosis --> BotAccount : delegate send/bond/pool transactions
+Bot --> Osmosis: collect rewards, take fees, bond, liquidate fees on schedule
+Compoundr --> GammPoolModule : collect rewards
+Compoundr --> LockupModule : bond
+Compoundr --> LiquidatorContract : send fees too
+Liquidator --> LiquidatorContract : liquidate
+LiquidatorContract --> GammPoolModule : swap
+StrategyManagerAccountOnOsmosis --> LiquidatorContract : set routes
+LiquidatorContract --> DistributorContract : send outout of liquidation
+DistributorContract --> InstrumentalProtocolManagerAccount: send tokens
+DistributorContract --> StrategyManagerAccountOnNeutron: send tokens
+DistributorContract --> FeeCollectorContract: send tokens
+StakingContract --> FeeCollectorContract : owns
+RetailUserAccountOnNeutron --> StakingContract : stake/collect
+
+@enduml

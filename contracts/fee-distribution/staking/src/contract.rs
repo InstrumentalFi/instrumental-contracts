@@ -40,6 +40,7 @@ pub fn instantiate(
         deps.storage,
         &Config {
             owner: info.sender,
+            // this contract should be owner of fee collector
             fee_collector: deps.api.addr_validate(&msg.fee_collector)?,
             deposit_denom: msg.deposit_denom.clone(),
             staked_denom: "".to_string(),

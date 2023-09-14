@@ -106,7 +106,7 @@ pub fn calculate_min_output_from_twap(
     let route = ROUTING_TABLE.load(deps.storage, (&input_token.denom, &output_denom))?;
     if route.is_empty() {
         return Err(ContractError::InvalidPoolRoute {
-            reason: format!("No route foung for {} -> {output_denom}", input_token.denom),
+            reason: format!("No route found for {} -> {output_denom}", input_token.denom),
         });
     }
 
@@ -119,7 +119,7 @@ pub fn calculate_min_output_from_twap(
     // price of <out> is X<in> (i.e.: price of uion is X uosmo)
     let mut quote_denom = input_token.denom;
 
-    let start_time = now.minus_seconds(1);
+    let start_time = now.minus_seconds(1); // does it makes sense to use TWAP smaller than block?
     let start_time = OsmosisTimestamp {
         seconds: start_time.seconds() as i64,
         nanos: 0_i32,

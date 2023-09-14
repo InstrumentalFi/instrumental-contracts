@@ -66,10 +66,6 @@ pub fn ibc_transfer(deps: Deps, env: Env, _info: MessageInfo) -> Result<Response
 
     let balance = res.amount.amount;
 
-    if balance.is_zero() {
-        return Err(ContractError::ZeroAmount {});
-    }
-
     let msg = IbcMsg::Transfer {
         channel_id: config.ibc_channel_id,
         to_address: config.ibc_to_address.to_string(),
