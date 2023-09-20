@@ -9,13 +9,13 @@ proceeds via IBC.
 2. These protocol fees are liquidated to a specfic token.
 3. The token is sent via IBC to another chain.
 
-The owner can set parameters at Instatiation.
+The owner can set parameters at Instantiation.
 
 - `ibc_channel_id` - The channel id to use for the IBC transfer.
 - `ibc_to_address` - The account address on the receiving chain.
 - `liquidation_target` - The denomination of the liquidation target.
 
-In order for contract to know which routes to use to liqiuidate assets routes
+In order for contract to know which routes to use to liquidate assets routes
 must be set for pairs. These can be set by `set_route`.
 
 When the liquidate function is call the contract will loop through routes and
@@ -101,7 +101,7 @@ Permissionless method that liquidates assets.
 
 ### `ibc_transfer`
 
-Permissionless method that transfers liquidation target tokens via IBC to the
+Permissionless method that transfers liquidation target tokens(tokens out from swap) via IBC to the
 `ibc_channel_id` and `ibc_to_address`.
 
 ```json
