@@ -36,9 +36,9 @@ schemars = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 osmosis-std = { workspace = true }
+cosmwasm-schema = "1.3.3"
 
 [dev-dependencies]
-cosmwasm-schema = { workspace = true }
 cw-multi-test = { workspace = true }
 osmosis-test-tube = { workspace = true }
 instrumental-testing = { workspace = true }

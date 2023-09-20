@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
+use cosmwasm_schema::{cw_serde, QueryResponses};
 use osmosis_std::types::osmosis::poolmanager::v1beta1::SwapAmountInRoute;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+use crate::state::Config;
+
+#[cw_serde]
 pub struct InstantiateMsg {
     pub owner: String,
     pub ibc_channel_id: String,
@@ -12,8 +13,7 @@ pub struct InstantiateMsg {
     pub liquidation_target: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum ExecuteMsg {
     UpdateOwner {
         owner: String,
@@ -36,32 +36,36 @@ pub enum ExecuteMsg {
     IbcTransfer {},
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(GetOwnerResponse)]
     GetOwner {},
+    #[returns(Config)]
     GetConfig {},
+    #[returns(GetRouteResponse)]
     GetRoute {
         input_denom: String,
         output_denom: String,
     },
+    #[returns(GetAllRoutesResponse)]
     GetAllRoutes {
         start_after: Option<String>,
         limit: Option<u32>,
     },
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+#[cw_serde]
 pub struct GetOwnerResponse {
     pub owner: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]
+#[cw_serde]
 pub struct GetRouteResponse {
     pub pool_route: Vec<SwapAmountInRoute>,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, Eq, JsonSchema, Debug, Default)]
+#[cw_serde]
 pub struct GetAllRoutesResponse {
     pub routes: HashMap<String, Vec<SwapAmountInRoute>>,
 }
