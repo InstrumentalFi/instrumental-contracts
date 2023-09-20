@@ -101,8 +101,10 @@ Permissionless method that liquidates assets.
 
 ### `ibc_transfer`
 
-Permissionless method that transfers liquidation target tokens(tokens out from
-swap) via IBC to the `ibc_channel_id` and `ibc_to_address`.
+
+Permissionless method that transfers liquidation target tokens(tokens out from swap) via IBC to the
+`ibc_channel_id` and `ibc_to_address`.
+
 
 ```json
 {

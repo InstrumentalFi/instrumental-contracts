@@ -65,6 +65,7 @@ pub struct GetRouteResponse {
     pub pool_route: Vec<SwapAmountInRoute>,
 }
 
+
 #[cw_serde]
 pub struct GetAllRoutesResponse {
     pub routes: HashMap<String, Vec<SwapAmountInRoute>>,
