@@ -22,8 +22,6 @@ pub enum ContractError {
     InvalidPoolRoute {
         reason: String,
     },
-    #[error("Amount was zero")]
-    ZeroAmount {},
 
     #[error("Insufficient Funds")]
     InsufficientFunds {},
