@@ -1,3 +1,5 @@
+use std::{collections::HashMap, str::FromStr};
+
 use cosmwasm_std::{coin, Addr, Uint128};
 use cw20::{BalanceResponse, Cw20QueryMsg};
 use fee_distribution::{
@@ -7,7 +9,6 @@ use fee_distribution::{
 };
 use osmosis_std::types::cosmos::bank::v1beta1::QueryBalanceRequest;
 use osmosis_test_tube::{Bank, Module, OsmosisTestApp, SigningAccount, Wasm};
-use std::{collections::HashMap, str::FromStr};
 
 use crate::helpers::store_code;
 
