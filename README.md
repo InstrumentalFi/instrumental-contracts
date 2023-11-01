@@ -7,6 +7,41 @@
 
 This repository contains the source code for the Pablo Vault and Fee Distribution Contracts.
 
+## Behaviour
+
+This section elaborates on the functionalities and interactions of CosmWasm contracts used for staking and fee distribution within the Cosmos network. Contributions and documentation have been provided by Max, George, and Dzmitry Lahoda.
+
+### 1. Distributor Contract
+- **Functionality**: Receives and allocates tokens based on predefined rules.
+- **Features**: 
+  - Supports various Cosmos denominations (denoms), accounts, and percentage-based distributions.
+  - Enables the transfer of tokens to multiple contracts or addresses, ensuring versatile distribution.
+  - Suitable for various applications including staking and the Osmosis adapter pool (note: no integration with the pool).
+
+### 2. Fee Collector Contract
+- **Functionality**: Serves as a recipient for tokens from the Distributor contract, acting as a secure storage.
+- **Characteristics**: 
+  - Receives a specific portion of tokens from the Distributor contract.
+  - Implements checks and permissions to ensure secure and authorized withdrawals of tokens.
+  - Allows the Staking contract to withdraw tokens.
+
+### 3. Staking Contract
+- **Functionality**: Manages the staking of tokens and facilitates the distribution of rewards.
+- **Features**:
+  - "Tokens per interval" parameter sets a maximum limit for distribution within a specified timeframe.
+  - Distributes the lesser of total tokens in the collector or "time x tokens per interval."
+  - Issues stTokens to users in representation of their stake.
+  - stTokens are value-accruing, allowing holders to collect a portion of fees proportional to their stToken holdings.
+- **Distribution**: 
+  - Occurs at predefined intervals with immediate accrual of user shares upon staking.
+  - Adopts a pro-rata distribution model, ensuring fee distribution is proportional to each user’s stToken holdings.
+  - Utilizes a precise user share tracking mechanism akin to other reward systems.
+
+### Special Considerations
+
+- **Passive Stakers**: Further investigation is necessary to ensure that passive stakers are adequately protected and fairly treated compared to those who stake at the last minute. The case of one chain accumulates and sends transfers peridocally is important.
+
+
 ## Environment set up
 
 - Install [rustup][4]. Once installed, make sure you have the wasm32 target:
