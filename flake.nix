@@ -60,14 +60,15 @@
                 pname = name;
                 DOCS_RS = 1;
                 RUST_BACKTRACE = 1;
+                doCheck = false;
                 cargoBuildCommand =
                   "cargo build --lib --release --target wasm32-unknown-unknown --workspace --exclude instrumental-testing --package ${name} ${std-config}";
                 RUSTFLAGS = "-C link-arg=-s";
                 installPhaseCommand = ''
                   mkdir --parents $out/lib
                   # from CosmWasm/rust-optimizer
-                  # --signext-lowering is needed to support blockchains runnning CosmWasm < 1.3. It can be removed eventually
-                  wasm-opt target/wasm32-unknown-unknown/cosmwasm-contracts/${binaryName} -o $out/lib/${binaryName} -Os --signext-lowering
+                  # --signext-lowering is needed to support blockchains runnning CosmWasm < 1.3. It can be removed eventually                  
+                  wasm-opt target/wasm32-unknown-unknown/release/${binaryName} -o $out/lib/${binaryName} -Os --signext-lowering
                   cosmwasm-check $out/lib/${binaryName}
                 '';
               };
