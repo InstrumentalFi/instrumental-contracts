@@ -9,11 +9,11 @@ This repository contains the source code for the Pablo Vault and Fee Distributio
 
 ## Behaviour
 
-This section elaborates on the functionalities and interactions of CosmWasm contracts used for staking and fee distribution within the Cosmos network. Contributions and documentation have been provided by Max, George, and Dzmitry Lahoda.
+This section elaborates on the functionalities and interactions of CosmWasm contracts used for staking and fee distribution within the Cosmos network.
 
 ### 1. Distributor Contract
 - **Functionality**: Receives and allocates tokens based on predefined rules.
-- **Features**: 
+- **Features**: a
   - Supports various Cosmos denominations (denoms), accounts, and percentage-based distributions.
   - Enables the transfer of tokens to multiple contracts or addresses, ensuring versatile distribution.
   - Suitable for various applications including staking and the Osmosis adapter pool (note: no integration with the pool).

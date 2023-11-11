@@ -27,3 +27,7 @@ whitelists/
 artifacts/
 
 yarn-error.log
+
+# Nix
+result/
+result-man/
