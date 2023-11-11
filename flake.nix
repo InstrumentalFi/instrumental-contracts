@@ -65,7 +65,7 @@
               });
           in
           {
-            default = makeCosmwasmContract "staking" rust "";
+            staking = makeCosmwasmContract "staking" rust "";
           };
       };
     };
