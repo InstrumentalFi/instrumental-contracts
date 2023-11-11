@@ -61,7 +61,7 @@
                 DOCS_RS = 1;
                 RUST_BACKTRACE = 1;
                 cargoBuildCommand =
-                  "cargo build --lib --release --target wasm32-unknown-unknown --locked --workspace --exclude instrumental-testing --package ${name} ${std-config}";
+                  "cargo build --lib --release --target wasm32-unknown-unknown --workspace --exclude instrumental-testing --package ${name} ${std-config}";
                 RUSTFLAGS = "-C link-arg=-s";
                 installPhaseCommand = ''
                   mkdir --parents $out/lib
