@@ -44,14 +44,19 @@
 
             makeCosmwasmContract = name: rust: std-config:
               let binaryName = "${builtins.replaceStrings [ "-" ] [ "_" ] name}.wasm";
-              in rust.buildPackage ({ } // {
+              in rust.buildPackage {
                 src = ./.;
                 version = "0.1";
+                # LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath
+                #     (with pkgs; [ stdenv.cc.cc.lib llvmPackages.libclang.lib ]);
+                LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
                 nativeBuildInputs = [
                   pkgs.binaryen
                   self.inputs.cosmos.packages.${system}.cosmwasm-check
                 ];
                 pname = name;
+                DOCS_RS = 1;
+                RUST_BACKTRACE = 1;
                 cargoBuildCommand =
                   "cargo build --lib --release --target wasm32-unknown-unknown --locked --workspace --exclude instrumental-testing --package ${name} ${std-config}";
                 RUSTFLAGS = "-C link-arg=-s";
@@ -62,7 +67,7 @@
                   wasm-opt target/wasm32-unknown-unknown/cosmwasm-contracts/${binaryName} -o $out/lib/${binaryName} -Os --signext-lowering
                   cosmwasm-check $out/lib/${binaryName}
                 '';
-              });
+              };
           in
           {
             staking = makeCosmwasmContract "staking" rust "";

@@ -31,3 +31,6 @@ yarn-error.log
 # Nix
 result/
 result-man/
+
+# CosmWasm 
+schema
