@@ -23,7 +23,7 @@ simple-vault = { path = "../../../packages/simple-vault", features = [
     "lockup",
     "force-unlock",
 ], default-features = false }
-osmosis-std = { git = "https://github.com/osmosis-labs/osmosis-rust.git", rev = "7c1d418" }
+osmosis-std = { workspace = true}
 cw-vault-standard = { version = "0.2.0", features = ["lockup", "force-unlock"] }
 semver = "1"
 cosmwasm-schema = { workspace = true }
@@ -41,10 +41,12 @@ apollo-cw-asset = "0.1.0"
 [dev-dependencies]
 cosmwasm-schema = { workspace = true }
 serde = { workspace = true }
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust.git", rev = "430236bd63f26d618e11e59709a56c808c4d427c" }
-cw-it = { git = "https://github.com/apollodao/cw-it.git", rev = "efd1763", features = [
+
+osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust.git" }
+cw-it = { git = "https://github.com/apollodao/cw-it.git", features = [
     "osmosis",
 ] }
+
 test-case = "2.2.2"
 liquidity-helper = "0.1.0"
 cw-dex-router = { version = "0.1.0", features = ["library", "osmosis"] }

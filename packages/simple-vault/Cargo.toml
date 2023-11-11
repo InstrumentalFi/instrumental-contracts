@@ -40,7 +40,7 @@ apollo-utils = "0.1.0"
 base-vault = { path = "../base-vault" }
 cw-utils = "1.0.1"
 liquidity-helper = "0.1.0"
-osmosis-std = "0.14.0"
+osmosis-std = { workspace = true }
 
 [dev-dependencies]
 test-case = "2.2.2"
