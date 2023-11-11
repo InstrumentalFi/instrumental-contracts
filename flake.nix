@@ -27,7 +27,7 @@
 
   outputs = inputs@{ flake-parts, self, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-darwin" ];
+      systems = [ "x86_64-linux" "aarch64-darwin" "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
         _module.args.pkgs = import self.inputs.nixpkgs {
           inherit system;
