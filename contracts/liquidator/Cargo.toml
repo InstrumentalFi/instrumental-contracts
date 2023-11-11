@@ -40,5 +40,5 @@ cosmwasm-schema = { workspace = true }
 
 [dev-dependencies]
 cw-multi-test = { workspace = true }
-osmosis-test-tube = { workspace = true }
-instrumental-testing = { workspace = true }
+# osmosis-test-tube = { workspace = true }
+# instrumental-testing = { workspace = true }

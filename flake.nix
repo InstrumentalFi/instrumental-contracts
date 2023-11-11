@@ -47,8 +47,11 @@
               in rust.buildPackage {
                 src = ./.;
                 version = "0.1";
-                # LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath
-                #     (with pkgs; [ stdenv.cc.cc.lib llvmPackages.libclang.lib ]);
+                LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath [
+                  pkgs.stdenv.cc.cc.lib
+                  pkgs.llvmPackages.libclang.lib
+                  pkgs.zlib.dev
+                ];
                 LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
                 nativeBuildInputs = [
                   pkgs.binaryen

@@ -42,10 +42,10 @@ apollo-cw-asset = "0.1.0"
 cosmwasm-schema = { workspace = true }
 serde = { workspace = true }
 
-osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust.git" }
-cw-it = { git = "https://github.com/apollodao/cw-it.git", features = [
-    "osmosis",
-] }
+# osmosis-testing = { git = "https://github.com/apollodao/osmosis-rust.git" }
+# cw-it = { git = "https://github.com/apollodao/cw-it.git", features = [
+#     "osmosis",
+# ] }
 
 test-case = "2.2.2"
 liquidity-helper = "0.1.0"

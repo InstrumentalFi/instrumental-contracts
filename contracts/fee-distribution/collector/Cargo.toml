@@ -41,5 +41,5 @@ thiserror = { workspace = true }
 cosmwasm-schema = { workspace = true }
 cw-multi-test = { workspace = true }
 osmosis-std = { workspace = true }
-osmosis-test-tube = { workspace = true }
-instrumental-testing = { workspace = true }
+# osmosis-test-tube = { workspace = true }
+#instrumental-testing = { workspace = true }
