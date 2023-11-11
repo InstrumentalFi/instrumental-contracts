@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
+    entry_point, to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Reply, Response, StdError,
     StdResult, SubMsgResult, Uint128,
 };
 use cw2::set_contract_version;
@@ -133,13 +133,13 @@ pub fn execute(
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::Config {} => to_binary(&query_config(deps)?),
-        QueryMsg::State {} => to_binary(&query_state(deps)?),
+        QueryMsg::Config {} => to_json_binary(&query_config(deps)?),
+        QueryMsg::State {} => to_json_binary(&query_state(deps)?),
         QueryMsg::GetClaimable {
             user,
-        } => to_binary(&query_claimable(deps, env, user)?),
+        } => to_json_binary(&query_claimable(deps, env, user)?),
         QueryMsg::GetUserStakedAmount {
             user,
-        } => to_binary(&query_user_staked_amount(deps, user)?),
+        } => to_json_binary(&query_user_staked_amount(deps, user)?),
     }
 }

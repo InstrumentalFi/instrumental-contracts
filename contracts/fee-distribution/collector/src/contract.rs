@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
+    entry_point, to_json_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult,
 };
 use cw2::set_contract_version;
 use cw_controllers::Admin;
@@ -62,14 +62,14 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> S
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetOwner {} => to_binary(&query_owner(deps)?),
-        QueryMsg::GetWhitelist {} => to_binary(&query_whitelist(deps)?),
+        QueryMsg::GetOwner {} => to_json_binary(&query_owner(deps)?),
+        QueryMsg::GetWhitelist {} => to_json_binary(&query_whitelist(deps)?),
         QueryMsg::IsToken {
             token,
-        } => to_binary(&query_is_token(deps, token)?),
+        } => to_json_binary(&query_is_token(deps, token)?),
         QueryMsg::GetTokenList {
             limit,
-        } => to_binary(&query_all_token(deps, limit)?),
-        QueryMsg::GetTokenLength {} => to_binary(&query_token_list_length(deps)?),
+        } => to_json_binary(&query_all_token(deps, limit)?),
+        QueryMsg::GetTokenLength {} => to_json_binary(&query_token_list_length(deps)?),
     }
 }

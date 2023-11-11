@@ -1,6 +1,6 @@
 use apollo_cw_asset::{Asset, AssetList};
 use cosmwasm_std::{
-    attr, to_binary, Decimal, DepsMut, Env, Event, MessageInfo, Response, StdError, StdResult,
+    attr, to_json_binary, Decimal, DepsMut, Env, Event, MessageInfo, Response, StdError, StdResult,
     Uint128,
 };
 use cw_dex::traits::{Pool, Stake};
@@ -173,7 +173,7 @@ where
         let provide_liquidity_msgs = cfg.liquidity_helper.balancing_provide_liquidity(
             contract_assets.clone(),
             Uint128::zero(),
-            to_binary(&pool)?,
+            to_json_binary(&pool)?,
             None,
         )?;
 

@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    from_binary,
+    from_json,
     testing::{mock_dependencies, mock_env, mock_info},
     Addr, Uint128,
 };
@@ -22,7 +22,7 @@ fn test_instantiation() {
     instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: OwnerResponse = from_binary(&res).unwrap();
+    let resp: OwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0000".to_string()));
@@ -45,7 +45,7 @@ fn test_update_owner() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: OwnerResponse = from_binary(&res).unwrap();
+    let resp: OwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
@@ -68,7 +68,7 @@ fn test_update_whitelist() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetWhitelist {}).unwrap();
-    let resp: WhitelistResponse = from_binary(&res).unwrap();
+    let resp: WhitelistResponse = from_json(&res).unwrap();
     let owner = resp.address;
 
     assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
@@ -100,7 +100,7 @@ fn test_query_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(is_token);
@@ -153,7 +153,7 @@ fn test_query_all_token() {
     )
     .unwrap();
 
-    let res: AllTokenResponse = from_binary(&res).unwrap();
+    let res: AllTokenResponse = from_json(&res).unwrap();
     let list = res.token_list;
 
     assert_eq!(list, vec!["token1".to_string(), "ubase".to_string(),]);
@@ -178,7 +178,7 @@ fn test_add_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(!is_token);
@@ -201,7 +201,7 @@ fn test_add_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(is_token);
@@ -270,7 +270,7 @@ fn test_add_second_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(is_token);
@@ -303,7 +303,7 @@ fn test_remove_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(is_token);
@@ -326,7 +326,7 @@ fn test_remove_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(!is_token);
@@ -351,7 +351,7 @@ fn test_remove_when_no_tokens() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(!is_token);
@@ -394,7 +394,7 @@ fn test_remove_non_existed_token() {
     )
     .unwrap();
 
-    let res: TokenResponse = from_binary(&res).unwrap();
+    let res: TokenResponse = from_json(&res).unwrap();
     let is_token = res.is_token;
 
     assert!(is_token);
@@ -506,7 +506,7 @@ fn test_token_length() {
     // check for the second added token
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetTokenLength {}).unwrap();
 
-    let res: TokenLengthResponse = from_binary(&res).unwrap();
+    let res: TokenLengthResponse = from_json(&res).unwrap();
     let length = res.length;
 
     assert_eq!(length, 2usize);

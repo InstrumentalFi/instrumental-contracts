@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    from_binary,
+    from_json,
     testing::{mock_dependencies, mock_env, mock_info},
     Addr, Uint128,
 };
@@ -28,17 +28,17 @@ fn test_instantiation() {
     instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: OwnerResponse = from_binary(&res).unwrap();
+    let resp: OwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0000".to_string()));
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetToken {}).unwrap();
-    let token: String = from_binary(&res).unwrap();
+    let token: String = from_json(&res).unwrap();
     assert_eq!(token, "uusd".to_string());
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetConfig {}).unwrap();
-    let resp: Config = from_binary(&res).unwrap();
+    let resp: Config = from_json(&res).unwrap();
     let distribution = resp.distribution;
 
     let expected_address = Addr::unchecked("addr0000".to_string());
@@ -131,7 +131,7 @@ fn test_update_owner() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: OwnerResponse = from_binary(&res).unwrap();
+    let resp: OwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
@@ -164,7 +164,7 @@ fn test_update_config() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetConfig {}).unwrap();
-    let resp: Config = from_binary(&res).unwrap();
+    let resp: Config = from_json(&res).unwrap();
     let distribution = resp.distribution;
 
     let expected_address = Addr::unchecked("addr0000".to_string());
@@ -209,7 +209,7 @@ fn test_query_token() {
     // query if the token has been added
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetToken {}).unwrap();
 
-    let token: String = from_binary(&res).unwrap();
+    let token: String = from_json(&res).unwrap();
 
     assert_eq!(token, "uusd".to_string());
 }

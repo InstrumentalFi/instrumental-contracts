@@ -1,5 +1,5 @@
 use cosmwasm_schema::cw_serde;
-use cosmwasm_std::{to_binary, Addr, CosmosMsg, Env, StdResult, Uint128, WasmMsg};
+use cosmwasm_std::{to_json_binary, Addr, CosmosMsg, Env, StdResult, Uint128, WasmMsg};
 #[cfg(feature = "force-unlock")]
 use cw_vault_standard::extensions::force_unlock::ForceUnlockExecuteMsg;
 #[cfg(feature = "lockup")]
@@ -87,7 +87,7 @@ impl CallbackMsg {
     pub fn into_cosmos_msg(&self, env: &Env) -> StdResult<CosmosMsg> {
         Ok(CosmosMsg::Wasm(WasmMsg::Execute {
             contract_addr: env.contract.address.to_string(),
-            msg: to_binary(&VaultStandardExecuteMsg::VaultExtension(
+            msg: to_json_binary(&VaultStandardExecuteMsg::VaultExtension(
                 ExtensionExecuteMsg::Callback(self.clone()),
             ))?,
             funds: vec![],

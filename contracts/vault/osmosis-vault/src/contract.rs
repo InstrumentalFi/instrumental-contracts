@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    to_binary, Binary, Deps, DepsMut, Env, Event, MessageInfo, Reply, Response, StdError,
+    to_json_binary, Binary, Deps, DepsMut, Env, Event, MessageInfo, Reply, Response, StdError,
     StdResult, SubMsgResponse, SubMsgResult, Uint128,
 };
 use cw2::{get_contract_version, set_contract_version};
@@ -183,7 +183,7 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
     let base_vault = &contract.base_vault;
 
     match msg {
-        QueryMsg::VaultStandardInfo {} => to_binary(&VaultStandardInfoResponse {
+        QueryMsg::VaultStandardInfo {} => to_json_binary(&VaultStandardInfoResponse {
             version: VAULT_STANDARD_VERSION,
             extensions: VAULT_STANDARD_EXTENSIONS.iter().map(|&s| s.into()).collect(),
         }),
@@ -191,34 +191,34 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
             let vault_token = base_vault.vault_token.load(deps.storage)?;
             let base_token = base_vault.base_token.load(deps.storage)?;
 
-            to_binary(&VaultInfoResponse {
+            to_json_binary(&VaultInfoResponse {
                 base_token: base_token.to_string(),
                 vault_token: vault_token.to_string(),
             })
         }
         QueryMsg::PreviewDeposit {
             amount,
-        } => to_binary(&base_vault.query_simulate_deposit(deps, amount)?),
+        } => to_json_binary(&base_vault.query_simulate_deposit(deps, amount)?),
         QueryMsg::PreviewRedeem {
             amount,
-        } => to_binary(&base_vault.query_simulate_withdraw(deps, amount)?),
-        QueryMsg::TotalAssets {} => to_binary(&base_vault.query_total_assets(deps)?),
+        } => to_json_binary(&base_vault.query_simulate_withdraw(deps, amount)?),
+        QueryMsg::TotalAssets {} => to_json_binary(&base_vault.query_total_assets(deps)?),
         QueryMsg::TotalVaultTokenSupply {} => {
-            to_binary(&base_vault.query_total_vault_token_supply(deps)?)
+            to_json_binary(&base_vault.query_total_vault_token_supply(deps)?)
         }
         QueryMsg::ConvertToShares {
             amount,
-        } => to_binary(&base_vault.query_simulate_deposit(deps, amount)?),
+        } => to_json_binary(&base_vault.query_simulate_deposit(deps, amount)?),
         QueryMsg::ConvertToAssets {
             amount,
-        } => to_binary(&base_vault.query_simulate_withdraw(deps, amount)?),
+        } => to_json_binary(&base_vault.query_simulate_withdraw(deps, amount)?),
         QueryMsg::VaultExtension(msg) => match msg {
             ExtensionQueryMsg::Lockup(msg) => match msg {
                 LockupQueryMsg::UnlockingPositions {
                     owner,
                     start_after,
                     limit,
-                } => to_binary(&contract.query_unlocking_positions(
+                } => to_json_binary(&contract.query_unlocking_positions(
                     deps,
                     owner,
                     start_after,
@@ -226,13 +226,13 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
                 )?),
                 LockupQueryMsg::UnlockingPosition {
                     lockup_id,
-                } => to_binary(&contract.claims.query_claim_by_id(deps, lockup_id)?),
+                } => to_json_binary(&contract.claims.query_claim_by_id(deps, lockup_id)?),
                 LockupQueryMsg::LockupDuration {} => {
-                    to_binary(&contract.staking.load(deps.storage)?.get_lockup_duration(deps)?)
+                    to_json_binary(&contract.staking.load(deps.storage)?.get_lockup_duration(deps)?)
                 }
             },
             ExtensionQueryMsg::Simple(msg) => match msg {
-                SimpleExtensionQueryMsg::State {} => to_binary(&contract.query_state(deps, env)?),
+                SimpleExtensionQueryMsg::State {} => to_json_binary(&contract.query_state(deps, env)?),
             },
         },
     }

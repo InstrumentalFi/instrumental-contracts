@@ -1,6 +1,6 @@
 mod common;
 use cosmwasm_std::{
-    from_binary,
+    from_json,
     testing::{mock_dependencies, mock_env, mock_info},
     Addr,
 };
@@ -24,13 +24,13 @@ fn test_instantiation() {
     instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: GetOwnerResponse = from_binary(&res).unwrap();
+    let resp: GetOwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0000".to_string()));
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetConfig {}).unwrap();
-    let resp: Config = from_binary(&res).unwrap();
+    let resp: Config = from_json(&res).unwrap();
     let ibc_channel_id = resp.ibc_channel_id;
     let ibc_to_address = resp.ibc_to_address;
     let liquidation_target = resp.liquidation_target;
@@ -62,7 +62,7 @@ fn test_update_owner() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetOwner {}).unwrap();
-    let resp: GetOwnerResponse = from_binary(&res).unwrap();
+    let resp: GetOwnerResponse = from_json(&res).unwrap();
     let owner = resp.owner;
 
     assert_eq!(owner, Addr::unchecked("addr0001".to_string()));
@@ -92,7 +92,7 @@ fn test_update_config() {
     execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
     let res = query(deps.as_ref(), mock_env(), QueryMsg::GetConfig {}).unwrap();
-    let resp: Config = from_binary(&res).unwrap();
+    let resp: Config = from_json(&res).unwrap();
     let ibc_channel_id = resp.ibc_channel_id;
     let ibc_to_address = resp.ibc_to_address;
     let liquidation_target = resp.liquidation_target;

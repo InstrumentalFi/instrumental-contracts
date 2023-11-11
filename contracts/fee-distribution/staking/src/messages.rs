@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    from_binary, wasm_execute, wasm_instantiate, CosmosMsg, DepsMut, Env, MessageInfo, Response,
+    from_json, wasm_execute, wasm_instantiate, CosmosMsg, DepsMut, Env, MessageInfo, Response,
     SubMsg, Uint128,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg, MinterResponse};
@@ -13,7 +13,7 @@ pub fn receive_cw20(
     info: MessageInfo,
     cw20_msg: Cw20ReceiveMsg,
 ) -> Result<Response, ContractError> {
-    match from_binary(&cw20_msg.msg)? {
+    match from_json(&cw20_msg.msg)? {
         Cw20HookMsg::Unstake {} => handle_unstake(deps, env, info, cw20_msg),
     }
 }

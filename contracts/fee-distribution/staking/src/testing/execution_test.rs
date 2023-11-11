@@ -1,4 +1,4 @@
-use cosmwasm_std::{coin, to_binary, Uint128};
+use cosmwasm_std::{coin, to_json_binary, Uint128};
 use cw20::Cw20ExecuteMsg;
 use fee_distribution::staking::{Cw20HookMsg, ExecuteMsg, QueryMsg};
 use instrumental_testing::staking_env::StakingEnv;
@@ -280,7 +280,7 @@ fn test_unstaking() {
                 &Cw20ExecuteMsg::Send {
                     contract: staking_address.clone(),
                     amount: amount_to_unstake.into(),
-                    msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                    msg: to_json_binary(&Cw20HookMsg::Unstake {}).unwrap(),
                 },
                 &[],
                 &env.traders[0],
@@ -302,7 +302,7 @@ fn test_unstaking() {
             &Cw20ExecuteMsg::Send {
                 contract: staking_address,
                 amount: amount_to_unstake.into(),
-                msg: to_binary(&Cw20HookMsg::Unstake {}).unwrap(),
+                msg: to_json_binary(&Cw20HookMsg::Unstake {}).unwrap(),
             },
             &[],
             &env.traders[0],

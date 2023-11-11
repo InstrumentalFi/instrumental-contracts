@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use cosmwasm_std::{
-    to_binary, Coin, CosmosMsg, Deps, QueryRequest, Response, StdError, StdResult, Uint128,
+    to_json_binary, Coin, CosmosMsg, Deps, QueryRequest, Response, StdError, StdResult, Uint128,
     WasmMsg, WasmQuery,
 };
 use cw20::{Cw20QueryMsg, TokenInfoResponse};
@@ -26,7 +26,7 @@ pub fn get_token_total_supply(deps: Deps) -> Uint128 {
         .querier
         .query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: config.staked_denom,
-            msg: to_binary(&Cw20QueryMsg::TokenInfo {}).unwrap(),
+            msg: to_json_binary(&Cw20QueryMsg::TokenInfo {}).unwrap(),
         }))
         .unwrap();
 
@@ -57,7 +57,7 @@ pub fn create_distribute_message(
 ) -> CosmosMsg {
     CosmosMsg::Wasm(WasmMsg::Execute {
         contract_addr: fee_collector,
-        msg: to_binary(&FeeExecuteMsg::SendToken {
+        msg: to_json_binary(&FeeExecuteMsg::SendToken {
             token,
             amount,
             recipient,

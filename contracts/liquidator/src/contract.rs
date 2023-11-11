@@ -1,5 +1,5 @@
 use cosmwasm_std::{
-    entry_point, to_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError,
+    entry_point, to_json_binary, Addr, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError,
     StdResult,
 };
 use cw2::set_contract_version;
@@ -81,16 +81,16 @@ pub fn execute(
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetOwner {} => {
-            to_binary(&query_owner(deps).map_err(|err| StdError::generic_err(err.to_string()))?)
+            to_json_binary(&query_owner(deps).map_err(|err| StdError::generic_err(err.to_string()))?)
         }
-        QueryMsg::GetConfig {} => to_binary(&query_config(deps)?),
+        QueryMsg::GetConfig {} => to_json_binary(&query_config(deps)?),
         QueryMsg::GetRoute {
             input_denom,
             output_denom,
-        } => to_binary(&query_route(deps, input_denom, output_denom)?),
+        } => to_json_binary(&query_route(deps, input_denom, output_denom)?),
         QueryMsg::GetAllRoutes {
             start_after,
             limit,
-        } => to_binary(&query_all_routes(deps, start_after, limit)?),
+        } => to_json_binary(&query_all_routes(deps, start_after, limit)?),
     }
 }
