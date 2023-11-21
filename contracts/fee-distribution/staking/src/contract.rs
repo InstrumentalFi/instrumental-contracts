@@ -121,7 +121,7 @@ pub fn execute(
         ExecuteMsg::UpdateRewards {} => handle_update_rewards(deps, env),
         ExecuteMsg::Stake {} => handle_stake(deps, env, info),
         ExecuteMsg::Receive(msg) => receive_cw20(deps, env, info, msg),
-        // ExecuteMsg::Unstake {} => handle_unstake(deps, env, info),
+        ExecuteMsg::Unstake {} => handle_unstake(deps, env, info),
         ExecuteMsg::Claim {
             recipient,
         } => handle_claim(deps, env, info, recipient),
