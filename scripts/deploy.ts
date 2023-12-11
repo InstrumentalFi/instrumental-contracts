@@ -1,67 +1,70 @@
-import 'dotenv/config.js'
+import 'dotenv/config.js';
 import {
   deployContract,
   executeContract,
   queryContract,
   uploadContract,
-} from './helpers.js'
-import { GasPrice, setupNodeLocal } from 'cosmwasm'
-import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing'
-import { writeFile } from 'fs'
-import { testnet } from './deploy_configs.js'
-import { join } from 'path'
+} from './helpers.js';
+import { DirectSecp256k1HdWallet, OfflineSigner } from '@cosmjs/proto-signing';
+import { writeFile } from 'fs';
+import { testnet } from './deploy_configs.js';
+import { join } from 'path';
+
+import { GasPrice } from '@cosmjs/stargate';
+import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 
 // consts
-const ARTIFACTS_PATH = '../artifacts'
+const ARTIFACTS_PATH = '../artifacts';
 
-function createConfig(
-  chainId?: string,
-  rpcEndpoint?: string,
-  prefix?: string,
-  gasPrice?: GasPrice,
-) {
+async function createWallet(
+  mnemonic: string,
+  prefixValue: string
+): Promise<OfflineSigner> {
+  // const mnemonic =
+  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+    prefix: prefixValue,
+  });
+
+  return wallet;
+}
+// main
+async function main() {
+  const mnemonic = process.env.MNEMONIC;
+
+  // just check mnemonic has actually been defined
+  if (mnemonic === null || mnemonic === undefined) {
+    const message = `mnemonic undefined`;
+
+    throw new Error(message);
+  }
+
+  let chainId = process.env.CHAINID;
+  let rpcEndpoint = process.env.RPC;
+  let prefix = process.env.PREFIX;
   if (
     chainId === undefined ||
     rpcEndpoint === undefined ||
     prefix === undefined
   ) {
-    throw new Error('chainId, rpcEndpoint, and prefix must all be defined')
+    throw new Error('chainId, rpcEndpoint, and prefix must all be defined');
   }
 
-  if (gasPrice === undefined) {
-    gasPrice = GasPrice.fromString('0.025uosmo')
-  }
+  let deployConfig: Config = testnet;
+  const isTestnet = process.env.NETWORK === 'testnet';
 
-  return { chainId, rpcEndpoint, prefix, gasPrice }
-}
+  if (!rpcEndpoint) return;
 
-// main
-async function main() {
-  const mnemonic = process.env.MNEMONIC
+  const wallet = await createWallet(mnemonic, prefix);
 
-  // just check mnemonic has actually been defined
-  if (mnemonic === null || mnemonic === undefined) {
-    const message = `mnemonic undefined`
+  const [account] = await wallet.getAccounts();
+  console.log(`Wallet address from seed: ${account.address}`);
 
-    throw new Error(message)
-  }
+  const client = await SigningCosmWasmClient.connectWithSigner(
+    rpcEndpoint,
+    wallet,
+    { gasPrice: GasPrice.fromString('0.025uosmo') }
+  );
 
-  let chainId = process.env.CHAINID
-  let rpcEndpoint = process.env.RPC
-  let prefix = process.env.PREFIX
-
-  const config = createConfig(chainId, rpcEndpoint, prefix)
-
-  const client = await setupNodeLocal(config, mnemonic)
-  const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-    prefix: config.prefix,
-  })
-  let deployConfig: Config = testnet
-  const isTestnet = process.env.NETWORK === 'testnet'
-
-  const [account] = await wallet.getAccounts()
-
-  console.log(`Wallet address from seed: ${account.address}`)
 
   ///
   /// Upload CW20 Contract
