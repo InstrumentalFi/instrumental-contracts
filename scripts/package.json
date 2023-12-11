@@ -7,6 +7,11 @@
     "deploy": "node --loader ts-node/esm deploy.ts"
   },
   "dependencies": {
+    "@cosmjs/amino": "^0.31.3",
+    "@cosmjs/cosmwasm-stargate": "^0.31.3",
+    "@cosmjs/stargate": "^0.31.3",
+    "@cosmjs/tendermint-rpc": "^0.31.3",
+    "@cosmjs/proto-signing": "^0.31.3",
     "@types/glob": "^7.2.0",
     "axios": "0.27.2",
     "bignumber.js": "^9.0.1",
