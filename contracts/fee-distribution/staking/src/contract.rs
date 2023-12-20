@@ -115,13 +115,13 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
+        // handle CW20 hook with assets with ExecuteMsg::Unstake inside => handle_unstake(deps, env, info, submsg),
         ExecuteMsg::UpdateConfig {
             tokens_per_interval,
         } => handle_update_config(deps, info, tokens_per_interval),
         ExecuteMsg::UpdateRewards {} => handle_update_rewards(deps, env),
         ExecuteMsg::Stake {} => handle_stake(deps, env, info),
         ExecuteMsg::Receive(msg) => receive_cw20(deps, env, info, msg),
-        // ExecuteMsg::Unstake {} => handle_unstake(deps, env, info),
         ExecuteMsg::Claim {
             recipient,
         } => handle_claim(deps, env, info, recipient),
