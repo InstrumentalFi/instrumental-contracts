@@ -4,7 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "deploy": "node --loader ts-node/esm deploy.ts"
+    "deploy": "node --loader ts-node/esm deploy.ts",
+    "test-unstake": "node --loader ts-node/esm test_unstake.ts"
   },
   "dependencies": {
     "@types/glob": "^7.2.0",

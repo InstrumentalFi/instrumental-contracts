@@ -7,6 +7,7 @@ fmt-check = "fmt --all -- --check"
 lint = "clippy -- -D warnings"
 schema = "run schema"
 coverage = "llvm-cov --workspace --lcov --output-path lcov.info"
+unit-test-debug = "cargo unit-test -- --nocapture"
 
 [target.wasm32-unknown-unknown]
 rustflags = ["-C", "link-arg=-s"]
