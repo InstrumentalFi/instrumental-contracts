@@ -1,9 +1,9 @@
 # Pablo Vault
 
-[![Artifacts](https://github.com/shapeshed/pablo-vault/actions/workflows/artifacts.yml/badge.svg)](https://github.com/shapeshed/pablo-vault/actions/workflows/artifacts.yml)
-[![Main](https://github.com/shapeshed/pablo-vault/actions/workflows/main.yml/badge.svg)](https://github.com/shapeshed/pablo-vault/actions/workflows/main.yml)
-[![Coverage](https://github.com/shapeshed/pablo-vault/actions/workflows/coverage.yml/badge.svg)](https://github.com/shapeshed/pablo-vault/actions/workflows/coverage.yml)
-[![codecov](https://codecov.io/github/shapeshed/pablo-vault/branch/main/graph/badge.svg?token=dH6ikLs46M)](https://codecov.io/github/shapeshed/pablo-vault)
+[![Artifacts](https://github.com/InstrumentalFi/instrumental-contracts//actions/workflows/artifacts.yml/badge.svg)](https://github.com/InstrumentalFi/instrumental-contracts/actions/workflows/artifacts.yml)
+[![Main](https://github.com/InstrumentalFi/instrumental-contracts/actions/workflows/main.yml/badge.svg)](https://github.com/InstrumentalFi/instrumental-contracts/actions/workflows/main.yml)
+[![Coverage](https://github.com/InstrumentalFi/instrumental-contracts/actions/workflows/coverage.yml/badge.svg)](https://github.com/InstrumentalFi/instrumental-contracts/actions/workflows/coverage.yml)
+[![codecov](https://codecov.io/github/InstrumentalFi/instrumental-contracts/branch/main/graph/badge.svg?token=dH6ikLs46M)](https://codecov.io/github/InstrumentalFi/instrumental-contracts/
 
 This repository contains the source code for the Pablo Vault and Fee Distribution Contracts.
 
@@ -122,7 +122,13 @@ cargo make test
 
 ## Deployments
 
-TODO
+| chain   | contract    | code id | git commit                               |
+|---------|-------------|---------|------------------------------------------|
+| osmosis | liquidator  |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
+| neutron | staking     |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
+| neutron | collector   |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
+| neutron | distributor |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
+
 
 ## License
 
