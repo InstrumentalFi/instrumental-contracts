@@ -122,12 +122,12 @@ cargo make test
 
 ## Deployments
 
-| chain   | contract    | code id | git commit                               |
-|---------|-------------|---------|------------------------------------------|
-| osmosis | liquidator  |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
-| neutron | staking     |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
-| neutron | collector   |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
-| neutron | distributor |         | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc |
+| chain   | contract    | code id | git commit                               | store tx                                                                                                                                                                         |
+|---------|-------------|---------|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| osmosis | liquidator  | 398     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [9734C67B5E046BA7AE57D566BFB8FCD7611C842A1D4063CA03D81D4636670C12](https://celatone.osmosis.zone/osmosis-1/txs/9734C67B5E046BA7AE57D566BFB8FCD7611C842A1D4063CA03D81D4636670C12) |
+| neutron | collector   | 603     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [D2CDBB27AC03976D239852E01ED43CEB5100574AA4192677E64AC1E4248515A8](https://neutron.celat.one/neutron-1/txs/D2CDBB27AC03976D239852E01ED43CEB5100574AA4192677E64AC1E4248515A8)     |
+| neutron | staking     | 604     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [6DA9CAC7377E8D9EBD567E2372A79D8AAD2354D31871586E6AC2927F4E238B95](https://neutron.celat.one/neutron-1/txs/6DA9CAC7377E8D9EBD567E2372A79D8AAD2354D31871586E6AC2927F4E238B95)     |
+| neutron | distributor | 605     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [FD8A8BA705181B0FFD351B27AEE8DA405D844F972EF67535C5BD7595205D3051](https://neutron.celat.one/neutron-1/txs/FD8A8BA705181B0FFD351B27AEE8DA405D844F972EF67535C5BD7595205D3051)     |
 
 
 ## License
