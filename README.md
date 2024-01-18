@@ -146,13 +146,23 @@ cargo make test
 
 ## Deployments
 
+### Code ids
+
 | chain   | contract    | code id | git commit                               | store tx                                                                                                                                                                         |
 | ------- | ----------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | osmosis | liquidator  | 398     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [9734C67B5E046BA7AE57D566BFB8FCD7611C842A1D4063CA03D81D4636670C12](https://celatone.osmosis.zone/osmosis-1/txs/9734C67B5E046BA7AE57D566BFB8FCD7611C842A1D4063CA03D81D4636670C12) |
 | neutron | collector   | 603     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [D2CDBB27AC03976D239852E01ED43CEB5100574AA4192677E64AC1E4248515A8](https://neutron.celat.one/neutron-1/txs/D2CDBB27AC03976D239852E01ED43CEB5100574AA4192677E64AC1E4248515A8)     |
 | neutron | staking     | 604     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [6DA9CAC7377E8D9EBD567E2372A79D8AAD2354D31871586E6AC2927F4E238B95](https://neutron.celat.one/neutron-1/txs/6DA9CAC7377E8D9EBD567E2372A79D8AAD2354D31871586E6AC2927F4E238B95)     |
 | neutron | distributor | 605     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [FD8A8BA705181B0FFD351B27AEE8DA405D844F972EF67535C5BD7595205D3051](https://neutron.celat.one/neutron-1/txs/FD8A8BA705181B0FFD351B27AEE8DA405D844F972EF67535C5BD7595205D3051)     |
-| neutron | cw20        | 640     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [FD8A8BA705181B0FFD351B27AEE8DA405D844F972EF67535C5BD7595205D3051](https://neutron.celat.one/neutron-1/txs/29136027A18998DBE7919040C5D79CA5B6F4D66FBD2D5C877E36C8DFEADA7DF9)     |
+| neutron | cw20        | 640     | 27aad556a2c6ac6dbb3a4c078fc523982c2b02dc | [29136027A18998DBE7919040C5D79CA5B6F4D66FBD2D5C877E36C8DFEADA7DF9](https://neutron.celat.one/neutron-1/txs/29136027A18998DBE7919040C5D79CA5B6F4D66FBD2D5C877E36C8DFEADA7DF9)     |
+
+### Instances
+
+| chain   | code id | contract label                       | contract address                                                   | instantiate tx                                                                                                                                                               |
+| ------- | ------- | ------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| neutron | 603     | Instrumental Collector Test v0.1.0   | neutron1rj7qq3gdy9vlj2lcetcljfqkl0we4wyy0v39008j46dgkntcy08sd6973f | [CDA0E3D8804F568C6C62A57C50D72DB472C83CCCC97C533BAF098D764134344C](https://neutron.celat.one/neutron-1/txs/CDA0E3D8804F568C6C62A57C50D72DB472C83CCCC97C533BAF098D764134344C) |
+| neutron | 604     | Instrumental Staking Test v0.1.0     | neutron1grhgwckx25xc74w46g9px02d6puwf89ecaet04c8jq6jd7r4hycq06pcqf | [0519C8CAFB144BB9572CC34F3D2AA6347E6D9218CA99EEFFE8EB66C13A90ECEB](https://neutron.celat.one/neutron-1/txs/0519C8CAFB144BB9572CC34F3D2AA6347E6D9218CA99EEFFE8EB66C13A90ECEB) |
+| neutron | 605     | Instrumental Distributor Test v0.1.0 | neutron1q780umshmr5jnwngyulfnyds6tymdwxpxhadl4w2nugk3826n70sd4res8 | [F90C7BC588703759FDC5990114AFB672A4ED5DDC9EC58F2C56ADBFD77C78F356](https://neutron.celat.one/neutron-1/txs/F90C7BC588703759FDC5990114AFB672A4ED5DDC9EC58F2C56ADBFD77C78F356) |
 
 ## License
 
